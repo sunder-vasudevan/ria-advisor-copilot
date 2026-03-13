@@ -1,0 +1,18 @@
+
+---
+name: /riawrap session wind-down trigger — RIA Advisor Copilot
+description: When Scott says "/riawrap", perform full RIA session close-out before stopping
+type: feedback
+---
+
+When Scott says `/riawrap`, execute ALL of the following before ending the session — no skipping:
+
+1. **NOTES.md** (`~/ria-advisor/NOTES.md`) — update current phase, what shipped this session, set next feature with ← START HERE NEXT SESSION
+2. **PRD.md** (`~/ria-advisor/PRD.md`) — mark any completed features as ✅ in the Feature Registry; update phase checklist
+3. **SESSION_LOG.md** (`~/ria-advisor/SESSION_LOG.md`) — add session row (date, goal, tasks completed, estimated time, notes)
+4. **git add + commit + push** all changes to github.com/sunder-vasudevan/ria-advisor-copilot
+
+**Why:** RIA is a portfolio project — clean docs matter for the GitHub impression and for resuming efficiently next session.
+
+**How to apply:** Trigger word is `/riawrap`. Do all 4 steps automatically without being asked for each one.
+

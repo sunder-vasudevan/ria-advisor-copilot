@@ -9,6 +9,7 @@ When Scott says `/riastart`, perform a session briefing BEFORE doing any other w
 1. Read `~/ria-advisor/NOTES.md` — current phase, last shipped, next feature
 2. Read the last session row in `~/ria-advisor/SESSION_LOG.md` — what happened last session
 3. Read `~/ria-advisor/PRD.md` Section 6 (Build Phases) — check Phase 2 priority queue
+4. Start the app by running `bash ~/ria-advisor/start.sh` in the background
 
 Then output a **concise briefing** in this format:
 

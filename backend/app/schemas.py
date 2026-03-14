@@ -115,6 +115,20 @@ class CopilotResponse(BaseModel):
     action_type: str = "copilot_query"
 
 
+# ─── Goal Projection ─────────────────────────────────────────────────────────
+
+class GoalProjection(BaseModel):
+    goal_id: int
+    goal_name: str
+    target_amount: float
+    target_date: date
+    base_probability_pct: float     # original stored probability
+    projected_probability_pct: float  # recalculated with what-if params
+    monthly_sip: float              # adjusted SIP used in simulation
+    assumed_return_rate: float      # annual return rate used
+    years_to_goal: float            # adjusted timeline
+
+
 # ─── Briefing ────────────────────────────────────────────────────────────────
 
 class BriefingClientSummary(BaseModel):

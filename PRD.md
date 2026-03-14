@@ -248,6 +248,20 @@ Priority order:
 | FEAT-202 | Rebalancing proposal engine | Closes recommendation loop |
 | FEAT-101 | Edit client data | Currently read-only |
 
+#### Phase 2 Milestone — Production Deploy (before external demos)
+**Goal:** Live URL to share for demos — no local setup required.
+
+| Step | Task |
+|------|------|
+| 1 | Provision Supabase project, create PostgreSQL DB |
+| 2 | Run Alembic migrations against Supabase |
+| 3 | Seed production DB with 20 clients |
+| 4 | Deploy backend to Railway (point `DATABASE_URL` at Supabase) |
+| 5 | Deploy frontend to Vercel (point `VITE_API_URL` at Railway backend) |
+| 6 | Smoke test the North Star demo scenario end-to-end |
+
+**Do this after FEAT-503** (what-if flow complete) so the deploy is demo-worthy.
+
 ### Phase 3 — Pilot Readiness
 | FEAT ID | Feature |
 |---------|---------|
@@ -274,13 +288,13 @@ Priority order:
 | Backend | Python + FastAPI |
 | ORM | SQLAlchemy + Alembic |
 | DB (local) | SQLite |
-| DB (prod) | PostgreSQL via Railway |
+| DB (prod) | PostgreSQL via Supabase |
 | AI | Anthropic Claude API — `claude-sonnet-4-6` |
 | Frontend | React 18 + Vite |
 | Styling | Tailwind CSS v3 |
 | Charts | Recharts |
 | Icons | Lucide React |
-| Hosting | Railway (backend) + Vercel (frontend) |
+| Hosting | Railway (backend) + Supabase (PostgreSQL) + Vercel (frontend) |
 | MF Data | MFAPI.in (Phase 2) |
 | Auth | Auth0 or Clerk (Phase 3) |
 

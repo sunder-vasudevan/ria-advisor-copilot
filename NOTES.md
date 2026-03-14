@@ -7,7 +7,7 @@
 
 ## Current State
 **Phase:** 1 — Demo Core ✅ COMPLETE
-**Repo:** https://github.com/sunder-vasudevan/ria-advisor-copilot
+**Repo:** https://github.com/sunder-vasudevan/aria-advisor
 **Local:** `~/ria-advisor`
 
 ## What's Built
@@ -28,11 +28,11 @@
 - Feeds into FEAT-503 (live recalculation as sliders move — debounced)
 
 ## What Shipped Last Session
-**FEAT-501** ✅ — Monte Carlo simulation backend
-- `backend/app/simulation.py` — Monte Carlo engine (1000 simulations, ±5% vol)
-- `GET /clients/{id}/goal-projection?sip_delta=0&return_rate=0.12&years_delta=0` — live and tested
-- New `GoalProjection` schema in `schemas.py`
-- Returns base vs projected probability for all client goals
+**ARIA Rebrand** ✅ — Full product rename
+- Product named: **ARIA — Advisor Relationship Intelligence Assistant**
+- Tagline: *"Know before they call. Relationships, backed by intelligence."*
+- Updated: PRD.md, NOTES.md, UI headers (ClientList + Client360), browser title, GitHub repo renamed to `aria-advisor`, git remote updated
+- Cross-project time tracking system set up in `~/.claude/CROSS_PROJECT_TIME_LOG.md`
 
 ## Open Flags
 - **Deployment not live** — app runs locally only. Need to deploy before showing externally (see PRD Phase 2 — Deploy milestone)

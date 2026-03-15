@@ -6,7 +6,7 @@
 > *"Know before they call. Relationships, backed by intelligence."*
 
 ## Current State
-**Phase:** 1 — Demo Core ✅ COMPLETE
+**Phase:** 2 — USP Depth 🔶 IN PROGRESS
 **Repo:** https://github.com/sunder-vasudevan/aria-advisor
 **Local:** `~/ria-advisor`
 
@@ -20,19 +20,20 @@
 - **Not yet live** — deployment is a Phase 2 milestone (needed before external demos)
 
 ## Next Feature ← START HERE NEXT SESSION
-**FEAT-502** — What-if sliders UI (feeds off FEAT-501 which is done)
-- Add a sliders panel to the Goals section in Client 360
-- Three sliders: SIP delta (±₹50k), return rate (6–18%), years delta (-2 to +5)
-- On slide → call `GET /clients/{id}/goal-projection` with current slider values
-- Show projected probability next to the base probability (before/after)
-- Feeds into FEAT-503 (live recalculation as sliders move — debounced)
+**FEAT-503** — Live goal probability recalculation
+- Trigger projection calls automatically as sliders move (debounced, no manual button)
+- Keep request load controlled (debounce + last-request-wins handling)
+- Update each goal card instantly with scenario probability and delta
+- Preserve current “Run scenario” behavior as fallback only if needed
+- This closes the core what-if interaction loop for demos
 
-## What Shipped Last Session
-**ARIA Rebrand** ✅ — Full product rename
-- Product named: **ARIA — Advisor Relationship Intelligence Assistant**
-- Tagline: *"Know before they call. Relationships, backed by intelligence."*
-- Updated: PRD.md, NOTES.md, UI headers (ClientList + Client360), browser title, GitHub repo renamed to `aria-advisor`, git remote updated
-- Cross-project time tracking system set up in `~/.claude/CROSS_PROJECT_TIME_LOG.md`
+## What Shipped This Session
+**Phase 2 status sync + wrap updates** ✅
+- Confirmed FEAT-501 is implemented (`GET /clients/{id}/goal-projection` with Monte Carlo simulation)
+- Confirmed FEAT-502 is implemented (What-if sliders UI in Goals panel)
+- Updated PRD status + API registry to reflect live scope accurately
+- Performed session close-out updates for NOTES/PRD/SESSION_LOG
 
 ## Open Flags
 - **Deployment not live** — app runs locally only. Need to deploy before showing externally (see PRD Phase 2 — Deploy milestone)
+- **Startup stability check needed** — observed backend runtime error during `riastart` (`unexpected keyword argument 'proxies'`) that needs dependency/version triage next session

@@ -171,8 +171,8 @@ This scenario must work end-to-end for every demo:
 | Probability bar with color coding | ✅ | — | Green ≥80%, amber ≥70%, red <70% |
 | SIP status and missed SIP alert | ✅ | — | Days since last SIP |
 | Time to target date display | ✅ | — | Years + month/year |
-| Monte Carlo simulation engine | ⬜ | FEAT-501 | Backend endpoint, configurable assumptions |
-| What-if sliders UI | ⬜ | FEAT-502 | SIP / timeline / market return sliders |
+| Monte Carlo simulation engine | ✅ | FEAT-501 | Backend endpoint live at `/clients/{id}/goal-projection` |
+| What-if sliders UI | ✅ | FEAT-502 | Goals tab includes SIP/return/timeline slider scenario panel |
 | Live goal probability recalculation | ⬜ | FEAT-503 | Real-time update as sliders move |
 | SIP projection calculator | ⬜ | FEAT-504 | "Required SIP to hit goal" |
 | Goal underfunding gap alert | ⬜ | FEAT-505 | "₹8,200/month more needed" |
@@ -241,8 +241,8 @@ Priority order:
 
 | FEAT ID | Feature | Why Now |
 |---------|---------|---------|
-| FEAT-501 | Monte Carlo simulation backend | Core of what-if USP |
-| FEAT-502 | What-if sliders UI | Most demo-able feature |
+| FEAT-501 | Monte Carlo simulation backend | ✅ Complete |
+| FEAT-502 | What-if sliders UI | ✅ Complete |
 | FEAT-503 | Live goal probability recalculation | Completes the flow |
 | FEAT-301 | Book-level copilot questions | Second biggest USP |
 | FEAT-302 | Formal recommendation cards | Makes RM workflow real |
@@ -331,6 +331,7 @@ Client
 | GET | `/clients/{id}` | Full Client 360 |
 | GET | `/clients/{id}/holdings` | Holdings list |
 | GET | `/clients/{id}/goals` | Goals with SIP status |
+| GET | `/clients/{id}/goal-projection` | Monte Carlo what-if projection |
 | GET | `/clients/{id}/situation` | AI situation summary |
 | POST | `/clients/{id}/copilot` | Copilot chat |
 | GET | `/briefing/{rm_id}` | Morning briefing |
@@ -340,7 +341,6 @@ Client
 | Method | Path | FEAT ID |
 |--------|------|---------|
 | POST | `/copilot/book` | FEAT-301 |
-| GET | `/clients/{id}/goal-projection` | FEAT-501 |
 | GET | `/clients/{id}/rebalancing` | FEAT-202 |
 | PUT | `/clients/{id}` | FEAT-101 |
 | POST | `/clients/{id}/recommendations` | FEAT-302 |

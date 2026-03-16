@@ -92,6 +92,7 @@ export default function ClientList() {
           >
             Sign out
           </button>
+          <div className="text-navy-700 text-xs mt-3">v1.2</div>
         </div>
       </div>
 

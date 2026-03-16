@@ -88,6 +88,10 @@ export default function AdvisorLogin() {
             Client? Sign in to your portal →
           </Link>
         </div>
+
+        <div className="text-center mt-4">
+          <span className="text-navy-700 text-xs">ARIA v1.2</span>
+        </div>
       </div>
     </div>
   )

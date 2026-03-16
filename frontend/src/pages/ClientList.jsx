@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, RefreshCw, Bell } from 'lucide-react'
+import { AlertTriangle, TrendingUp, ChevronRight, RefreshCw, Bell, CheckCircle } from 'lucide-react'
 import { getClients, getBriefing, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 
@@ -142,28 +142,27 @@ export default function ClientList() {
                 <p className="text-sm text-navy-900 leading-relaxed">{briefing.overall_narrative}</p>
               </div>
 
-              {/* Per-client rows */}
+              {/* Needs attention — per-client rows */}
               {briefing.clients && briefing.clients.length > 0 && (
                 <div className="divide-y divide-gray-100">
+                  <div className="px-5 py-2 bg-red-50 flex items-center gap-1.5">
+                    <AlertTriangle size={11} className="text-red-500" />
+                    <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">Needs Attention</span>
+                  </div>
                   {briefing.clients.map(c => (
                     <div
                       key={c.client_id}
                       onClick={() => navigate(`/clients/${c.client_id}`)}
                       className="flex items-start gap-3 px-5 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
                     >
-                      {/* Severity dot */}
                       <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${
-                        c.urgency_flags.some(f => f.severity === 'high')
-                          ? 'bg-red-500'
-                          : 'bg-amber-400'
+                        c.urgency_flags.some(f => f.severity === 'high') ? 'bg-red-500' : 'bg-amber-400'
                       }`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-gray-900">{c.name}</span>
                           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                            c.segment === 'HNI'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-gray-100 text-gray-600'
+                            c.segment === 'HNI' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
                           }`}>{c.segment}</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5 leading-snug">{c.summary}</p>
@@ -173,6 +172,35 @@ export default function ClientList() {
                   ))}
                 </div>
               )}
+
+              {/* On track — green section */}
+              {(() => {
+                const briefingIds = new Set((briefing.clients || []).map(c => c.client_id))
+                const onTrack = clients.filter(c => !briefingIds.has(c.id))
+                if (onTrack.length === 0) return null
+                return (
+                  <div className="border-t border-gray-100">
+                    <div className="px-5 py-2 bg-green-50 flex items-center gap-1.5">
+                      <CheckCircle size={11} className="text-green-600" />
+                      <span className="text-xs font-semibold text-green-700 uppercase tracking-wider">
+                        All Clear — {onTrack.length} client{onTrack.length !== 1 ? 's' : ''} on track
+                      </span>
+                    </div>
+                    <div className="px-5 py-3 flex flex-wrap gap-2">
+                      {onTrack.map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => navigate(`/clients/${c.id}`)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs font-medium text-green-800 hover:bg-green-100 transition-colors"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          {c.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
         </div>

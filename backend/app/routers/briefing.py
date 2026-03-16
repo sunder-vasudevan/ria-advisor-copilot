@@ -20,6 +20,16 @@ def _fmt_value(v: float) -> str:
 
 @router.get("/{rm_id}", response_model=BriefingResponse)
 def morning_briefing(rm_id: str, db: Session = Depends(get_db)):
+    try:
+        return _morning_briefing_inner(rm_id, db)
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        raise HTTPException(status_code=500, detail=f"Briefing error: {type(e).__name__}: {str(e)}\n{traceback.format_exc()}")
+
+
+def _morning_briefing_inner(rm_id: str, db: Session):
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not configured")

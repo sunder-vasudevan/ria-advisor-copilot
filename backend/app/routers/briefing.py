@@ -83,14 +83,16 @@ Rules:
 - Summaries should tell the RM what action to take, not just describe the problem
 """
 
-    ai_client = anthropic.Anthropic(api_key=api_key)
-    response = ai_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=800,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    ai_text = response.content[0].text.strip()
+    try:
+        ai_client = anthropic.Anthropic(api_key=api_key)
+        response = ai_client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        ai_text = response.content[0].text.strip()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Claude API error: {str(e)}")
 
     # Parse JSON from response
     import json, re

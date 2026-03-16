@@ -48,7 +48,7 @@ export default function ClientList() {
     setBriefingLoading(true)
     getBriefing()
       .then(setBriefing)
-      .catch(() => alert('Briefing unavailable — check ANTHROPIC_API_KEY'))
+      .catch(err => alert(`Briefing unavailable — ${err?.response?.data?.detail || err.message || 'check ANTHROPIC_API_KEY'}`))
       .finally(() => setBriefingLoading(false))
   }
 

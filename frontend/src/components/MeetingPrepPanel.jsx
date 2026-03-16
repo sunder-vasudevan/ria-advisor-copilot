@@ -19,7 +19,7 @@ export default function MeetingPrepPanel({ clientId, clientName, onClose }) {
   useEffect(() => {
     getMeetingPrep(clientId)
       .then(setData)
-      .catch(() => setError('Failed to generate meeting prep. Check ANTHROPIC_API_KEY.'))
+      .catch(err => setError(`Failed to generate meeting prep — ${err?.response?.data?.detail || err.message || 'unknown error'}`))
       .finally(() => setLoading(false))
   }, [clientId])
 

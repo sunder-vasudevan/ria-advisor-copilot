@@ -57,14 +57,16 @@ Rules:
 - Talking points are for the RM to say, not direct instructions to the client
 """
 
-    ai_client = anthropic.Anthropic(api_key=api_key)
-    response = ai_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1200,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    ai_text = response.content[0].text.strip()
+    try:
+        ai_client = anthropic.Anthropic(api_key=api_key)
+        response = ai_client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1200,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        ai_text = response.content[0].text.strip()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Claude API error: {str(e)}")
 
     json_match = re.search(r'\{.*\}', ai_text, re.DOTALL)
     if json_match:

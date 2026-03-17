@@ -380,7 +380,7 @@ export default function ClientForm() {
           <div className="text-white font-semibold text-base">
             {isEdit ? 'Edit Client' : 'Add New Client'}
           </div>
-          <div className="text-navy-400 text-xs">FEAT-102 / FEAT-108 / FEAT-109</div>
+          <div className="text-navy-400 text-xs">Client Onboarding</div>
         </div>
       </div>
 

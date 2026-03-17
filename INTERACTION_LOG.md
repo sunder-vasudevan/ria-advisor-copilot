@@ -7,10 +7,10 @@
 
 | Project | Sessions | Total Time | Device(s) |
 |---------|----------|------------|-----------|
-| ARIA    | 5        | ~5h 45m    | Mac mini  |
+| ARIA    | 6        | ~6h 15m    | Mac mini  |
 | BzHub   | —        | —          | —         |
 
-**Grand Total: ~5h 45m**
+**Grand Total: ~6h 15m**
 
 ---
 
@@ -83,6 +83,27 @@
 | Green "All Clear" section in briefing | ~10 min |
 | Client interaction capture brainstorm + NOTES | ~10 min |
 | **Total** | **~1h 45m** |
+
+---
+
+### Session 6 — 2026-03-16 · Mac mini
+**Goal:** Mobile-responsive layout across the full app (FEAT-407)
+
+| Task | Time |
+|------|------|
+| Assess all pages, plan breakpoints + mobile UX approach | ~5 min |
+| ClientList — mobile top nav + card-based client list | ~10 min |
+| Client360 — mobile top bar, extra Info/AI Copilot tabs, hide sidebars | ~10 min |
+| MeetingPrepPanel + ClientPortal — minor responsive fixes | ~3 min |
+| index.css — scrollbar-none utility | ~1 min |
+| Memory — save mobile-first as universal standing rule | ~1 min |
+| Session wrap (NOTES, PRD, SESSION_LOG, INTERACTION_LOG) | ~5 min |
+| **Total** | **~35 min** |
+
+**Prompts this session:**
+1. "can we make the aria app mobile compatible? can you add this as universal feature across all projects?"
+2. "ok" (approved plan)
+3. "riawrap"
 
 ---
 

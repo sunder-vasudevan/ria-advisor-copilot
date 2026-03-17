@@ -10,6 +10,7 @@
 **Version:** v1.2
 **Repo:** https://github.com/sunder-vasudevan/aria-advisor
 **Local:** `/Users/sunnyhayes/Daytona/aria-advisor`
+**Mobile:** ✅ Fully responsive (iOS + Android web)
 
 ## Deployed URLs
 - **Frontend:** https://aria-advisor.vercel.app (Vercel)
@@ -25,6 +26,17 @@
 - ARIA_USP_WF.md — benchmarking vs Wells Fargo Advisors
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
+
+## What Shipped This Session (2026-03-18)
+- Full mobile-responsive layout across all pages ✅
+  - ClientList: mobile top nav + card-based client list
+  - Client360: mobile top bar, extra tabs (Client Info + AI Copilot), sidebars hidden on mobile
+  - MeetingPrepPanel: full-width on mobile
+  - ClientPortal: tighter padding on small screens
+- Mobile-first saved as universal standing rule (all future projects) ✅
+- Git pushed → Vercel auto-deployed ✅
+
+---
 
 ## Next Session Agenda ← START HERE NEXT SESSION
 

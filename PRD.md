@@ -166,7 +166,7 @@ This scenario must work end-to-end for every demo:
 | Client communication log | ⬜ | FEAT-404 | Call/email/meeting history — WF uses Salesforce for this; ARIA bakes it in natively |
 | RM dashboard (book-level stats) | ⬜ | FEAT-405 | AUM, flag counts, segment breakdown — WF spreads this across 5 tools |
 | PDF/Excel export | ⬜ | FEAT-406 | Client reports, statements |
-| Mobile-responsive layout | ⬜ | FEAT-407 | Phase 3+ |
+| Mobile-responsive layout | ✅ | FEAT-407 | Mobile top nav, card list, extra tabs on Client360 |
 
 ---
 
@@ -424,7 +424,7 @@ Client
 | Real KYC/AML integration | Mock + define contract |
 | Core banking (live) | Middleware pitch — not replacement |
 | Payment / settlement | Out of scope entirely |
-| Mobile app | Phase 4 |
+| Mobile app (native) | Phase 4 — web is now mobile-responsive |
 | Multiple RM users / RBAC | Demo uses hardcoded RM |
 
 ---

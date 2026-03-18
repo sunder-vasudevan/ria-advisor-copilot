@@ -149,3 +149,11 @@
 - **ARIA Whitepaper** ✅ — ARIA_WHITEPAPER.md + ARIA_Whitepaper.docx (116KB) + ARIA_Executive_Deck.pptx (12 slides, 143KB)
 - **PRD**: FEAT-503 + FEAT-504 marked ✅
 - Commit: `49ec7e7`
+
+## What Shipped This Session (2026-03-18 — Session 10 / Efficiency Doc + Config)
+- **ARIA_EFFICIENCY_WHITEPAPER.md** ✅ — full case study, 9 sections + 4 appendices, git stats
+- **ARIA_Efficiency_Whitepaper.docx** ✅ — formatted Word doc: cover page, TOC field, charts, tables, footer
+- **generate_aria_efficiency_docx.py** ✅ — generator script, regenerate any time with python3
+- **~/.claude/settings.json** ✅ — `bypassPermissions` set + grep/find/head/tail/awk/cd added; restart Claude Code to activate
+- **Parking lot** ✅ — project documents template (Word/PPT/Excel) parked for future session
+- Commit: `2ae64d8`

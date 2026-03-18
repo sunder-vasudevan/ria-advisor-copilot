@@ -1,3 +1,4 @@
+import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getClient, fmt } from '../api/client'
@@ -98,7 +99,7 @@ export default function ClientPortal() {
       <div className="bg-navy-950 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div>
-            <div className="text-white font-bold text-lg tracking-tight">A-RiA</div>
+            <ARiALogo className="text-white font-bold text-lg tracking-tight" />
             <div className="text-navy-300 text-xs">Client Portal</div>
           </div>
           <div className="flex items-center gap-4">

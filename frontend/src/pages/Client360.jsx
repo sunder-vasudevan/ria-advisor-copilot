@@ -1,3 +1,4 @@
+import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getClient, createPortfolio } from '../api/client'
@@ -528,7 +529,7 @@ export default function Client360() {
                 <ArrowLeft size={14} />
                 Back to Client Book
               </button>
-              <div className="text-white font-bold text-lg tracking-tight">A-RiA</div>
+              <ARiALogo className="text-white font-bold text-lg tracking-tight" />
               <div className="text-navy-300 text-xs mt-0.5">Advisor Relationship Intelligence Assistant</div>
             </div>
 

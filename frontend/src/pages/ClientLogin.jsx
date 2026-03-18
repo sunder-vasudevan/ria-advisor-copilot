@@ -1,3 +1,4 @@
+import ARiALogo from '../components/ARiALogo'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { clientLogin } from '../auth'
@@ -27,7 +28,7 @@ export default function ClientLogin() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-white font-bold text-3xl tracking-tight">A-RiA</div>
+          <ARiALogo className="text-white font-bold text-3xl tracking-tight" />
           <div className="text-navy-300 text-sm mt-1">Client Portal</div>
         </div>
 

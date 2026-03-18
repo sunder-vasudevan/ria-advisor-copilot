@@ -108,6 +108,45 @@ def update_goal(
     return _goal_out(goal)
 
 
+class SimulateIn(BaseModel):
+    target_amount: float
+    target_date: date
+    monthly_sip: float = 0
+    return_rate: float = 0.12
+    inflation_rate: float = 0.06
+
+
+@router.post("/simulate")
+def simulate_goal(
+    payload: SimulateIn,
+    current_user: PersonalUser = Depends(get_current_personal_user),
+    db: Session = Depends(get_db),
+):
+    portfolio_value = _portfolio_value(current_user.id, db)
+    sim = monte_carlo_goal_probability(
+        current_value=portfolio_value,
+        monthly_sip=payload.monthly_sip,
+        target_amount=payload.target_amount,
+        target_date=payload.target_date,
+        annual_return_rate=payload.return_rate,
+        inflation_rate=payload.inflation_rate,
+    )
+    req_sip = find_required_sip(
+        current_value=portfolio_value,
+        target_amount=payload.target_amount,
+        target_date=payload.target_date,
+        annual_return_rate=payload.return_rate,
+        inflation_rate=payload.inflation_rate,
+    )
+    return {
+        "probability_pct": sim["probability_pct"],
+        "real_target": sim["real_target"],
+        "median_corpus": sim["median_corpus"],
+        "median_corpus_real": sim["median_corpus_real"],
+        "required_sip": req_sip,
+    }
+
+
 @router.delete("/{goal_id}", status_code=204)
 def delete_goal(
     goal_id: int,

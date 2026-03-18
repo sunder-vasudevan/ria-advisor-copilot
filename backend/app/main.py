@@ -27,6 +27,13 @@ def _run_personal_migrations():
                 conn.commit()
             except Exception:
                 pass  # Column already exists
+        # Make client_id nullable on all tables (was NOT NULL in original schema)
+        for table in ("portfolios", "goals", "life_events"):
+            try:
+                conn.execute(text(f"ALTER TABLE {table} ALTER COLUMN client_id DROP NOT NULL"))
+                conn.commit()
+            except Exception:
+                pass  # Already nullable or column doesn't exist
 
 
 def _run_migrations():

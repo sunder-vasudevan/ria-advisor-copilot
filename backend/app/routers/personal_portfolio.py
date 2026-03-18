@@ -76,14 +76,6 @@ def save_portfolio(
     current_user: PersonalUser = Depends(get_current_personal_user),
     db: Session = Depends(get_db),
 ):
-    import traceback
-    try:
-        return _save_portfolio_inner(payload, current_user, db)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}\n{traceback.format_exc()}")
-
-
-def _save_portfolio_inner(payload: PortfolioIn, current_user, db):
     # Full replace — delete existing holdings, upsert portfolio
     p = db.query(Portfolio).filter(Portfolio.personal_user_id == current_user.id).first()
 
@@ -124,4 +116,3 @@ def _save_portfolio_inner(payload: PortfolioIn, current_user, db):
     db.commit()
     db.refresh(p)
     return _portfolio_out(p)
-

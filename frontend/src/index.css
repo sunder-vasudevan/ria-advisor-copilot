@@ -7,6 +7,17 @@
     @apply bg-gray-50 text-gray-900 font-sans antialiased;
   }
 
+  td, th,
+  [class*="font-semibold"],
+  [class*="font-bold"],
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  button, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

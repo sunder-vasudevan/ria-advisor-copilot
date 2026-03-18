@@ -27,6 +27,17 @@
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
+## What Shipped This Session (2026-03-18 — Session 10)
+- **UI/UX Batch 1 — 8 fixes** ✅
+  - Fix 1: Tabular nums (`font-variant-numeric: tabular-nums`) in `@layer base` for `td`, `th`, `font-semibold`, `font-bold` elements
+  - Fix 2: Active press scale — `active:scale-[0.98]` on cards, `active:scale-[0.96]` on buttons across ClientList, Client360, MeetingPrepPanel, InteractionsPanel, CopilotChat; `-webkit-tap-highlight-color: transparent` global
+  - Fix 3: Skeleton loaders replacing text loading states in ClientList and Client360
+  - Fix 4: Touch targets — `min-h-[44px]` on Sign Out (ClientList), Back button (Client360), mobile tab bar buttons (Client360), Print/Close (MeetingPrepPanel)
+  - Fix A: Empty search state — illustrated zero-results state with clear search button in ClientList when `filtered.length === 0 && search`
+  - Fix B: CopilotChat history lifted to Client360 state — messages persist across tab switches (mobile + desktop both wired)
+  - Fix C: Interaction delete two-step confirmation — first click shows inline "Delete this interaction? / Yes, delete / Cancel", auto-cancels after 4s
+  - Fix SEC: Superadmin credentials (`sunny_hayes / aria2026`) removed from AdvisorLogin DOM; `rm_demo` hint retained
+
 ## What Shipped This Session (2026-03-18 — Session 9)
 - **FEAT-404: Client Interaction Capture** ✅
   - New `client_interactions` table (call, email, meeting, follow_up types)

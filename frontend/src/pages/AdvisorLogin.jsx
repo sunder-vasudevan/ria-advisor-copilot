@@ -82,13 +82,6 @@ export default function AdvisorLogin() {
               <span className="text-xs text-gray-400"> / </span>
               <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">aria2026</code>
             </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <span className="text-xs text-gray-400">Super Admin: </span>
-              <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">sunny_hayes</code>
-              <span className="text-xs text-gray-400"> / </span>
-              <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">aria2026</code>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold leading-none">SUPER</span>
-            </div>
           </div>
         </div>
 

@@ -77,6 +77,7 @@ export default function Client360() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('portfolio')
   const [showMeetingPrep, setShowMeetingPrep] = useState(false)
+  const [copilotMessages, setCopilotMessages] = useState(undefined)
 
   useEffect(() => {
     setLoading(true)
@@ -88,8 +89,15 @@ export default function Client360() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
-        <div className="text-white animate-pulse">Loading client data…</div>
+      <div className="flex h-screen bg-gray-50">
+        <div className="hidden lg:flex w-64 bg-navy-950 flex-col" />
+        <div className="flex-1 p-8 space-y-4">
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+          <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-64 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
+        <div className="hidden lg:flex w-80 bg-white border-l border-gray-100" />
       </div>
     )
   }
@@ -125,7 +133,7 @@ export default function Client360() {
       <div className="lg:hidden bg-navy-950 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-1.5 text-navy-300 hover:text-white text-sm transition-colors"
+          className="flex items-center gap-1.5 text-navy-300 hover:text-white text-sm transition-colors min-h-[44px] flex items-center"
         >
           <ArrowLeft size={14} />
           <span className="text-xs">Back</span>
@@ -253,7 +261,7 @@ export default function Client360() {
             </div>
             <button
               onClick={() => setShowMeetingPrep(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-navy-950 text-white text-sm font-medium rounded-lg hover:bg-navy-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-navy-950 text-white text-sm font-medium rounded-lg hover:bg-navy-800 transition-colors active:scale-[0.96] transition-transform"
             >
               <CalendarCheck size={14} />
               Prep for Meeting
@@ -273,7 +281,7 @@ export default function Client360() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px rounded-t-lg ${
+                className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px rounded-t-lg active:scale-[0.96] ${
                   activeTab === tab.key
                     ? 'border-navy-950 text-navy-950 bg-navy-50/60'
                     : 'border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50'
@@ -292,7 +300,7 @@ export default function Client360() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap ${
+                className={`px-3 py-3 text-xs font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[44px] flex items-center ${
                   activeTab === tab.key
                     ? 'border-navy-950 text-navy-950'
                     : 'border-transparent text-gray-400'
@@ -389,7 +397,7 @@ export default function Client360() {
           {/* Mobile-only: AI Copilot tab */}
           {activeTab === 'copilot' && (
             <div className="lg:hidden -mx-4 -my-5 h-[calc(100vh-280px)] min-h-[400px]">
-              <CopilotChat clientId={id} clientName={client.name} />
+              <CopilotChat clientId={id} clientName={client.name} messages={copilotMessages} onMessagesChange={setCopilotMessages} />
             </div>
           )}
         </div>
@@ -397,7 +405,7 @@ export default function Client360() {
 
       {/* ── Desktop right panel — Copilot (hidden on mobile) ── */}
       <div className="hidden lg:flex w-96 bg-white border-l border-gray-200 flex-col flex-shrink-0">
-        <CopilotChat clientId={id} clientName={client.name} />
+        <CopilotChat clientId={id} clientName={client.name} messages={copilotMessages} onMessagesChange={setCopilotMessages} />
       </div>
 
       {/* Meeting Prep slide-over */}

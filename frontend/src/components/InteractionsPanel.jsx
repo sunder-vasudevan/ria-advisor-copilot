@@ -32,12 +32,13 @@ function StatChip({ label, value, color = 'text-gray-700' }) {
   )
 }
 
-function InteractionCard({ interaction, onDelete }) {
+function InteractionCard({ interaction, onDelete, pendingDeleteId, setPendingDeleteId }) {
   const today = new Date()
   const due = interaction.next_action_due ? new Date(interaction.next_action_due) : null
   const isOverdue = due && due < today
   const daysOverdue = due ? Math.floor((today - due) / 86400000) : 0
   const m = TYPE_META[interaction.interaction_type] || TYPE_META.call
+  const isPending = pendingDeleteId === interaction.id
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
@@ -56,12 +57,20 @@ function InteractionCard({ interaction, onDelete }) {
             </span>
           )}
         </div>
-        <button
-          onClick={() => onDelete(interaction.id)}
-          className="text-gray-200 hover:text-red-400 transition-colors flex-shrink-0 p-1 rounded-lg hover:bg-red-50"
-        >
-          <Trash2 size={13} />
-        </button>
+        {isPending ? (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-red-600">Delete this interaction?</span>
+            <button onClick={() => { onDelete(interaction.id); setPendingDeleteId(null) }} className="text-red-600 font-medium hover:underline">Yes, delete</button>
+            <button onClick={() => setPendingDeleteId(null)} className="text-gray-500 hover:underline">Cancel</button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setPendingDeleteId(interaction.id)}
+            className="text-gray-200 hover:text-red-400 transition-colors flex-shrink-0 p-1 rounded-lg hover:bg-red-50"
+          >
+            <Trash2 size={13} />
+          </button>
+        )}
       </div>
 
       {/* Subject */}
@@ -298,10 +307,17 @@ export default function InteractionsPanel({ clientId }) {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
   useEffect(() => {
     getInteractions(clientId).then(setInteractions).finally(() => setLoading(false))
   }, [clientId])
+
+  useEffect(() => {
+    if (!pendingDeleteId) return
+    const t = setTimeout(() => setPendingDeleteId(null), 4000)
+    return () => clearTimeout(t)
+  }, [pendingDeleteId])
 
   const handleSave = (saved) => { setInteractions(prev => [saved, ...prev]); setShowModal(false) }
   const handleDelete = async (id) => {
@@ -334,7 +350,7 @@ export default function InteractionsPanel({ clientId }) {
           {interactions.length > 0 ? `${filtered.length} interaction${filtered.length !== 1 ? 's' : ''}` : 'Interaction Log'}
         </div>
         <button onClick={() => setShowModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-950 text-white text-xs font-semibold rounded-xl hover:bg-navy-800 transition-colors shadow-sm">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-950 text-white text-xs font-semibold rounded-xl hover:bg-navy-800 transition-colors shadow-sm active:scale-[0.96] transition-transform">
           <Plus size={12} />
           Log Interaction
         </button>
@@ -344,7 +360,7 @@ export default function InteractionsPanel({ clientId }) {
       {interactions.length > 0 && (
         <div className="flex gap-1.5 flex-wrap">
           <button onClick={() => setFilter('all')}
-            className={`px-3 py-1 text-xs rounded-full font-medium transition-colors border ${
+            className={`px-3 py-1 text-xs rounded-full font-medium transition-colors border active:scale-[0.96] transition-transform ${
               filter === 'all' ? 'bg-navy-950 text-white border-navy-950' : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
             }`}>
             All ({interactions.length})
@@ -354,7 +370,7 @@ export default function InteractionsPanel({ clientId }) {
             if (!count) return null
             return (
               <button key={key} onClick={() => setFilter(key)}
-                className={`px-3 py-1 text-xs rounded-full font-medium transition-colors border ${
+                className={`px-3 py-1 text-xs rounded-full font-medium transition-colors border active:scale-[0.96] transition-transform ${
                   filter === key ? `${m.bg} ${m.text} ${m.border}` : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                 }`}>
                 {m.label} ({count})
@@ -371,7 +387,7 @@ export default function InteractionsPanel({ clientId }) {
         <div className="text-sm text-gray-400 py-10 text-center">No {TYPE_META[filter]?.label.toLowerCase()} interactions recorded.</div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(i => <InteractionCard key={i.id} interaction={i} onDelete={handleDelete} />)}
+          {filtered.map(i => <InteractionCard key={i.id} interaction={i} onDelete={handleDelete} pendingDeleteId={pendingDeleteId} setPendingDeleteId={setPendingDeleteId} />)}
         </div>
       )}
 

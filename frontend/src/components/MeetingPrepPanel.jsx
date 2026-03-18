@@ -42,14 +42,14 @@ export default function MeetingPrepPanel({ clientId, clientName, onClose }) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.print()}
-              className="text-navy-300 hover:text-white transition-colors"
+              className="text-navy-300 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center p-2 active:scale-[0.96] transition-transform"
               title="Print"
             >
               <Printer size={16} />
             </button>
             <button
               onClick={onClose}
-              className="text-navy-300 hover:text-white transition-colors"
+              className="text-navy-300 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center p-2 active:scale-[0.96] transition-transform"
             >
               <X size={16} />
             </button>

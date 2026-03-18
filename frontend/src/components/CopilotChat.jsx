@@ -67,8 +67,10 @@ function MessageBubble({ msg }) {
   )
 }
 
-export default function CopilotChat({ clientId, clientName }) {
-  const [messages, setMessages] = useState([])
+export default function CopilotChat({ clientId, clientName, messages: externalMessages, onMessagesChange }) {
+  const [internalMessages, setInternalMessages] = useState([])
+  const messages = externalMessages ?? internalMessages
+  const setMessages = onMessagesChange ?? setInternalMessages
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef(null)
@@ -136,7 +138,7 @@ export default function CopilotChat({ clientId, clientName }) {
                 <button
                   key={i}
                   onClick={() => send(p)}
-                  className="w-full text-left text-sm text-gray-700 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-navy-300 hover:bg-navy-50 transition-colors leading-snug"
+                  className="w-full text-left text-sm text-gray-700 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-navy-300 hover:bg-navy-50 transition-colors leading-snug active:scale-[0.98] transition-transform"
                 >
                   {p}
                 </button>
@@ -189,7 +191,7 @@ export default function CopilotChat({ clientId, clientName }) {
           <button
             onClick={() => send(input)}
             disabled={!input.trim() || loading}
-            className="w-10 h-10 bg-navy-950 text-white rounded-xl flex items-center justify-center hover:bg-navy-800 disabled:opacity-40 transition-colors flex-shrink-0"
+            className="w-10 h-10 bg-navy-950 text-white rounded-xl flex items-center justify-center hover:bg-navy-800 disabled:opacity-40 transition-colors flex-shrink-0 active:scale-[0.96] transition-transform"
           >
             <Send size={14} />
           </button>

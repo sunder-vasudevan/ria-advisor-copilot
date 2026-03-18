@@ -62,8 +62,15 @@ export default function ClientList() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
-        <div className="text-white text-lg font-medium animate-pulse">Loading clients…</div>
+      <div className="flex h-screen bg-gray-50">
+        {/* sidebar skeleton */}
+        <div className="hidden md:flex w-64 bg-navy-950 flex-col" />
+        <div className="flex-1 p-8 space-y-3">
+          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-6" />
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
       </div>
     )
   }
@@ -118,7 +125,7 @@ export default function ClientList() {
           </div>
           <button
             onClick={() => { advisorLogout(); navigate('/login') }}
-            className="text-navy-400 text-xs hover:text-white transition-colors mt-2"
+            className="text-navy-400 text-xs hover:text-white transition-colors mt-2 min-h-[44px] flex items-center justify-center"
           >
             Sign out
           </button>
@@ -224,6 +231,18 @@ export default function ClientList() {
             </div>
           )}
 
+          {filtered.length === 0 && search && (
+            <div className="text-center py-16 text-gray-400">
+              <div className="mx-auto mb-3 w-8 h-8 opacity-40 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803a7.5 7.5 0 0 0 10.607 0Z" />
+                </svg>
+              </div>
+              <p className="text-sm">No clients match "{search}"</p>
+              <button onClick={() => setSearch('')} className="mt-2 text-xs text-navy-600 hover:underline">Clear search</button>
+            </div>
+          )}
+
           {viewMode === 'list' ? (
             <>
               {/* ── Mobile: card list ── */}
@@ -259,7 +278,7 @@ function ClientCard({ client, navigate }) {
   return (
     <div
       onClick={() => navigate(`/clients/${client.id}`)}
-      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:bg-gray-50 transition-colors"
+      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:bg-gray-50 active:scale-[0.98] transition-transform transition-colors"
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">

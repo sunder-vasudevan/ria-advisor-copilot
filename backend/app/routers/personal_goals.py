@@ -147,17 +147,19 @@ def simulate_goal(
     }
 
 
-@router.delete("/{goal_id}", status_code=204)
+@router.delete("/{goal_id}")
 def delete_goal(
     goal_id: int,
     current_user: PersonalUser = Depends(get_current_personal_user),
     db: Session = Depends(get_db),
 ):
+    from fastapi.responses import Response
     goal = db.query(Goal).filter(Goal.id == goal_id, Goal.personal_user_id == current_user.id).first()
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
     db.delete(goal)
     db.commit()
+    return Response(status_code=204)
 
 
 @router.get("/projection")

@@ -40,8 +40,9 @@ def create_interaction(client_id: int, payload: InteractionCreate, db: Session =
     return interaction
 
 
-@router.delete("/{client_id}/interactions/{interaction_id}", status_code=204)
+@router.delete("/{client_id}/interactions/{interaction_id}")
 def delete_interaction(client_id: int, interaction_id: int, db: Session = Depends(get_db)):
+    from fastapi.responses import Response
     interaction = db.query(ClientInteraction).filter(
         ClientInteraction.id == interaction_id,
         ClientInteraction.client_id == client_id,
@@ -50,3 +51,4 @@ def delete_interaction(client_id: int, interaction_id: int, db: Session = Depend
         raise HTTPException(status_code=404, detail="Interaction not found")
     db.delete(interaction)
     db.commit()
+    return Response(status_code=204)

@@ -84,12 +84,13 @@ def update_life_event(
     return _event_out(event)
 
 
-@router.delete("/{event_id}", status_code=204)
+@router.delete("/{event_id}")
 def delete_life_event(
     event_id: int,
     current_user: PersonalUser = Depends(get_current_personal_user),
     db: Session = Depends(get_db),
 ):
+    from fastapi.responses import Response
     event = db.query(LifeEvent).filter(
         LifeEvent.id == event_id, LifeEvent.personal_user_id == current_user.id
     ).first()
@@ -97,3 +98,4 @@ def delete_life_event(
         raise HTTPException(status_code=404, detail="Event not found")
     db.delete(event)
     db.commit()
+    return Response(status_code=204)

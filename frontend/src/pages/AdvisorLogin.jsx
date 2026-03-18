@@ -56,7 +56,7 @@ export default function AdvisorLogin() {
           </div>
         </div>
 
-        <div className="text-navy-600 text-xs">A-RiA v1.2 · Made with Love in Hyderabad</div>
+        <div className="text-navy-400 text-xs">A-RiA v1.2 · Made with ❤️ in Hyderabad</div>
       </div>
 
       {/* Right panel — form */}
@@ -128,7 +128,7 @@ export default function AdvisorLogin() {
           </div>
 
           <div className="lg:hidden text-center mt-8 text-gray-300 text-xs">
-            A-RiA v1.2 · Made with Love in Hyderabad
+            A-RiA v1.2 · Made with ❤️ in Hyderabad
           </div>
         </div>
       </div>

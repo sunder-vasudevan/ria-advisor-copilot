@@ -341,23 +341,32 @@ function GroupedView({ clients, navigate }) {
   const needsAttention = clients.filter(c => c.urgency_score > 0)
   const onTrack = clients.filter(c => c.urgency_score === 0)
 
-  const Section = ({ label, icon, color, clients: group }) => {
+  const Section = ({ label, icon, color, clients: group, defaultOpen = true }) => {
+    const [open, setOpen] = useState(defaultOpen)
     if (group.length === 0) return null
     return (
-      <div className="mb-6">
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-2 ${color}`}>
+      <div className="mb-4">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors ${color} hover:opacity-90`}
+        >
           {icon}
           <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
-          <span className="ml-auto text-xs font-bold">{group.length}</span>
-        </div>
-        {/* Mobile cards */}
-        <div className="md:hidden space-y-2">
-          {group.map(c => <ClientCard key={c.id} client={c} navigate={navigate} />)}
-        </div>
-        {/* Desktop table */}
-        <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <ClientTable clients={group} navigate={navigate} />
-        </div>
+          <span className="text-xs font-bold bg-white/40 px-1.5 py-0.5 rounded-full ml-1">{group.length}</span>
+          <ChevronRight size={13} className={`ml-auto transition-transform ${open ? 'rotate-90' : ''}`} />
+        </button>
+        {open && (
+          <div className="mt-2">
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-2">
+              {group.map(c => <ClientCard key={c.id} client={c} navigate={navigate} />)}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <ClientTable clients={group} navigate={navigate} />
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -373,12 +382,14 @@ function GroupedView({ clients, navigate }) {
         icon={<AlertTriangle size={13} className="text-red-500" />}
         color="bg-red-50 text-red-700"
         clients={needsAttention}
+        defaultOpen={true}
       />
       <Section
         label="On Track"
         icon={<CheckCircle size={13} className="text-emerald-600" />}
         color="bg-emerald-50 text-emerald-700"
         clients={onTrack}
+        defaultOpen={true}
       />
     </>
   )

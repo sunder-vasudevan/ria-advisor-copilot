@@ -41,7 +41,7 @@ function InteractionCard({ interaction, onDelete, pendingDeleteId, setPendingDel
   const isPending = pendingDeleteId === interaction.id
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
+    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-card hover:shadow-card-hover transition-shadow space-y-3">
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
@@ -187,7 +187,7 @@ function LogInteractionModal({ clientId, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-modal">
 
         {/* Modal header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10 rounded-t-2xl">

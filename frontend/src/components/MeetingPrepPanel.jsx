@@ -32,7 +32,7 @@ export default function MeetingPrepPanel({ clientId, clientName, onClose }) {
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-white shadow-2xl z-50 flex flex-col meeting-prep-panel">
+      <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-white shadow-modal z-50 flex flex-col meeting-prep-panel">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-navy-950 flex-shrink-0">
           <div>

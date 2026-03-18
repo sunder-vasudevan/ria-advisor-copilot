@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, RefreshCw, Bell, CheckCircle, UserPlus, LayoutList, Layers } from 'lucide-react'
-import { getClients, getBriefing, fmt } from '../api/client'
+import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, CheckCircle, UserPlus, LayoutList, Layers } from 'lucide-react'
+import { getClients, getBriefing, getClient, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 
 function UrgencyBadge({ flag }) {
@@ -36,7 +36,19 @@ export default function ClientList() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [viewMode, setViewMode] = useState('grouped') // 'list' | 'grouped'
+  const [briefingCollapsed, setBriefingCollapsed] = useState(false)
+  const prefetchCache = useRef({})
   const session = getAdvisorSession()
+
+  const handlePrefetch = (id) => {
+    if (!prefetchCache.current[id]) {
+      prefetchCache.current[id] = getClient(id).then(data => {
+        window.__ariaClientCache = window.__ariaClientCache || {}
+        window.__ariaClientCache[id] = data
+        return data
+      })
+    }
+  }
 
   useEffect(() => {
     getClients()
@@ -174,7 +186,7 @@ export default function ClientList() {
           </div>
 
           {/* Morning Briefing Card — desktop */}
-          {briefing && <BriefingCard briefing={briefing} clients={clients} navigate={navigate} />}
+          {briefing && <BriefingCard briefing={briefing} clients={clients} navigate={navigate} collapsed={briefingCollapsed} setCollapsed={setBriefingCollapsed} />}
         </div>
 
         {/* ── Mobile header + briefing ── */}
@@ -190,7 +202,7 @@ export default function ClientList() {
               {attentionCount} client{attentionCount !== 1 ? 's' : ''} need attention today.
             </p>
           )}
-          {briefing && <BriefingCard briefing={briefing} clients={clients} navigate={navigate} />}
+          {briefing && <BriefingCard briefing={briefing} clients={clients} navigate={navigate} collapsed={briefingCollapsed} setCollapsed={setBriefingCollapsed} />}
         </div>
 
         {/* ── Content ── */}
@@ -248,7 +260,7 @@ export default function ClientList() {
               {/* ── Mobile: card list ── */}
               <div className="md:hidden space-y-3">
                 {filtered.map(client => (
-                  <ClientCard key={client.id} client={client} navigate={navigate} />
+                  <ClientCard key={client.id} client={client} navigate={navigate} onMouseEnter={() => handlePrefetch(client.id)} />
                 ))}
                 {filtered.length === 0 && (
                   <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
@@ -256,13 +268,13 @@ export default function ClientList() {
               </div>
 
               {/* ── Desktop: table ── */}
-              <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <ClientTable clients={filtered} navigate={navigate} />
+              <div className="hidden md:block bg-white rounded-xl shadow-card border border-gray-200 overflow-hidden">
+                <ClientTable clients={filtered} navigate={navigate} onPrefetch={handlePrefetch} />
               </div>
             </>
           ) : (
             /* ── Grouped view (both mobile + desktop) ── */
-            <GroupedView clients={filtered} navigate={navigate} />
+            <GroupedView clients={filtered} navigate={navigate} onPrefetch={handlePrefetch} />
           )}
 
           <div className="mt-3 text-xs text-gray-400 text-right">
@@ -274,11 +286,12 @@ export default function ClientList() {
   )
 }
 
-function ClientCard({ client, navigate }) {
+function ClientCard({ client, navigate, onMouseEnter }) {
   return (
     <div
       onClick={() => navigate(`/clients/${client.id}`)}
-      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:bg-gray-50 active:scale-[0.98] transition-transform transition-colors"
+      onMouseEnter={onMouseEnter}
+      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer shadow-card hover:shadow-card-hover active:bg-gray-50 active:scale-[0.98] transition-all"
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
@@ -304,7 +317,7 @@ function ClientCard({ client, navigate }) {
   )
 }
 
-function ClientTable({ clients, navigate }) {
+function ClientTable({ clients, navigate, onPrefetch }) {
   if (clients.length === 0) {
     return <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
   }
@@ -324,6 +337,7 @@ function ClientTable({ clients, navigate }) {
           <tr
             key={client.id}
             onClick={() => navigate(`/clients/${client.id}`)}
+            onMouseEnter={() => onPrefetch && onPrefetch(client.id)}
             className="hover:bg-gray-50 cursor-pointer transition-colors"
           >
             <td className="px-6 py-4">
@@ -356,7 +370,7 @@ function ClientTable({ clients, navigate }) {
   )
 }
 
-function GroupedView({ clients, navigate }) {
+function GroupedView({ clients, navigate, onPrefetch }) {
   const needsAttention = clients.filter(c => c.urgency_score > 0)
   const onTrack = clients.filter(c => c.urgency_score === 0)
 
@@ -378,11 +392,11 @@ function GroupedView({ clients, navigate }) {
           <div className="mt-2">
             {/* Mobile cards */}
             <div className="md:hidden space-y-2">
-              {group.map(c => <ClientCard key={c.id} client={c} navigate={navigate} />)}
+              {group.map(c => <ClientCard key={c.id} client={c} navigate={navigate} onMouseEnter={() => onPrefetch && onPrefetch(c.id)} />)}
             </div>
             {/* Desktop table */}
-            <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <ClientTable clients={group} navigate={navigate} />
+            <div className="hidden md:block bg-white rounded-xl shadow-card border border-gray-200 overflow-hidden">
+              <ClientTable clients={group} navigate={navigate} onPrefetch={onPrefetch} />
             </div>
           </div>
         )}
@@ -414,16 +428,21 @@ function GroupedView({ clients, navigate }) {
   )
 }
 
-function BriefingCard({ briefing, clients, navigate }) {
+function BriefingCard({ briefing, clients, navigate, collapsed, setCollapsed }) {
   return (
-    <div className="mt-4 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="mt-4 bg-white border border-gray-200 rounded-xl shadow-card overflow-hidden">
       {/* Briefing header */}
       <div className="flex items-center gap-2 px-5 py-3 bg-navy-950 border-b border-navy-800">
         <Bell size={13} className="text-navy-300" />
         <span className="text-sm font-semibold text-white">{briefing.headline}</span>
         <span className="ml-auto text-xs text-navy-400">{briefing.date}</span>
+        <button onClick={() => setCollapsed(c => !c)} className="p-1 hover:bg-navy-800 rounded transition-colors ml-2">
+          <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`} />
+        </button>
       </div>
 
+      {!collapsed && (
+        <>
       {/* Narrative */}
       <div className="px-5 py-3 bg-navy-50 border-b border-gray-100">
         <p className="text-sm text-navy-900 leading-relaxed">{briefing.overall_narrative}</p>
@@ -488,6 +507,8 @@ function BriefingCard({ briefing, clients, navigate }) {
           </div>
         )
       })()}
+        </>
+      )}
     </div>
   )
 }

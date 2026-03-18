@@ -10,15 +10,18 @@ function ProbabilityRing({ pct }) {
   const textColor = pct >= 80 ? 'text-emerald-600' : pct >= 70 ? 'text-amber-600' : 'text-red-600'
 
   return (
-    <div className="relative w-14 h-14 flex-shrink-0">
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 52 52">
-        <circle cx="26" cy="26" r={r} fill="none" stroke="#f3f4f6" strokeWidth="4" />
-        <circle cx="26" cy="26" r={r} fill="none" stroke={color} strokeWidth="4"
-          strokeDasharray={`${filled} ${circ - filled}`} strokeLinecap="round" />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`text-xs font-bold ${textColor}`}>{pct.toFixed(0)}%</span>
+    <div className="flex flex-col items-center flex-shrink-0">
+      <div className="relative w-14 h-14">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r={r} fill="none" stroke="#f3f4f6" strokeWidth="4" />
+          <circle cx="26" cy="26" r={r} fill="none" stroke={color} strokeWidth="4"
+            strokeDasharray={`${filled} ${circ - filled}`} strokeLinecap="round" />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`text-xs font-bold ${textColor}`}>{pct.toFixed(0)}%</span>
+        </div>
       </div>
+      <p className="text-xs text-gray-400 text-center mt-1 leading-tight">chance of<br/>reaching goal</p>
     </div>
   )
 }
@@ -94,7 +97,7 @@ export default function GoalsPanel({ clientId, goals }) {
     <div className="space-y-4">
 
       {/* What-if panel */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-card overflow-hidden">
         <button
           onClick={() => setScenarioOpen(o => !o)}
           className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors"
@@ -152,7 +155,7 @@ export default function GoalsPanel({ clientId, goals }) {
         const delta = projection ? projection.projected_probability_pct - projection.base_probability_pct : null
 
         return (
-          <div key={g.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${
+          <div key={g.id} className={`bg-white rounded-2xl border shadow-card overflow-hidden ${
             urgent ? 'border-red-200' : 'border-gray-200'
           }`}>
             {urgent && <div className="h-1 bg-gradient-to-r from-red-400 to-red-600" />}

@@ -28,6 +28,16 @@
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
 ## What Shipped This Session (2026-03-18 — Session 10)
+- **UI/UX Batch 2 — 8 fixes** ✅
+  - Fix 5: Prefetch on hover — `handlePrefetch` via `useRef` cache in ClientList; `window.__ariaClientCache` populated on hover, checked in Client360 useEffect for instant render
+  - Fix 6: Layered shadow tokens — `shadow-card`, `shadow-modal`, `shadow-card-hover` added to tailwind.config; applied across all card elements, modals, and hover states
+  - Fix 7: text-wrap — `h1-h4 { text-wrap: balance }` and `p { text-wrap: pretty }` added to `@layer base` in index.css
+  - Fix D: PortfolioChart empty state — guard against no holdings / all-zero values; shows illustrated empty state with pie icon
+  - Fix E: Goal ring context label — "chance of / reaching goal" sub-label added below ProbabilityRing SVG in GoalsPanel
+  - Fix F: Life events sorted descending — spread + sort by `event_date` desc before `.map()` in Client360 events tab
+  - Fix G: Morning briefing collapsible — `briefingCollapsed` state, ChevronDown toggle in BriefingCard header
+  - Fix H: Locked tab tooltip — `title` attribute on disabled Portfolio/Goals tabs in ClientForm
+  - Fix I: Scenario before/after on ring — ⏸ Deferred (requires complex SVG dual-arc work)
 - **UI/UX Batch 1 — 8 fixes** ✅
   - Fix 1: Tabular nums (`font-variant-numeric: tabular-nums`) in `@layer base` for `td`, `th`, `font-semibold`, `font-bold` elements
   - Fix 2: Active press scale — `active:scale-[0.98]` on cards, `active:scale-[0.96]` on buttons across ClientList, Client360, MeetingPrepPanel, InteractionsPanel, CopilotChat; `-webkit-tap-highlight-color: transparent` global

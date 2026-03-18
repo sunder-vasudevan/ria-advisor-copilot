@@ -392,6 +392,7 @@ export default function ClientForm() {
               key={idx}
               type="button"
               disabled={tab.locked}
+              title={tab.locked ? "Save Identity & Risk Profile first to unlock" : undefined}
               onClick={() => !tab.locked && setActiveTab(idx)}
               className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                 ${activeTab === idx

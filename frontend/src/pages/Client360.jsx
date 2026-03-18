@@ -81,9 +81,18 @@ export default function Client360() {
 
   useEffect(() => {
     setLoading(true)
+    const cached = window.__ariaClientCache?.[id]
+    if (cached) {
+      setClient(cached)
+      setLoading(false)
+    }
     getClient(id)
-      .then(setClient)
-      .catch(() => setError('Failed to load client'))
+      .then(data => {
+        setClient(data)
+        window.__ariaClientCache = window.__ariaClientCache || {}
+        window.__ariaClientCache[id] = data
+      })
+      .catch(() => { if (!cached) setError('Failed to load client') })
       .finally(() => setLoading(false))
   }, [id])
 
@@ -319,10 +328,10 @@ export default function Client360() {
         <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-5">
           {activeTab === 'portfolio' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
                 <PortfolioChart portfolio={client.portfolio} />
               </div>
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-sm font-bold text-gray-800">Holdings</div>
                   <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
@@ -347,7 +356,7 @@ export default function Client360() {
                   <div className="text-xs text-gray-400">Life events like job changes, marriages, and new children will appear here.</div>
                 </div>
               ) : (
-                client.life_events.map(e => <LifeEventTag key={e.id} event={e} />)
+                [...(client.life_events || [])].sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).map(e => <LifeEventTag key={e.id} event={e} />)
               )}
             </div>
           )}

@@ -24,6 +24,22 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
 export default function PortfolioChart({ portfolio }) {
   if (!portfolio) return null
 
+  const holdings = portfolio.holdings
+  const hasData = holdings && holdings.length > 0 && holdings.some(h => h.current_value > 0)
+
+  if (!hasData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+        <svg className="w-10 h-10 mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+        </svg>
+        <p className="text-sm font-medium text-gray-500">No portfolio data</p>
+        <p className="text-xs text-gray-400 mt-1">Add holdings to see allocation</p>
+      </div>
+    )
+  }
+
   const data = [
     { name: 'Equity', value: portfolio.equity_pct, target: portfolio.target_equity_pct, color: COLORS.equity },
     { name: 'Debt',   value: portfolio.debt_pct,   target: portfolio.target_debt_pct,   color: COLORS.debt },

@@ -24,15 +24,15 @@
 ### Batch 2 — MEDIUM Priority
 | # | Finding | File(s) | Status |
 |---|---------|---------|--------|
-| 5 | Prefetch client data on hover | ClientList | ⬜ |
-| 6 | Layered shadows (tokens in tailwind.config) | tailwind.config, all cards | ⬜ |
-| 7 | text-wrap: balance/pretty | index.css | ⬜ |
-| D | PortfolioChart empty/zero-data state | PortfolioChart | ⬜ |
-| E | Goal probability ring — context label | GoalsPanel | ⬜ |
-| F | Life events sorted by date descending | Client360 | ⬜ |
-| G | Morning briefing collapsible | ClientList | ⬜ |
-| H | Locked tab tooltip ("Save Identity & Risk first") | ClientForm | ⬜ |
-| I | Scenario before/after comparison on ring | GoalsPanel | ⬜ |
+| 5 | Prefetch client data on hover | ClientList | ✅ |
+| 6 | Layered shadows (tokens in tailwind.config) | tailwind.config, all cards | ✅ |
+| 7 | text-wrap: balance/pretty | index.css | ✅ |
+| D | PortfolioChart empty/zero-data state | PortfolioChart | ✅ |
+| E | Goal probability ring — context label | GoalsPanel | ✅ |
+| F | Life events sorted by date descending | Client360 | ✅ |
+| G | Morning briefing collapsible | ClientList | ✅ |
+| H | Locked tab tooltip ("Save Identity & Risk first") | ClientForm | ✅ |
+| I | Scenario before/after comparison on ring | GoalsPanel | ⏸ |
 
 ### Batch 3 — LOW / Polish
 | # | Finding | File(s) | Status |
@@ -515,15 +515,15 @@ const [everActive, setEverActive] = useState({ portfolio: true })
 | A | Empty state for zero search results | ClientList | **HIGH** | ✅ |
 | B | CopilotChat history persists across tabs | Client360, CopilotChat | **HIGH** | ✅ |
 | C | Interaction delete confirmation | InteractionsPanel | **HIGH** | ✅ |
-| 5 | `prefetch-trajectory-over-hover` | ClientList | MEDIUM | ⬜ |
-| 6 | `visual-layered-shadows` | All cards + MeetingPrepPanel | MEDIUM | ⬜ |
-| 7 | `type-text-wrap-balance/pretty` | index.css | MEDIUM | ⬜ |
-| D | PortfolioChart empty state | PortfolioChart | MEDIUM | ⬜ |
-| E | Goal ring context label | GoalsPanel | MEDIUM | ⬜ |
-| F | Life events sorted by date | Client360 | MEDIUM | ⬜ |
-| G | Morning briefing collapsible | ClientList | MEDIUM | ⬜ |
-| H | Locked tab tooltip | ClientForm | MEDIUM | ⬜ |
-| I | Scenario before/after on ring | GoalsPanel | MEDIUM | ⬜ |
+| 5 | `prefetch-trajectory-over-hover` | ClientList | MEDIUM | ✅ |
+| 6 | `visual-layered-shadows` | All cards + MeetingPrepPanel | MEDIUM | ✅ |
+| 7 | `type-text-wrap-balance/pretty` | index.css | MEDIUM | ✅ |
+| D | PortfolioChart empty state | PortfolioChart | MEDIUM | ✅ |
+| E | Goal ring context label | GoalsPanel | MEDIUM | ✅ |
+| F | Life events sorted by date | Client360 | MEDIUM | ✅ |
+| G | Morning briefing collapsible | ClientList | MEDIUM | ✅ |
+| H | Locked tab tooltip | ClientForm | MEDIUM | ✅ |
+| I | Scenario before/after on ring | GoalsPanel | MEDIUM | ⏸ |
 | 8 | `visual-concentric-radius` | GoalsPanel, Client360 | LOW | ⬜ |
 | 9 | `exit-requires-wrapper` | MeetingPrepPanel | LOW | ⬜ |
 | J | Active filter pill styling | InteractionsPanel | LOW | ⬜ |

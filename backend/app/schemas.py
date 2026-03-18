@@ -21,6 +21,8 @@ class HoldingOut(BaseModel):
     current_value: float
     target_pct: float
     current_pct: float
+    units_held: Optional[float] = None
+    nav_per_unit: Optional[float] = None
 
     class Config:
         from_attributes = True
@@ -126,6 +128,8 @@ class HoldingCreate(BaseModel):
     fund_house: str
     current_value: float
     target_pct: float
+    units_held: Optional[float] = None
+    nav_per_unit: Optional[float] = None
 
 
 class PortfolioCreate(BaseModel):
@@ -138,13 +142,34 @@ class PortfolioCreate(BaseModel):
     target_cash_pct: float
 
 
-# ─── Goal Create ──────────────────────────────────────────────────────────────
+# ─── Goal Create / Update ─────────────────────────────────────────────────────
 
 class GoalCreate(BaseModel):
     goal_name: str
     target_amount: float
     target_date: date
     monthly_sip: float
+
+
+class GoalUpdate(BaseModel):
+    goal_name: Optional[str] = None
+    target_amount: Optional[float] = None
+    target_date: Optional[date] = None
+    monthly_sip: Optional[float] = None
+
+
+# ─── Life Event Create / Update ───────────────────────────────────────────────
+
+class LifeEventCreate(BaseModel):
+    event_type: str
+    event_date: date
+    notes: Optional[str] = None
+
+
+class LifeEventUpdate(BaseModel):
+    event_type: Optional[str] = None
+    event_date: Optional[date] = None
+    notes: Optional[str] = None
 
 
 # ─── Client Create / Update ───────────────────────────────────────────────────

@@ -30,6 +30,19 @@ def _run_migrations():
             except Exception:
                 pass  # Column already exists
 
+    # FEAT-E: NAV fields on holdings
+    holding_columns = [
+        ("units_held", "FLOAT"),
+        ("nav_per_unit", "FLOAT"),
+    ]
+    with engine.connect() as conn:
+        for col, col_type in holding_columns:
+            try:
+                conn.execute(text(f"ALTER TABLE holdings ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass  # Column already exists
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

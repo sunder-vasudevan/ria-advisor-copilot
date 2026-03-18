@@ -47,6 +47,21 @@ export const createInteraction = (id, data) =>
 export const deleteInteraction = (clientId, interactionId) =>
   api.delete(`/clients/${clientId}/interactions/${interactionId}`)
 
+export const updateGoal = (clientId, goalId, data) =>
+  api.put(`/clients/${clientId}/goals/${goalId}`, data).then(r => r.data)
+
+export const deleteGoal = (clientId, goalId) =>
+  api.delete(`/clients/${clientId}/goals/${goalId}`)
+
+export const createLifeEvent = (clientId, data) =>
+  api.post(`/clients/${clientId}/life-events`, data).then(r => r.data)
+
+export const updateLifeEvent = (clientId, eventId, data) =>
+  api.put(`/clients/${clientId}/life-events/${eventId}`, data).then(r => r.data)
+
+export const deleteLifeEvent = (clientId, eventId) =>
+  api.delete(`/clients/${clientId}/life-events/${eventId}`)
+
 export const fmt = {
   inr: (v) => {
     if (!v && v !== 0) return '—'

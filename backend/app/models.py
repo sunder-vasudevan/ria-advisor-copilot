@@ -60,6 +60,8 @@ class Holding(Base):
     current_value = Column(Float, nullable=False)
     target_pct = Column(Float, nullable=False)
     current_pct = Column(Float, nullable=False)
+    units_held = Column(Float, nullable=True)
+    nav_per_unit = Column(Float, nullable=True)
 
     portfolio = relationship("Portfolio", back_populates="holdings")
 

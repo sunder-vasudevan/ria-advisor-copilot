@@ -5,7 +5,7 @@ from datetime import date, timedelta
 
 from ..database import get_db
 from ..models import Client, Portfolio, Holding, Goal, LifeEvent
-from ..schemas import ClientListItem, Client360, HoldingOut, GoalOut, UrgencyFlag, GoalProjection, ClientCreate, ClientUpdate, PortfolioCreate, GoalCreate, derive_risk_category
+from ..schemas import ClientListItem, Client360, HoldingOut, GoalOut, UrgencyFlag, GoalProjection, ClientCreate, ClientUpdate, PortfolioCreate, GoalCreate, GoalUpdate, LifeEventOut, LifeEventCreate, LifeEventUpdate, derive_risk_category
 from ..urgency import compute_urgency, urgency_score
 from ..simulation import monte_carlo_goal_probability
 
@@ -241,6 +241,71 @@ def create_goal(client_id: int, payload: GoalCreate, db: Session = Depends(get_d
     db.commit()
     db.refresh(goal)
     return goal
+
+
+@router.put("/{client_id}/goals/{goal_id}", response_model=GoalOut)
+def update_goal(client_id: int, goal_id: int, payload: GoalUpdate, db: Session = Depends(get_db)):
+    goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    for field, value in payload.dict(exclude_unset=True).items():
+        setattr(goal, field, value)
+    # Recalculate probability using the same logic as create_goal
+    client = db.query(Client).filter(Client.id == client_id).first()
+    portfolio_value = client.portfolio.total_value if client and client.portfolio else 0
+    goal.probability_pct = monte_carlo_goal_probability(
+        current_value=portfolio_value,
+        monthly_sip=goal.monthly_sip,
+        target_amount=goal.target_amount,
+        target_date=goal.target_date,
+    )
+    db.commit()
+    db.refresh(goal)
+    return goal
+
+
+@router.delete("/{client_id}/goals/{goal_id}", status_code=204)
+def delete_goal(client_id: int, goal_id: int, db: Session = Depends(get_db)):
+    goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    db.delete(goal)
+    db.commit()
+
+
+@router.get("/{client_id}/life-events", response_model=List[LifeEventOut])
+def get_life_events(client_id: int, db: Session = Depends(get_db)):
+    return db.query(models.LifeEvent).filter(models.LifeEvent.client_id == client_id).order_by(models.LifeEvent.event_date.desc()).all()
+
+
+@router.post("/{client_id}/life-events", response_model=LifeEventOut, status_code=201)
+def create_life_event(client_id: int, payload: LifeEventCreate, db: Session = Depends(get_db)):
+    event = models.LifeEvent(client_id=client_id, **payload.dict())
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@router.put("/{client_id}/life-events/{event_id}", response_model=LifeEventOut)
+def update_life_event(client_id: int, event_id: int, payload: LifeEventUpdate, db: Session = Depends(get_db)):
+    event = db.query(models.LifeEvent).filter(models.LifeEvent.id == event_id, models.LifeEvent.client_id == client_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Life event not found")
+    for field, value in payload.dict(exclude_unset=True).items():
+        setattr(event, field, value)
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@router.delete("/{client_id}/life-events/{event_id}", status_code=204)
+def delete_life_event(client_id: int, event_id: int, db: Session = Depends(get_db)):
+    event = db.query(models.LifeEvent).filter(models.LifeEvent.id == event_id, models.LifeEvent.client_id == client_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Life event not found")
+    db.delete(event)
+    db.commit()
 
 
 @router.get("/{client_id}/goal-projection", response_model=List[GoalProjection])

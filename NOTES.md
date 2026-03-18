@@ -27,6 +27,23 @@
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
+## What Shipped This Session (2026-03-18 — Session 10 continued)
+- **FEAT-A: Add/Edit/Delete Goals** ✅
+  - Backend: `PUT /clients/{id}/goals/{goal_id}` + `DELETE` — probability recalculated on edit
+  - Frontend: GoalsPanel — inline edit form per card, "Add Goal" button, two-step delete confirm, `onGoalsChange` callback prop
+- **FEAT-B: Add/Edit/Delete Life Events** ✅
+  - Backend: `GET/POST/PUT/DELETE /clients/{id}/life-events` routes
+  - Frontend: Client360 events tab — "Log Event" button, modal with emoji-labeled type selector, inline edit/delete with two-step confirm, local state update (no full refetch)
+- **FEAT-C: Edit Holdings inline** ✅
+  - "Edit Holdings" button in Portfolio tab, inline form mirrors ClientForm Tab 3, saves via `POST /clients/{id}/portfolio` (full replace), then refetches
+- **FEAT-D: Holdings expand drawer** ✅
+  - HoldingsTable cards clickable → bottom sheet (mobile) / centered modal (desktop) with fund detail, NAV, units, drift
+- **FEAT-E: Static NAV seed data** ✅
+  - `units_held` + `nav_per_unit` columns added to Holding model + startup migration
+  - All 20 clients' holdings seeded with realistic INR NAV values; `units_held = round(current_value / nav_per_unit, 3)`
+- **FEAT-F: Portfolio chart double-click expand** ✅
+  - PortfolioChart: `onDoubleClick` on chart div → full-screen modal with large donut + sortable holdings table (fund, category, value, %, target, drift, NAV, units)
+
 ## What Shipped This Session (2026-03-18 — Session 10)
 - **UI/UX Batch 3 — 10 fixes** ✅
   - Fix 8: Concentric radius correction — `rounded-xl` inner buttons inside `rounded-2xl p-5` wrappers stepped down to `rounded-lg` in GoalsPanel (Run Scenario, Reset, scenario result) and Client360
@@ -105,7 +122,7 @@
 
 ## Next Session Agenda ← START HERE NEXT SESSION
 
-### 1. FEAT-503 — Live goal probability recalculation (next committed backlog item)
+### 1. FEAT-503 — Live goal probability recalculation
 - Trigger `getGoalProjection` automatically as sliders move (debounced ~500ms)
 - Update goal cards in real-time with scenario probability and delta
 - Replace manual "Run Scenario" button with auto-run

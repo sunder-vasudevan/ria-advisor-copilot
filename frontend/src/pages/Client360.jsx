@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getClient } from '../api/client'
-import { ArrowLeft, AlertTriangle, Clock, CheckCircle, CalendarCheck, Sparkles, Pencil, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getClient, createPortfolio } from '../api/client'
+import { createLifeEvent, updateLifeEvent, deleteLifeEvent } from '../api/client'
+import { ArrowLeft, AlertTriangle, Clock, CheckCircle, CalendarCheck, Sparkles, Pencil, ChevronLeft, ChevronRight, Plus, X, Loader2, Trash2 } from 'lucide-react'
 import PortfolioChart from '../components/PortfolioChart'
 import HoldingsTable from '../components/HoldingsTable'
 import GoalsPanel from '../components/GoalsPanel'
@@ -10,6 +11,22 @@ import SituationSummary from '../components/SituationSummary'
 import MeetingPrepPanel from '../components/MeetingPrepPanel'
 import InteractionsPanel from '../components/InteractionsPanel'
 import { fmt } from '../api/client'
+
+const INPUT_CLS = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-300'
+const FUND_CATEGORIES = [
+  'Large Cap', 'Mid Cap', 'Small Cap', 'Flexi Cap',
+  'Debt', 'Liquid', 'Gold', 'International',
+]
+
+const LIFE_EVENT_TYPES = [
+  { value: 'job_change',   label: '💼 Job Change' },
+  { value: 'new_child',    label: '👶 New Child' },
+  { value: 'marriage',     label: '💍 Marriage' },
+  { value: 'divorce',      label: '📋 Divorce' },
+  { value: 'retirement',   label: '🌅 Retirement' },
+  { value: 'inheritance',  label: '🏦 Inheritance' },
+  { value: 'illness',      label: '🏥 Illness' },
+]
 
 function UrgencyBadge({ flag }) {
   const styles = {
@@ -42,7 +59,7 @@ function RiskMeter({ score, category }) {
   )
 }
 
-function LifeEventTag({ event }) {
+function LifeEventTag({ event, onEdit, onDelete, pendingDeleteId, setPendingDeleteId }) {
   const icons = {
     job_change: '💼',
     new_child: '👶',
@@ -54,16 +71,251 @@ function LifeEventTag({ event }) {
   }
   const icon = icons[event.event_type] || '📅'
   const days = Math.floor((Date.now() - new Date(event.event_date)) / 86400000)
+  const isPending = pendingDeleteId === event.id
 
   return (
     <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
       <span className="text-base flex-shrink-0">{icon}</span>
-      <div>
+      <div className="flex-1 min-w-0">
         <div className="text-xs font-semibold text-amber-900">
           {event.event_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
           <span className="text-amber-600 font-normal ml-1">({days}d ago)</span>
         </div>
         {event.notes && <div className="text-xs text-amber-800 mt-0.5 leading-snug">{event.notes}</div>}
+      </div>
+      <div className="flex items-center gap-1 flex-shrink-0">
+        {isPending ? (
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-red-600">Delete?</span>
+            <button onClick={() => onDelete(event.id)} className="text-red-600 font-medium hover:underline">Yes</button>
+            <button onClick={() => setPendingDeleteId(null)} className="text-gray-500 hover:underline">No</button>
+          </div>
+        ) : (
+          <>
+            <button onClick={() => onEdit(event)}
+              className="p-1 text-amber-400 hover:text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
+              aria-label="Edit life event">
+              <Pencil size={11} />
+            </button>
+            <button onClick={() => setPendingDeleteId(event.id)}
+              className="p-1 text-amber-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              aria-label="Delete life event">
+              <Trash2 size={11} />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function LifeEventModal({ initial, onSave, onClose, saving, error }) {
+  const today = new Date().toISOString().split('T')[0]
+  const [form, setForm] = useState(initial || { event_type: 'job_change', event_date: today, notes: '' })
+  const set = (f, v) => setForm(s => ({ ...s, [f]: v }))
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[92vh] overflow-y-auto shadow-modal">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10 rounded-t-2xl">
+          <span className="text-sm font-semibold text-gray-900">{initial ? 'Edit Life Event' : 'Log Life Event'}</span>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Event Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {LIFE_EVENT_TYPES.map(({ value, label }) => (
+                <button key={value} type="button"
+                  onClick={() => set('event_type', value)}
+                  className={`text-left px-3 py-2 rounded-xl border text-sm transition-colors ${
+                    form.event_type === value
+                      ? 'bg-amber-50 border-amber-400 text-amber-900 font-medium'
+                      : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Event Date</label>
+            <input type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)}
+              className={INPUT_CLS} required />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
+            <textarea rows={3} placeholder="Any context about this event…"
+              value={form.notes || ''} onChange={e => set('notes', e.target.value)}
+              className={`${INPUT_CLS} resize-none`} />
+          </div>
+          {error && <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</div>}
+          <div className="flex gap-2 pt-1 pb-1">
+            <button type="button" onClick={onClose}
+              className="flex-1 px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+              Cancel
+            </button>
+            <button type="button" disabled={saving} onClick={() => onSave(form)}
+              className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-navy-950 rounded-xl hover:bg-navy-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {saving ? <><Loader2 size={14} className="animate-spin" />Saving…</> : (initial ? 'Save Changes' : 'Log Event')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Holdings edit form extracted for inline use in Client360
+function HoldingsEditForm({ portfolio, onSave, onCancel, saving, error }) {
+  const [holdings, setHoldings] = useState(
+    portfolio?.holdings?.length
+      ? portfolio.holdings.map(h => ({
+          fund_name: h.fund_name || '',
+          fund_category: h.fund_category || 'Large Cap',
+          fund_house: h.fund_house || '',
+          current_value: h.current_value ?? '',
+          target_pct: h.target_pct ?? '',
+        }))
+      : [{ fund_name: '', fund_category: 'Large Cap', fund_house: '', current_value: '', target_pct: '' }]
+  )
+  const [allocation, setAllocation] = useState({
+    equity_pct: portfolio?.equity_pct ?? '',
+    debt_pct: portfolio?.debt_pct ?? '',
+    cash_pct: portfolio?.cash_pct ?? '',
+    target_equity_pct: portfolio?.target_equity_pct ?? '',
+    target_debt_pct: portfolio?.target_debt_pct ?? '',
+    target_cash_pct: portfolio?.target_cash_pct ?? '',
+  })
+
+  const setHolding = (idx, field, value) => setHoldings(hs => hs.map((h, i) => i === idx ? { ...h, [field]: value } : h))
+  const addHolding = () => setHoldings(hs => [...hs, { fund_name: '', fund_category: 'Large Cap', fund_house: '', current_value: '', target_pct: '' }])
+  const removeHolding = (idx) => setHoldings(hs => hs.filter((_, i) => i !== idx))
+
+  const handleSave = () => {
+    const validHoldings = holdings.filter(h => h.fund_name.trim() && h.current_value !== '')
+    onSave({
+      holdings: validHoldings.map(h => ({
+        fund_name: h.fund_name.trim(),
+        fund_category: h.fund_category,
+        fund_house: h.fund_house.trim(),
+        current_value: Number(h.current_value),
+        target_pct: Number(h.target_pct) || 0,
+      })),
+      equity_pct: Number(allocation.equity_pct) || 0,
+      debt_pct: Number(allocation.debt_pct) || 0,
+      cash_pct: Number(allocation.cash_pct) || 0,
+      target_equity_pct: Number(allocation.target_equity_pct) || 0,
+      target_debt_pct: Number(allocation.target_debt_pct) || 0,
+      target_cash_pct: Number(allocation.target_cash_pct) || 0,
+    })
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Asset allocation */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+        <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Asset Allocation</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { field: 'equity_pct', label: 'Equity %' },
+            { field: 'debt_pct', label: 'Debt %' },
+            { field: 'cash_pct', label: 'Cash %' },
+          ].map(({ field, label }) => (
+            <div key={field}>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+              <input type="number" min="0" max="100" value={allocation[field]}
+                onChange={e => setAllocation(a => ({ ...a, [field]: e.target.value }))}
+                placeholder="0" className={INPUT_CLS} />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { field: 'target_equity_pct', label: 'Target Equity %' },
+            { field: 'target_debt_pct', label: 'Target Debt %' },
+            { field: 'target_cash_pct', label: 'Target Cash %' },
+          ].map(({ field, label }) => (
+            <div key={field}>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+              <input type="number" min="0" max="100" value={allocation[field]}
+                onChange={e => setAllocation(a => ({ ...a, [field]: e.target.value }))}
+                placeholder="0" className={INPUT_CLS} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Holdings */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Fund Holdings</h3>
+          <button type="button" onClick={addHolding}
+            className="flex items-center gap-1 text-xs text-navy-700 hover:text-navy-950 font-medium">
+            <Plus size={12} /> Add Fund
+          </button>
+        </div>
+        <div className="space-y-3">
+          {holdings.map((h, idx) => (
+            <div key={idx} className="border border-gray-100 rounded-lg p-3 space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-500">Fund {idx + 1}</span>
+                {holdings.length > 1 && (
+                  <button type="button" onClick={() => removeHolding(idx)}
+                    className="text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={12} />
+                  </button>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Fund Name *</label>
+                <input type="text" value={h.fund_name} onChange={e => setHolding(idx, 'fund_name', e.target.value)}
+                  placeholder="e.g. Axis Bluechip Fund" className={INPUT_CLS} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                  <select value={h.fund_category} onChange={e => setHolding(idx, 'fund_category', e.target.value)}
+                    className={INPUT_CLS}>
+                    {FUND_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Fund House</label>
+                  <input type="text" value={h.fund_house} onChange={e => setHolding(idx, 'fund_house', e.target.value)}
+                    placeholder="e.g. Axis MF" className={INPUT_CLS} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Current Value (₹) *</label>
+                  <input type="number" min="0" value={h.current_value} onChange={e => setHolding(idx, 'current_value', e.target.value)}
+                    placeholder="e.g. 500000" className={INPUT_CLS} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Target %</label>
+                  <input type="number" min="0" max="100" value={h.target_pct} onChange={e => setHolding(idx, 'target_pct', e.target.value)}
+                    placeholder="e.g. 25" className={INPUT_CLS} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
+
+      <div className="flex gap-3">
+        <button type="button" onClick={onCancel}
+          className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+        <button type="button" onClick={handleSave} disabled={saving}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-navy-950 text-white rounded-lg text-sm font-semibold hover:bg-navy-800 disabled:opacity-60 transition-colors">
+          {saving ? <><Loader2 size={14} className="animate-spin" />Saving…</> : 'Save Holdings'}
+        </button>
       </div>
     </div>
   )
@@ -81,9 +333,33 @@ export default function Client360() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const everActiveRef = useRef({ portfolio: true })
 
+  // Life events state
+  const [lifeEvents, setLifeEvents] = useState(null) // null = use client data
+  const [showEventModal, setShowEventModal] = useState(false)
+  const [editingEvent, setEditingEvent] = useState(null)
+  const [eventSaving, setEventSaving] = useState(false)
+  const [eventError, setEventError] = useState(null)
+  const [pendingDeleteEventId, setPendingDeleteEventId] = useState(null)
+
+  // Holdings edit state
+  const [editingHoldings, setEditingHoldings] = useState(false)
+  const [holdingsSaving, setHoldingsSaving] = useState(false)
+  const [holdingsError, setHoldingsError] = useState(null)
+
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     everActiveRef.current[tab] = true
+  }
+
+  const refetchClient = () => {
+    getClient(id)
+      .then(data => {
+        setClient(data)
+        window.__ariaClientCache = window.__ariaClientCache || {}
+        window.__ariaClientCache[id] = data
+        setLifeEvents(null) // reset local overrides
+      })
+      .catch(() => {})
   }
 
   useEffect(() => {
@@ -102,6 +378,59 @@ export default function Client360() {
       .catch(() => { if (!cached) setError('Failed to load client') })
       .finally(() => setLoading(false))
   }, [id])
+
+  // Life events helpers
+  const displayEvents = lifeEvents !== null ? lifeEvents : (client?.life_events || [])
+
+  const handleSaveEvent = async (form) => {
+    setEventSaving(true); setEventError(null)
+    try {
+      if (editingEvent) {
+        const updated = await updateLifeEvent(id, editingEvent.id, {
+          event_type: form.event_type,
+          event_date: form.event_date,
+          notes: form.notes || null,
+        })
+        setLifeEvents(prev => (prev || client.life_events).map(e => e.id === updated.id ? updated : e))
+      } else {
+        const created = await createLifeEvent(id, {
+          event_type: form.event_type,
+          event_date: form.event_date,
+          notes: form.notes || null,
+        })
+        setLifeEvents(prev => [created, ...(prev || client.life_events)])
+      }
+      setShowEventModal(false)
+      setEditingEvent(null)
+    } catch {
+      setEventError('Failed to save event.')
+    } finally {
+      setEventSaving(false)
+    }
+  }
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await deleteLifeEvent(id, eventId)
+      setLifeEvents(prev => (prev || client.life_events).filter(e => e.id !== eventId))
+      setPendingDeleteEventId(null)
+    } catch {
+      // silently fail
+    }
+  }
+
+  const handleSaveHoldings = async (payload) => {
+    setHoldingsSaving(true); setHoldingsError(null)
+    try {
+      await createPortfolio(id, payload)
+      setEditingHoldings(false)
+      refetchClient()
+    } catch (err) {
+      setHoldingsError(err?.response?.data?.detail || 'Failed to save holdings.')
+    } finally {
+      setHoldingsSaving(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -130,7 +459,7 @@ export default function Client360() {
   const desktopTabs = [
     { key: 'portfolio', label: 'Portfolio & Holdings' },
     { key: 'goals', label: `Goals (${client.goals.length})` },
-    { key: 'events', label: `Life Events (${client.life_events.length})` },
+    { key: 'events', label: `Life Events (${displayEvents.length})` },
     { key: 'interactions', label: 'Interactions' },
   ]
   const mobileTabs = [
@@ -364,37 +693,86 @@ export default function Client360() {
           <div className={activeTab === 'portfolio' ? '' : 'hidden'}>
             <div className="space-y-5">
               <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
-                <PortfolioChart portfolio={client.portfolio} />
+                <PortfolioChart portfolio={client.portfolio} clientName={client.name} />
               </div>
               <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-bold text-gray-800">Holdings</div>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                    {client.portfolio?.holdings?.length || 0} funds
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-bold text-gray-800">Holdings</div>
+                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                      {client.portfolio?.holdings?.length || 0} funds
+                    </span>
+                  </div>
+                  {!editingHoldings && (
+                    <button
+                      onClick={() => { setEditingHoldings(true); setHoldingsError(null) }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-navy-700 border border-navy-200 rounded-lg hover:bg-navy-50 transition-colors"
+                    >
+                      <Pencil size={11} />
+                      Edit Holdings
+                    </button>
+                  )}
                 </div>
-                <HoldingsTable holdings={client.portfolio?.holdings} />
+                {editingHoldings ? (
+                  <HoldingsEditForm
+                    portfolio={client.portfolio}
+                    onSave={handleSaveHoldings}
+                    onCancel={() => { setEditingHoldings(false); setHoldingsError(null) }}
+                    saving={holdingsSaving}
+                    error={holdingsError}
+                  />
+                ) : (
+                  <HoldingsTable holdings={client.portfolio?.holdings} />
+                )}
               </div>
             </div>
           </div>
 
           {everActiveRef.current.goals && (
             <div className={activeTab === 'goals' ? '' : 'hidden'}>
-              <GoalsPanel clientId={id} goals={client.goals} />
+              <GoalsPanel clientId={id} goals={client.goals} onGoalsChange={refetchClient} />
             </div>
           )}
 
           {everActiveRef.current.events && (
             <div className={activeTab === 'events' ? '' : 'hidden'}>
               <div className="space-y-3">
-                {client.life_events.length === 0 ? (
+                {/* Header with Log Event button */}
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-gray-700">
+                    {displayEvents.length > 0
+                      ? `${displayEvents.length} life event${displayEvents.length !== 1 ? 's' : ''}`
+                      : 'Life Events'
+                    }
+                  </div>
+                  <button
+                    onClick={() => { setShowEventModal(true); setEditingEvent(null); setEventError(null) }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-950 text-white text-xs font-semibold rounded-xl hover:bg-navy-800 transition-colors shadow-sm active:scale-[0.96]"
+                  >
+                    <Plus size={12} />
+                    Log Event
+                  </button>
+                </div>
+
+                {displayEvents.length === 0 ? (
                   <div className="flex flex-col items-center py-16 text-center">
                     <div className="text-3xl mb-3">📅</div>
                     <div className="text-sm font-semibold text-gray-600 mb-1">No life events recorded</div>
                     <div className="text-xs text-gray-400">Life events like job changes, marriages, and new children will appear here.</div>
                   </div>
                 ) : (
-                  [...(client.life_events || [])].sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).map(e => <LifeEventTag key={e.id} event={e} />)
+                  [...displayEvents]
+                    .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+                    .map(e => (
+                      <LifeEventTag
+                        key={e.id}
+                        event={e}
+                        onEdit={(ev) => { setEditingEvent(ev); setShowEventModal(true); setEventError(null) }}
+                        onDelete={handleDeleteEvent}
+                        pendingDeleteId={pendingDeleteEventId}
+                        setPendingDeleteId={setPendingDeleteEventId}
+                      />
+                    ))
                 )}
               </div>
             </div>
@@ -473,6 +851,21 @@ export default function Client360() {
           onClose={() => setShowMeetingPrep(false)}
         />
       </div>
+
+      {/* Life Event modal */}
+      {showEventModal && (
+        <LifeEventModal
+          initial={editingEvent ? {
+            event_type: editingEvent.event_type,
+            event_date: editingEvent.event_date,
+            notes: editingEvent.notes || '',
+          } : null}
+          onSave={handleSaveEvent}
+          onClose={() => { setShowEventModal(false); setEditingEvent(null); setEventError(null) }}
+          saving={eventSaving}
+          error={eventError}
+        />
+      )}
     </div>
   )
 }

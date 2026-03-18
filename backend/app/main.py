@@ -7,8 +7,26 @@ from sqlalchemy import text
 
 from .database import engine, Base
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions
+from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
+from . import personal_models  # ensure personal tables registered with Base
 
 load_dotenv()
+
+
+def _run_personal_migrations():
+    """Add personal_user_id FK columns to existing tables (nullable, idempotent)."""
+    personal_columns = [
+        ("portfolios", "personal_user_id", "INTEGER"),
+        ("goals", "personal_user_id", "INTEGER"),
+        ("life_events", "personal_user_id", "INTEGER"),
+    ]
+    with engine.connect() as conn:
+        for table, col, col_type in personal_columns:
+            try:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass  # Column already exists
 
 
 def _run_migrations():
@@ -46,8 +64,9 @@ def _run_migrations():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)  # creates new tables (client_interactions) automatically
+    Base.metadata.create_all(bind=engine)  # creates all new tables automatically
     _run_migrations()
+    _run_personal_migrations()
     yield
 
 
@@ -59,9 +78,10 @@ app = FastAPI(
 
 # CORS
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+personal_frontend_url = os.getenv("PERSONAL_FRONTEND_URL", "http://localhost:5174")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url, "http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[frontend_url, personal_frontend_url, "http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,6 +93,11 @@ app.include_router(briefing.router)
 app.include_router(situation.router)
 app.include_router(meeting_prep.router)
 app.include_router(interactions.router)
+app.include_router(personal_auth.router)
+app.include_router(personal_portfolio.router)
+app.include_router(personal_goals.router)
+app.include_router(personal_life_events.router)
+app.include_router(personal_copilot.router)
 
 
 @app.get("/health")

@@ -34,7 +34,8 @@ class Portfolio(Base):
     __tablename__ = "portfolios"
 
     id = Column(Integer, primary_key=True, index=True)
-    client_id = Column(Integer, ForeignKey("clients.id"), unique=True, nullable=False)
+    client_id = Column(Integer, ForeignKey("clients.id"), unique=True, nullable=True)
+    personal_user_id = Column(Integer, ForeignKey("personal_users.id"), nullable=True)
     total_value = Column(Float, nullable=False)  # in INR
 
     equity_pct = Column(Float, nullable=False)
@@ -70,7 +71,8 @@ class Goal(Base):
     __tablename__ = "goals"
 
     id = Column(Integer, primary_key=True, index=True)
-    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=True)
+    personal_user_id = Column(Integer, ForeignKey("personal_users.id"), nullable=True)
     goal_name = Column(String, nullable=False)
     target_amount = Column(Float, nullable=False)
     target_date = Column(Date, nullable=False)
@@ -85,7 +87,8 @@ class LifeEvent(Base):
     __tablename__ = "life_events"
 
     id = Column(Integer, primary_key=True, index=True)
-    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=True)
+    personal_user_id = Column(Integer, ForeignKey("personal_users.id"), nullable=True)
     event_type = Column(String, nullable=False)  # job_change, new_child, marriage, etc.
     event_date = Column(Date, nullable=False)
     notes = Column(Text, nullable=True)

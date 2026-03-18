@@ -27,7 +27,7 @@ export default function ClientLogin() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-white font-bold text-3xl tracking-tight">ARIA</div>
+          <div className="text-white font-bold text-3xl tracking-tight">A-RiA</div>
           <div className="text-navy-300 text-sm mt-1">Client Portal</div>
         </div>
 

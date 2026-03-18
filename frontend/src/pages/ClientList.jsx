@@ -93,7 +93,7 @@ export default function ClientList() {
       {/* ── Mobile top nav (hidden on md+) ── */}
       <div className="md:hidden bg-navy-950 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div>
-          <div className="text-white font-bold text-base tracking-tight">ARIA</div>
+          <div className="text-white font-bold text-base tracking-tight">A-RiA</div>
           <div className="text-navy-300 text-xs">Advisor Workbench</div>
         </div>
         <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ export default function ClientList() {
       {/* ── Desktop sidebar (hidden on mobile) ── */}
       <div className="hidden md:flex w-64 bg-navy-950 flex-col flex-shrink-0">
         <div className="p-6 border-b border-navy-800">
-          <div className="text-white font-bold text-lg tracking-tight">ARIA</div>
+          <div className="text-white font-bold text-lg tracking-tight">A-RiA</div>
           <div className="text-navy-300 text-xs mt-0.5">Advisor Relationship Intelligence Assistant</div>
         </div>
         <nav className="flex-1 p-4">

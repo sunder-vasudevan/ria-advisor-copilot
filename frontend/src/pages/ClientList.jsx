@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, RefreshCw, Bell, CheckCircle, UserPlus } from 'lucide-react'
+import { AlertTriangle, TrendingUp, ChevronRight, RefreshCw, Bell, CheckCircle, UserPlus, LayoutList, Layers } from 'lucide-react'
 import { getClients, getBriefing, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 
@@ -35,6 +35,7 @@ export default function ClientList() {
   const [briefingLoading, setBriefingLoading] = useState(false)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
+  const [viewMode, setViewMode] = useState('list') // 'list' | 'grouped'
   const session = getAdvisorSession()
 
   useEffect(() => {
@@ -115,7 +116,6 @@ export default function ClientList() {
               <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400 text-amber-900 font-semibold leading-none">SUPER</span>
             )}
           </div>
-          <div className="text-navy-400 text-xs">Mumbai Branch</div>
           <button
             onClick={() => { advisorLogout(); navigate('/login') }}
             className="text-navy-400 text-xs hover:text-white transition-colors mt-2"
@@ -189,15 +189,33 @@ export default function ClientList() {
         {/* ── Content ── */}
         <div className="flex-1 overflow-auto p-4 md:p-8">
 
-          {/* Search */}
-          <div className="mb-4">
+          {/* Search + View toggle */}
+          <div className="mb-4 flex items-center gap-3">
             <input
               type="text"
               placeholder="Search clients…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full max-w-sm px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 bg-white"
+              className="flex-1 max-w-sm px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 bg-white"
             />
+            <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
+                  viewMode === 'list' ? 'bg-navy-950 text-white' : 'text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <LayoutList size={13} /> List
+              </button>
+              <button
+                onClick={() => setViewMode('grouped')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
+                  viewMode === 'grouped' ? 'bg-navy-950 text-white' : 'text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <Layers size={13} /> Grouped
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -206,99 +224,27 @@ export default function ClientList() {
             </div>
           )}
 
-          {/* ── Mobile: card list ── */}
-          <div className="md:hidden space-y-3">
-            {filtered.map(client => (
-              <div
-                key={client.id}
-                onClick={() => navigate(`/clients/${client.id}`)}
-                className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-gray-900 truncate">{client.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">Age {client.age} · {client.risk_category}</div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
-                    <SegmentBadge segment={client.segment} />
-                    <div className="font-semibold text-sm text-gray-900">{fmt.inr(client.total_value)}</div>
-                  </div>
-                </div>
-                <div className="mt-2.5 flex flex-wrap gap-1">
-                  {client.urgency_flags.length === 0 ? (
-                    <span className="badge-low">On Track</span>
-                  ) : (
-                    client.urgency_flags.slice(0, 2).map((f, i) => (
-                      <UrgencyBadge key={i} flag={f} />
-                    ))
-                  )}
-                  {client.urgency_flags.length > 2 && (
-                    <span className="text-xs text-gray-500 self-center">+{client.urgency_flags.length - 2} more</span>
-                  )}
-                </div>
-              </div>
-            ))}
-            {filtered.length === 0 && (
-              <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
-            )}
-          </div>
-
-          {/* ── Desktop: table ── */}
-          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Segment</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Portfolio Value</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Flags</th>
-                  <th className="px-6 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
+          {viewMode === 'list' ? (
+            <>
+              {/* ── Mobile: card list ── */}
+              <div className="md:hidden space-y-3">
                 {filtered.map(client => (
-                  <tr
-                    key={client.id}
-                    onClick={() => navigate(`/clients/${client.id}`)}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{client.name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Age {client.age} · {client.risk_category}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <SegmentBadge segment={client.segment} />
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="font-semibold text-gray-900">{fmt.inr(client.total_value)}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {client.urgency_flags.length === 0 ? (
-                          <span className="badge-low">On Track</span>
-                        ) : (
-                          client.urgency_flags.slice(0, 2).map((f, i) => (
-                            <UrgencyBadge key={i} flag={f} />
-                          ))
-                        )}
-                        {client.urgency_flags.length > 2 && (
-                          <span className="text-xs text-gray-500 self-center">
-                            +{client.urgency_flags.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <ChevronRight size={16} className="text-gray-400 ml-auto" />
-                    </td>
-                  </tr>
+                  <ClientCard key={client.id} client={client} navigate={navigate} />
                 ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
-            )}
-          </div>
+                {filtered.length === 0 && (
+                  <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
+                )}
+              </div>
+
+              {/* ── Desktop: table ── */}
+              <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <ClientTable clients={filtered} navigate={navigate} />
+              </div>
+            </>
+          ) : (
+            /* ── Grouped view (both mobile + desktop) ── */
+            <GroupedView clients={filtered} navigate={navigate} />
+          )}
 
           <div className="mt-3 text-xs text-gray-400 text-right">
             {filtered.length} of {clients.length} clients
@@ -306,6 +252,135 @@ export default function ClientList() {
         </div>
       </div>
     </div>
+  )
+}
+
+function ClientCard({ client, navigate }) {
+  return (
+    <div
+      onClick={() => navigate(`/clients/${client.id}`)}
+      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:bg-gray-50 transition-colors"
+    >
+      <div className="flex items-start justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="font-medium text-gray-900 truncate">{client.name}</div>
+          <div className="text-xs text-gray-500 mt-0.5">Age {client.age} · {client.risk_category}</div>
+        </div>
+        <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
+          <SegmentBadge segment={client.segment} />
+          <div className="font-semibold text-sm text-gray-900">{fmt.inr(client.total_value)}</div>
+        </div>
+      </div>
+      <div className="mt-2.5 flex flex-wrap gap-1">
+        {client.urgency_flags.length === 0 ? (
+          <span className="badge-low">On Track</span>
+        ) : (
+          client.urgency_flags.slice(0, 2).map((f, i) => <UrgencyBadge key={i} flag={f} />)
+        )}
+        {client.urgency_flags.length > 2 && (
+          <span className="text-xs text-gray-500 self-center">+{client.urgency_flags.length - 2} more</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ClientTable({ clients, navigate }) {
+  if (clients.length === 0) {
+    return <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
+  }
+  return (
+    <table className="w-full">
+      <thead>
+        <tr className="bg-gray-50 border-b border-gray-200">
+          <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+          <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Segment</th>
+          <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Portfolio Value</th>
+          <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Flags</th>
+          <th className="px-6 py-3"></th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {clients.map(client => (
+          <tr
+            key={client.id}
+            onClick={() => navigate(`/clients/${client.id}`)}
+            className="hover:bg-gray-50 cursor-pointer transition-colors"
+          >
+            <td className="px-6 py-4">
+              <div className="font-medium text-gray-900">{client.name}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Age {client.age} · {client.risk_category}</div>
+            </td>
+            <td className="px-6 py-4"><SegmentBadge segment={client.segment} /></td>
+            <td className="px-6 py-4 text-right">
+              <div className="font-semibold text-gray-900">{fmt.inr(client.total_value)}</div>
+            </td>
+            <td className="px-6 py-4">
+              <div className="flex flex-wrap gap-1">
+                {client.urgency_flags.length === 0 ? (
+                  <span className="badge-low">On Track</span>
+                ) : (
+                  client.urgency_flags.slice(0, 2).map((f, i) => <UrgencyBadge key={i} flag={f} />)
+                )}
+                {client.urgency_flags.length > 2 && (
+                  <span className="text-xs text-gray-500 self-center">+{client.urgency_flags.length - 2} more</span>
+                )}
+              </div>
+            </td>
+            <td className="px-6 py-4 text-right">
+              <ChevronRight size={16} className="text-gray-400 ml-auto" />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function GroupedView({ clients, navigate }) {
+  const needsAttention = clients.filter(c => c.urgency_score > 0)
+  const onTrack = clients.filter(c => c.urgency_score === 0)
+
+  const Section = ({ label, icon, color, clients: group }) => {
+    if (group.length === 0) return null
+    return (
+      <div className="mb-6">
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-2 ${color}`}>
+          {icon}
+          <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+          <span className="ml-auto text-xs font-bold">{group.length}</span>
+        </div>
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {group.map(c => <ClientCard key={c.id} client={c} navigate={navigate} />)}
+        </div>
+        {/* Desktop table */}
+        <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <ClientTable clients={group} navigate={navigate} />
+        </div>
+      </div>
+    )
+  }
+
+  if (clients.length === 0) {
+    return <div className="text-center py-12 text-gray-400 text-sm">No clients found</div>
+  }
+
+  return (
+    <>
+      <Section
+        label="Needs Attention"
+        icon={<AlertTriangle size={13} className="text-red-500" />}
+        color="bg-red-50 text-red-700"
+        clients={needsAttention}
+      />
+      <Section
+        label="On Track"
+        icon={<CheckCircle size={13} className="text-emerald-600" />}
+        color="bg-emerald-50 text-emerald-700"
+        clients={onTrack}
+      />
+    </>
   )
 }
 

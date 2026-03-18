@@ -72,10 +72,32 @@ function GoalForm({ initial, onSave, onCancel, saving, error }) {
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Target Date *</label>
-          <input type="date" value={form.target_date}
-            onChange={e => set('target_date', e.target.value)}
-            onInput={e => set('target_date', e.target.value)}
-            className={INPUT_CLS} />
+          <div className="grid grid-cols-2 gap-1">
+          <select
+            value={form.target_date ? form.target_date.slice(5, 7) : ''}
+            onChange={e => {
+              const y = form.target_date ? form.target_date.slice(0, 4) : new Date().getFullYear() + 1
+              set('target_date', `${y}-${e.target.value}-01`)
+            }}
+            className={INPUT_CLS}>
+            <option value="">Month</option>
+            {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m, i) => (
+              <option key={m} value={m}>{['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>
+            ))}
+          </select>
+          <select
+            value={form.target_date ? form.target_date.slice(0, 4) : ''}
+            onChange={e => {
+              const mo = form.target_date ? form.target_date.slice(5, 7) : '01'
+              set('target_date', `${e.target.value}-${mo}-01`)
+            }}
+            className={INPUT_CLS}>
+            <option value="">Year</option>
+            {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() + i + 1).map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
         </div>
       </div>
       <div>
@@ -553,10 +575,32 @@ if (!form.goal_name?.trim() || !form.target_amount || Number(form.target_amount)
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Target Date *</label>
-                <input type="date" value={newGoalForm.target_date}
-                  onChange={e => setNewGoalForm(f => ({ ...f, target_date: e.target.value }))}
-                  onInput={e => setNewGoalForm(f => ({ ...f, target_date: e.target.value }))}
-                  className={INPUT_CLS} />
+                <div className="grid grid-cols-2 gap-1">
+                  <select
+                    value={newGoalForm.target_date ? newGoalForm.target_date.slice(5, 7) : ''}
+                    onChange={e => {
+                      const y = newGoalForm.target_date ? newGoalForm.target_date.slice(0, 4) : new Date().getFullYear() + 1
+                      setNewGoalForm(f => ({ ...f, target_date: `${y}-${e.target.value}-01` }))
+                    }}
+                    className={INPUT_CLS}>
+                    <option value="">Month</option>
+                    {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m, i) => (
+                      <option key={m} value={m}>{['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={newGoalForm.target_date ? newGoalForm.target_date.slice(0, 4) : ''}
+                    onChange={e => {
+                      const mo = newGoalForm.target_date ? newGoalForm.target_date.slice(5, 7) : '01'
+                      setNewGoalForm(f => ({ ...f, target_date: `${e.target.value}-${mo}-01` }))
+                    }}
+                    className={INPUT_CLS}>
+                    <option value="">Year</option>
+                    {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() + i + 1).map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <div>

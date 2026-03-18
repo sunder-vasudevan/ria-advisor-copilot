@@ -217,60 +217,77 @@ def create_portfolio(client_id: int, payload: PortfolioCreate, db: Session = Dep
 
 @router.post("/{client_id}/goals", response_model=GoalOut, status_code=201)
 def create_goal(client_id: int, payload: GoalCreate, db: Session = Depends(get_db)):
-    client = db.query(Client).filter(Client.id == client_id).first()
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
+    import traceback
+    try:
+        client = db.query(Client).filter(Client.id == client_id).first()
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
 
-    portfolio_value = client.portfolio.total_value if client.portfolio else 0
-    sim = monte_carlo_goal_probability(
-        current_value=portfolio_value,
-        monthly_sip=payload.monthly_sip,
-        target_amount=payload.target_amount,
-        target_date=payload.target_date,
-    )
+        portfolio_value = client.portfolio.total_value if client.portfolio else 0
+        sim = monte_carlo_goal_probability(
+            current_value=portfolio_value,
+            monthly_sip=payload.monthly_sip,
+            target_amount=payload.target_amount,
+            target_date=payload.target_date,
+        )
 
-    goal = Goal(
-        client_id=client_id,
-        goal_name=payload.goal_name,
-        target_amount=payload.target_amount,
-        target_date=payload.target_date,
-        monthly_sip=payload.monthly_sip,
-        probability_pct=sim["probability_pct"],
-    )
-    db.add(goal)
-    db.commit()
-    db.refresh(goal)
-    return goal
+        goal = Goal(
+            client_id=client_id,
+            goal_name=payload.goal_name,
+            target_amount=payload.target_amount,
+            target_date=payload.target_date,
+            monthly_sip=payload.monthly_sip,
+            probability_pct=sim["probability_pct"],
+        )
+        db.add(goal)
+        db.commit()
+        db.refresh(goal)
+        return goal
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}\n{traceback.format_exc()}")
 
 
 @router.put("/{client_id}/goals/{goal_id}", response_model=GoalOut)
 def update_goal(client_id: int, goal_id: int, payload: GoalUpdate, db: Session = Depends(get_db)):
-    goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
-    if not goal:
-        raise HTTPException(status_code=404, detail="Goal not found")
-    for field, value in payload.dict(exclude_unset=True).items():
-        setattr(goal, field, value)
-    # Recalculate probability using the same logic as create_goal
-    client = db.query(Client).filter(Client.id == client_id).first()
-    portfolio_value = client.portfolio.total_value if client and client.portfolio else 0
-    goal.probability_pct = monte_carlo_goal_probability(
-        current_value=portfolio_value,
-        monthly_sip=goal.monthly_sip,
-        target_amount=goal.target_amount,
-        target_date=goal.target_date,
-    )["probability_pct"]
-    db.commit()
-    db.refresh(goal)
-    return goal
+    import traceback
+    try:
+        goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
+        if not goal:
+            raise HTTPException(status_code=404, detail="Goal not found")
+        for field, value in payload.dict(exclude_unset=True).items():
+            setattr(goal, field, value)
+        client = db.query(Client).filter(Client.id == client_id).first()
+        portfolio_value = client.portfolio.total_value if client and client.portfolio else 0
+        goal.probability_pct = monte_carlo_goal_probability(
+            current_value=portfolio_value,
+            monthly_sip=goal.monthly_sip,
+            target_amount=goal.target_amount,
+            target_date=goal.target_date,
+        )["probability_pct"]
+        db.commit()
+        db.refresh(goal)
+        return goal
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}\n{traceback.format_exc()}")
 
 
 @router.delete("/{client_id}/goals/{goal_id}", status_code=204)
 def delete_goal(client_id: int, goal_id: int, db: Session = Depends(get_db)):
-    goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
-    if not goal:
-        raise HTTPException(status_code=404, detail="Goal not found")
-    db.delete(goal)
-    db.commit()
+    import traceback
+    try:
+        goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.client_id == client_id).first()
+        if not goal:
+            raise HTTPException(status_code=404, detail="Goal not found")
+        db.delete(goal)
+        db.commit()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}\n{traceback.format_exc()}")
 
 
 @router.get("/{client_id}/life-events", response_model=List[LifeEventOut])

@@ -295,6 +295,7 @@ export default function ClientForm() {
     try {
       await createPortfolio(savedClientId, payload)
       setPortfolioSaved(true)
+      setTimeout(() => setActiveTab(3), 800)
     } catch (err) {
       setPortfolioError(err?.response?.data?.detail || 'Failed to save portfolio')
     } finally {
@@ -872,8 +873,15 @@ export default function ClientForm() {
               </div>
             )}
             {goalsSaved && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-                Goals saved successfully.
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-center justify-between">
+                <span>Goals saved successfully.</span>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/clients/${savedClientId}`)}
+                  className="ml-4 bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-green-800 transition-colors font-medium"
+                >
+                  View Client →
+                </button>
               </div>
             )}
 

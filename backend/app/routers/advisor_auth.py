@@ -61,3 +61,24 @@ def get_advisor_profile(username: str, db: Session = Depends(get_db)):
 def list_advisors(db: Session = Depends(get_db)):
     """List all active advisors — used for advisor discovery (V2)."""
     return db.query(Advisor).filter(Advisor.is_active == True).all()
+
+
+@router.get("/debug")
+def debug_auth(db: Session = Depends(get_db)):
+    """Temporary: diagnose bcrypt verify on Render. Remove after fix confirmed."""
+    import bcrypt as _bcrypt
+    import sys
+    test_pw = "aria2026"
+    h = _bcrypt.hashpw(test_pw.encode(), _bcrypt.gensalt())
+    h_str = h.decode()
+    fresh_verify = _bcrypt.checkpw(test_pw.encode(), h_str.encode())
+    advisor = db.query(Advisor).filter(Advisor.username == "rm_demo").first()
+    db_hash = advisor.hashed_password if advisor else None
+    db_verify = _bcrypt.checkpw(test_pw.encode(), db_hash.encode()) if db_hash else None
+    return {
+        "bcrypt_version": _bcrypt.__version__,
+        "python_version": sys.version,
+        "fresh_hash_verify": fresh_verify,
+        "db_hash": db_hash,
+        "db_hash_verify": db_verify,
+    }

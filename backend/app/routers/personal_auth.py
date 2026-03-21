@@ -65,14 +65,15 @@ def _set_advisor_id(user_id: int, advisor_id: int, db: Session):
 def _link_client_by_name(display_name: str, advisor_id: int, personal_user_id: int, db: Session) -> bool:
     """Find a client by name under this advisor and set personal_user_id. Returns True if matched."""
     try:
-        from ..models import Client
-        clients = db.query(Client).filter(
-            Client.advisor_id == advisor_id,
-            Client.personal_user_id == None,
-        ).all()
-        matched = next((c for c in clients if c.name.lower() == display_name.lower()), None)
-        if matched:
-            matched.personal_user_id = personal_user_id
+        row = db.execute(
+            text("SELECT id FROM clients WHERE advisor_id = :aid AND personal_user_id IS NULL AND LOWER(name) = LOWER(:name) LIMIT 1"),
+            {"aid": advisor_id, "name": display_name.strip()},
+        ).fetchone()
+        if row:
+            db.execute(
+                text("UPDATE clients SET personal_user_id = :puid WHERE id = :cid"),
+                {"puid": personal_user_id, "cid": row[0]},
+            )
             db.commit()
             return True
     except Exception:

@@ -8,9 +8,9 @@ const CLIENT_KEY  = 'aria_client_session'
 // Falls back to hardcoded map if backend is unavailable (demo resilience).
 
 const ADVISOR_FALLBACK = {
-  'rm_demo':     { password: 'aria2026', role: 'advisor',    displayName: 'Rahul',       city: 'Hyderabad', region: 'Telangana', referral_code: 'RAHUL01' },
-  'hamza':       { password: 'aria2026', role: 'advisor',    displayName: 'Hamza',       city: 'Lyari',     region: 'Karachi',   referral_code: 'HAMZA01' },
-  'sunny_hayes': { password: 'aria2026', role: 'superadmin', displayName: 'Sunny Hayes', city: 'Hyderabad', region: 'Telangana', referral_code: 'SUNNY01' },
+  'rm_demo':     { password: 'aria2026', role: 'advisor',    advisor_id: 1, displayName: 'Rahul',       city: 'Hyderabad', region: 'Telangana', referral_code: 'RAHUL01' },
+  'hamza':       { password: 'aria2026', role: 'advisor',    advisor_id: 2, displayName: 'Hamza',       city: 'Lyari',     region: 'Karachi',   referral_code: 'HAMZA01' },
+  'sunny_hayes': { password: 'aria2026', role: 'superadmin', advisor_id: 3, displayName: 'Sunny Hayes', city: 'Hyderabad', region: 'Telangana', referral_code: 'SUNNY01' },
 }
 
 export const advisorLogin = async (username, password) => {
@@ -43,7 +43,7 @@ export const advisorLogin = async (username, password) => {
         city: account.city,
         region: account.region,
         referral_code: account.referral_code,
-        advisor_id: null,
+        advisor_id: account.advisor_id,
       }))
       return { success: true }
     }

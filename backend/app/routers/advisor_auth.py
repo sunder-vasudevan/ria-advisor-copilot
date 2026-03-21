@@ -75,10 +75,20 @@ def debug_auth(db: Session = Depends(get_db)):
     advisor = db.query(Advisor).filter(Advisor.username == "rm_demo").first()
     db_hash = advisor.hashed_password if advisor else None
     db_verify = _bcrypt.checkpw(test_pw.encode(), db_hash.encode()) if db_hash else None
+    # Simulate exact login query
+    login_advisor = db.query(Advisor).filter(
+        Advisor.username == "rm_demo",
+        Advisor.is_active == True,
+    ).first()
+    login_found = login_advisor is not None
+    login_verify = verify_password(test_pw, login_advisor.hashed_password) if login_advisor else None
     return {
         "bcrypt_version": _bcrypt.__version__,
         "python_version": sys.version,
         "fresh_hash_verify": fresh_verify,
         "db_hash": db_hash,
         "db_hash_verify": db_verify,
+        "login_query_found": login_found,
+        "login_verify_password": login_verify,
+        "is_active": login_advisor.is_active if login_advisor else None,
     }

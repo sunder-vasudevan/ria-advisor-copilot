@@ -75,7 +75,7 @@ export default function ClientList() {
 
   useEffect(() => {
     getClients()
-      .then(setClients)
+      .then(data => setClients(Array.isArray(data) ? data : []))
       .catch(() => setError('Failed to load clients'))
       .finally(() => setLoading(false))
   }, [])

@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..personal_models import PersonalUser
-from ..models import Advisor, Client
 from ..auth import get_password_hash, verify_password, create_access_token, get_current_personal_user
 from ..schemas import derive_risk_category
 
@@ -38,6 +37,8 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
 
+    from ..models import Advisor, Client  # lazy import to avoid circular mapper init
+
     # Resolve referral code → advisor
     advisor_id = None
     if payload.referral_code:
@@ -61,15 +62,11 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     # If linked to an advisor, find a matching client record (by name match) and link it
     if advisor_id:
         name_lower = payload.display_name.strip().lower()
-        client = db.query(Client).filter(
+        clients = db.query(Client).filter(
             Client.advisor_id == advisor_id,
             Client.personal_user_id == None,
         ).all()
-        # Match by display_name similarity (case-insensitive full name match)
-        matched = next(
-            (c for c in client if c.name.lower() == name_lower),
-            None
-        )
+        matched = next((c for c in clients if c.name.lower() == name_lower), None)
         if matched:
             matched.personal_user_id = user.id
             db.commit()
@@ -125,6 +122,8 @@ def link_advisor(
     db: Session = Depends(get_db),
 ):
     """Allow an existing personal user to link themselves to an advisor via referral code."""
+    from ..models import Advisor, Client  # lazy import to avoid circular mapper init
+
     if current_user.advisor_id:
         raise HTTPException(status_code=400, detail="Already linked to an advisor")
 

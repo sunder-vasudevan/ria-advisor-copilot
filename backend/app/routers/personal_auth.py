@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..personal_models import PersonalUser
+from ..models import Advisor, Client
 from ..auth import get_password_hash, verify_password, create_access_token, get_current_personal_user
 from ..schemas import derive_risk_category
 
@@ -14,6 +16,7 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     display_name: str
+    referral_code: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -35,19 +38,53 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
 
+    # Resolve referral code → advisor
+    advisor_id = None
+    if payload.referral_code:
+        advisor = db.query(Advisor).filter(
+            Advisor.referral_code == payload.referral_code.upper(),
+            Advisor.is_active == True,
+        ).first()
+        if advisor:
+            advisor_id = advisor.id
+
     user = PersonalUser(
         email=payload.email.lower(),
         hashed_password=get_password_hash(payload.password),
         display_name=payload.display_name.strip(),
+        advisor_id=advisor_id,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
+    # If linked to an advisor, find a matching client record (by name match) and link it
+    if advisor_id:
+        name_lower = payload.display_name.strip().lower()
+        client = db.query(Client).filter(
+            Client.advisor_id == advisor_id,
+            Client.personal_user_id == None,
+        ).all()
+        # Match by display_name similarity (case-insensitive full name match)
+        matched = next(
+            (c for c in client if c.name.lower() == name_lower),
+            None
+        )
+        if matched:
+            matched.personal_user_id = user.id
+            db.commit()
+
     token = create_access_token({"sub": user.email, "user_id": user.id})
+    linked = advisor_id is not None
     return TokenResponse(
         access_token=token,
-        user={"id": user.id, "email": user.email, "display_name": user.display_name},
+        user={
+            "id": user.id,
+            "email": user.email,
+            "display_name": user.display_name,
+            "advisor_id": user.advisor_id,
+            "advisor_linked": linked,
+        },
     )
 
 
@@ -72,6 +109,7 @@ def get_me(current_user: PersonalUser = Depends(get_current_personal_user)):
         "display_name": current_user.display_name,
         "risk_score": current_user.risk_score,
         "risk_category": current_user.risk_category,
+        "advisor_id": current_user.advisor_id,
         "created_at": current_user.created_at,
     }
 

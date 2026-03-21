@@ -21,6 +21,7 @@ def _run_personal_migrations():
         ("portfolios", "personal_user_id", "INTEGER"),
         ("goals", "personal_user_id", "INTEGER"),
         ("life_events", "personal_user_id", "INTEGER"),
+        ("personal_users", "advisor_id", "INTEGER"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in personal_columns:

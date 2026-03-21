@@ -14,6 +14,7 @@ class PersonalUser(Base):
     display_name = Column(String, nullable=False)
     risk_score = Column(Integer, nullable=True)    # 1–10, set during onboarding
     risk_category = Column(String, nullable=True)  # derived from risk_score
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=True)  # linked via referral code on signup
     created_at = Column(DateTime, default=datetime.utcnow)
 
     copilot_logs = relationship("PersonalCopilotLog", back_populates="user", cascade="all, delete-orphan")

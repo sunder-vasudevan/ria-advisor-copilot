@@ -1,7 +1,28 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
+
+
+class Advisor(Base):
+    """Advisor / Relationship Manager accounts."""
+    __tablename__ = "advisors"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    display_name = Column(String, nullable=False)
+    role = Column(String, nullable=False, default="advisor")  # "advisor" | "superadmin"
+    city = Column(String, nullable=True)
+    region = Column(String, nullable=True)
+    referral_code = Column(String, unique=True, nullable=True, index=True)
+    # V2: avg_rating + rating_count stubbed for advisor discovery + rate-my-advisor feature
+    avg_rating = Column(Float, nullable=True, default=None)
+    rating_count = Column(Integer, nullable=True, default=0)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    clients = relationship("Client", back_populates="advisor")
 
 
 class Client(Base):
@@ -13,6 +34,10 @@ class Client(Base):
     segment = Column(String, nullable=False)  # "Retail" | "HNI"
     risk_score = Column(Integer, nullable=False)  # 1–10
     risk_category = Column(String, nullable=False)  # Conservative | Moderate | Aggressive
+
+    # Advisor mapping — nullable for backward compat with existing seeded data
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=True, index=True)
+    advisor = relationship("Advisor", back_populates="clients")
 
     # Contact & personal details (FEAT-101)
     phone = Column(String, nullable=True)

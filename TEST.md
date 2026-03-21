@@ -11,11 +11,30 @@
 | # | Test | Expected | Result |
 |---|------|----------|--------|
 | A-01 | Login with `rm_demo` / `aria2026` | Redirects to client book | |
-| A-02 | Login with `sunny_hayes` / `aria2026` | Redirects, shows SUPER badge | |
-| A-03 | Login with wrong password | Error message shown, no redirect | |
-| A-04 | Refresh page while logged in | Session persists, stays on client book | |
-| A-05 | Sign out | Redirects to /login, session cleared | |
-| A-06 | Navigate to `/` without session | Redirects to /login | |
+| A-02 | Login with `hamza` / `aria2026` | Redirects, shows Hamza · Lyari in top bar | |
+| A-03 | Login with `sunny_hayes` / `aria2026` | Redirects, shows SUPER badge | |
+| A-04 | Login with wrong password | Error message shown, no redirect | |
+| A-05 | Refresh page while logged in | Session persists, stays on client book | |
+| A-06 | Sign out | Redirects to /login, session cleared | |
+| A-07 | Navigate to `/` without session | Redirects to /login | |
+| A-08 | Backend unavailable — login with valid demo creds | Falls back to local map, still logs in | |
+| A-09 | Login page shows both demo advisors | rm_demo (Rahul · Hyderabad) + hamza (Hamza · Lyari) | |
+
+### ADVISOR PROFILE IN TOP BAR
+| # | Test | Expected | Result |
+|---|------|----------|--------|
+| AP-01 | rm_demo login — top bar shows "Rahul" + "Hyderabad" | City visible below name on desktop | |
+| AP-02 | hamza login — top bar shows "Hamza" + "Lyari" | City visible below name on desktop | |
+| AP-03 | Mobile — city not shown (space constrained) | Only avatar visible on mobile | |
+
+### ADVISOR DB (backend)
+| # | Test | Expected | Result |
+|---|------|----------|--------|
+| DB-01 | `GET /advisor/profile/rm_demo` | Returns Rahul, Hyderabad, RAHUL01 | |
+| DB-02 | `GET /advisor/profile/hamza` | Returns Hamza, Lyari, HAMZA01 | |
+| DB-03 | `GET /advisor/all` | Returns all 3 active advisors | |
+| DB-04 | `POST /advisor/login` correct creds | Returns advisor profile JSON | |
+| DB-05 | `POST /advisor/login` wrong password | 401 response | |
 
 ### TOP BAR & NAVIGATION
 | # | Test | Expected | Result |

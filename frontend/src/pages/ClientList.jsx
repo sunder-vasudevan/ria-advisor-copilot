@@ -162,6 +162,10 @@ export default function ClientList() {
             <div className="w-7 h-7 rounded-full bg-blue-100 text-[#1D6FDB] flex items-center justify-center text-xs font-bold">
               {(session?.displayName || 'R')[0]}
             </div>
+            <div className="hidden lg:block">
+              <div className="text-xs font-medium text-gray-700 leading-tight">{session?.displayName}</div>
+              {session?.city && <div className="text-xs text-gray-400 leading-tight">{session.city}</div>}
+            </div>
             {session?.role === 'superadmin' && (
               <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400 text-amber-900 font-semibold leading-none">SUPER</span>
             )}

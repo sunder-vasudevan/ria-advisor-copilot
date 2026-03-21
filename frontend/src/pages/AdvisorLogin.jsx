@@ -10,16 +10,16 @@ export default function AdvisorLogin() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const success = advisorLogin(username, password)
+    const result = await advisorLogin(username, password)
     setLoading(false)
-    if (success) {
+    if (result.success) {
       navigate('/')
     } else {
-      setError('Invalid username or password.')
+      setError(result.error || 'Invalid username or password.')
     }
   }
 
@@ -114,18 +114,20 @@ export default function AdvisorLogin() {
           </form>
 
           <div className="mt-6 p-4 bg-white border border-gray-100 rounded-xl">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Demo credentials</div>
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <code className="bg-gray-100 px-2 py-1 rounded font-mono">rm_demo</code>
-              <span className="text-gray-300">/</span>
-              <code className="bg-gray-100 px-2 py-1 rounded font-mono">aria2026</code>
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Demo advisors</div>
+            <div className="space-y-1.5">
+              {[
+                { user: 'rm_demo', label: 'Rahul · Hyderabad' },
+                { user: 'hamza',   label: 'Hamza · Lyari' },
+              ].map(({ user, label }) => (
+                <div key={user} className="flex items-center gap-2 text-xs text-gray-600">
+                  <code className="bg-gray-100 px-2 py-1 rounded font-mono">{user}</code>
+                  <span className="text-gray-300">/</span>
+                  <code className="bg-gray-100 px-2 py-1 rounded font-mono">aria2026</code>
+                  <span className="text-gray-400 ml-auto">{label}</span>
+                </div>
+              ))}
             </div>
-          </div>
-
-          <div className="text-center mt-6">
-            <Link to="/client-portal/login" className="text-navy-400 text-xs hover:text-navy-700 transition-colors">
-              Client? Sign in to your portal →
-            </Link>
           </div>
 
           <div className="lg:hidden text-center mt-8 text-gray-300 text-xs">

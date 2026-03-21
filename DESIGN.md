@@ -176,6 +176,23 @@ Split layout:
 - **Left (lg+):** Dark navy gradient panel — logo, tagline, stats
 - **Right:** `bg-gray-50` — form, demo credentials
 
+### Advisor Login — Demo Credentials Block
+Shows both seeded advisors with their city:
+- `rm_demo` / `aria2026` → Rahul · Hyderabad
+- `hamza` / `aria2026` → Hamza · Lyari
+
+### Advisor Mapping
+- `advisors` table: `id, username, hashed_password, display_name, role, city, region, referral_code, avg_rating, rating_count, is_active`
+- `clients.advisor_id` FK → `advisors.id` (nullable — existing seeded clients have no advisor_id)
+- Login: frontend calls `POST /advisor/login` (bcrypt verify), falls back to hardcoded map on network failure
+- Session stored in `localStorage` as `aria_advisor_session` with `advisor_id`, `city`, `region`, `referral_code`
+- City shown in top bar next to advisor name (desktop)
+
+### V2 Stub
+- `avg_rating` + `rating_count` columns exist on `advisors` table — populated by "Rate My Advisor" feature
+- `advisor_ratings` table to be created in V2
+- `GET /advisor/all` endpoint ready for advisor discovery directory
+
 ---
 
 ## Shadows

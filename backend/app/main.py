@@ -5,12 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-from .database import engine, Base
+from .database import engine, Base, SessionLocal
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
+from .routers import advisor_auth
 from . import personal_models  # ensure personal tables registered with Base
 
 load_dotenv()
+
 
 
 def _run_personal_migrations():
@@ -34,6 +36,61 @@ def _run_personal_migrations():
                 conn.commit()
             except Exception:
                 pass  # Already nullable or column doesn't exist
+
+
+def _run_advisor_migrations():
+    """Add advisor_id to clients table and create advisors table columns (idempotent)."""
+    with engine.connect() as conn:
+        # advisor_id FK on clients
+        try:
+            conn.execute(text("ALTER TABLE clients ADD COLUMN advisor_id INTEGER REFERENCES advisors(id)"))
+            conn.commit()
+        except Exception:
+            pass
+
+
+def _seed_advisors():
+    """Seed advisors if not already present. Idempotent."""
+    from .models import Advisor
+    from .auth import get_password_hash
+    db = SessionLocal()
+    try:
+        advisors_data = [
+            {
+                "username": "rm_demo",
+                "display_name": "Rahul",
+                "role": "advisor",
+                "city": "Hyderabad",
+                "region": "Telangana",
+                "referral_code": "RAHUL01",
+                "hashed_password": get_password_hash("aria2026"),
+            },
+            {
+                "username": "hamza",
+                "display_name": "Hamza",
+                "role": "advisor",
+                "city": "Lyari",
+                "region": "Karachi",
+                "referral_code": "HAMZA01",
+                "hashed_password": get_password_hash("aria2026"),
+            },
+            {
+                "username": "sunny_hayes",
+                "display_name": "Sunny Hayes",
+                "role": "superadmin",
+                "city": "Hyderabad",
+                "region": "Telangana",
+                "referral_code": "SUNNY01",
+                "hashed_password": get_password_hash("aria2026"),
+            },
+        ]
+        for data in advisors_data:
+            existing = db.query(Advisor).filter(Advisor.username == data["username"]).first()
+            if not existing:
+                db.add(Advisor(**data))
+        db.commit()
+    finally:
+        db.close()
 
 
 def _run_migrations():
@@ -74,6 +131,8 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)  # creates all new tables automatically
     _run_migrations()
     _run_personal_migrations()
+    _run_advisor_migrations()
+    _seed_advisors()
     yield
 
 
@@ -105,6 +164,7 @@ app.include_router(personal_portfolio.router)
 app.include_router(personal_goals.router)
 app.include_router(personal_life_events.router)
 app.include_router(personal_copilot.router)
+app.include_router(advisor_auth.router)
 
 
 @app.get("/health")

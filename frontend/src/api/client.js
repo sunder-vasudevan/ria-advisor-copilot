@@ -4,6 +4,8 @@ const BASE = import.meta.env.VITE_API_URL || '/api'
 
 const api = axios.create({ baseURL: BASE })
 
+export const getApiClient = () => api
+
 export const getClients = () => api.get('/clients').then(r => r.data)
 
 export const getClient = (id) => api.get(`/clients/${id}`).then(r => r.data)

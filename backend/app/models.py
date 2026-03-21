@@ -52,7 +52,7 @@ class Client(Base):
     goals = relationship("Goal", back_populates="client")
     life_events = relationship("LifeEvent", back_populates="client")
     audit_logs = relationship("AuditLog", back_populates="client")
-    interactions = relationship("ClientInteraction", back_populates="client", order_by="ClientInteraction.interaction_date")
+    interactions = relationship("ClientInteraction", back_populates="client")
 
 
 class Portfolio(Base):

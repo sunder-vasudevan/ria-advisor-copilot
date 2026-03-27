@@ -233,3 +233,28 @@ class TradeAuditLog(Base):
     note = Column(Text, nullable=True)
 
     trade = relationship("Trade", back_populates="audit_logs")
+
+
+# Notification System (FEAT-1004)
+class NotificationTypeEnum(str, enum.Enum):
+    trade_submitted = "trade_submitted"  # Advisor submitted trade → Client notified
+    trade_approved = "trade_approved"    # Client approved trade → Advisor notified
+    trade_rejected = "trade_rejected"    # Client rejected trade → Advisor notified
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # Recipient: either advisor_id or personal_user_id (mutually exclusive)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=True, index=True)
+    personal_user_id = Column(Integer, nullable=True, index=True)  # Links to personal_users.id
+    # Notification content
+    notification_type = Column(Enum(NotificationTypeEnum), nullable=False)
+    trade_id = Column(Integer, ForeignKey("trades.id"), nullable=True)
+    message = Column(Text, nullable=False)
+    # Status
+    read = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    trade = relationship("Trade", foreign_keys=[trade_id])

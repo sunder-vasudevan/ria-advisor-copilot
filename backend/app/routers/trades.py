@@ -8,6 +8,7 @@ from datetime import datetime
 from ..database import SessionLocal
 from .. import models, schemas
 from ..auth import get_current_user, get_current_personal_user
+from .notifications import create_notification
 
 
 router = APIRouter(prefix="/trades", tags=["trades"])
@@ -123,6 +124,18 @@ def submit_trade_for_approval(
         note="Trade submitted for client approval",
     )
     db.add(audit_log)
+
+    # Create notification for client (FEAT-1004)
+    client = db.query(models.Client).filter(models.Client.id == trade.client_id).first()
+    if client and client.personal_user_id:
+        notification = create_notification(
+            db=db,
+            personal_user_id=client.personal_user_id,
+            notification_type=models.NotificationTypeEnum.trade_submitted.value,
+            trade_id=trade.id,
+            message=f"New trade pending your approval: {trade.action} {trade.asset_code} ({trade.quantity} units, ₹{trade.estimated_value})",
+        )
+
     db.commit()
     db.refresh(trade)
 
@@ -192,6 +205,16 @@ def approve_trade(
         note=f"Mock banking executed: {trade.asset_type.value} {trade.action.value} {trade.asset_code} × {trade.quantity} @ ₹{trade.estimated_value}",
     )
     db.add(audit_log_settle)
+
+    # Create notification for advisor (FEAT-1004)
+    notification = create_notification(
+        db=db,
+        advisor_id=trade.advisor_id,
+        notification_type=models.NotificationTypeEnum.trade_approved.value,
+        trade_id=trade.id,
+        message=f"Trade approved by {trade.client_id}: {trade.action} {trade.asset_code} ({trade.quantity} units). Settling now.",
+    )
+
     db.commit()
     db.refresh(trade)
 
@@ -240,6 +263,16 @@ def reject_trade(
         note=f"Trade rejected by client. Reason: {reject_data.client_comment or 'None'}",
     )
     db.add(audit_log)
+
+    # Create notification for advisor (FEAT-1004)
+    notification = create_notification(
+        db=db,
+        advisor_id=trade.advisor_id,
+        notification_type=models.NotificationTypeEnum.trade_rejected.value,
+        trade_id=trade.id,
+        message=f"Trade rejected by client: {trade.action} {trade.asset_code}. Reason: {trade.client_comment or 'None'}",
+    )
+
     db.commit()
     db.refresh(trade)
 

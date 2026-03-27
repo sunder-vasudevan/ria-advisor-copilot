@@ -96,6 +96,16 @@ export const rejectTrade = (tradeId, data) =>
 export const updateCryptoTxHash = (tradeId, data) =>
   api.put(`/trades/${tradeId}/tx-hash`, data).then(r => r.data)
 
+// Notifications (FEAT-1004)
+export const getAdvisorNotifications = (limit = 20) =>
+  api.get(`/notifications/advisor/me?limit=${limit}`).then(r => r.data)
+
+export const markNotificationRead = (notificationId) =>
+  api.put(`/notifications/${notificationId}/read`).then(r => r.data)
+
+export const deleteNotification = (notificationId) =>
+  api.delete(`/notifications/${notificationId}`).then(r => r.data)
+
 export const fmt = {
   inr: (v) => {
     if (!v && v !== 0) return '—'

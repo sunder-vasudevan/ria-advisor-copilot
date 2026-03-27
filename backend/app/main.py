@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 
 from .database import engine, Base, SessionLocal
-from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades
+from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades, notifications
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
 from .routers import advisor_auth
 from . import models          # ensure advisors table registered before personal_models
@@ -180,6 +180,7 @@ app.include_router(situation.router)
 app.include_router(meeting_prep.router)
 app.include_router(interactions.router)
 app.include_router(trades.router)
+app.include_router(notifications.router)
 app.include_router(personal_auth.router)
 app.include_router(personal_portfolio.router)
 app.include_router(personal_goals.router)

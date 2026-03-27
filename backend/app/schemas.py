@@ -365,3 +365,24 @@ class TradeOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ─── Notifications ────────────────────────────────────────────────────────────
+
+class NotificationOut(BaseModel):
+    id: int
+    advisor_id: Optional[int]
+    personal_user_id: Optional[int]
+    notification_type: str  # trade_submitted | trade_approved | trade_rejected
+    trade_id: Optional[int]
+    message: str
+    read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class NotificationListOut(BaseModel):
+    notifications: List[NotificationOut]
+    unread_count: int

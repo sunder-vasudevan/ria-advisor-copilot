@@ -66,6 +66,22 @@
   - Fix: Seeder changed to upsert — always syncs hashed passwords on deploy
   - RCA docs written to `docs/RCA-2026-03-21-login-failure.md` + deep-dive
 
+## What Shipped This Session (2026-03-27 — Session 28)
+- **FEAT-1004: Trade Notifications UI** ✅
+  - Backend: `client_id` field added to NotificationOut schema; `client_id` property on Notification model (derives from Trade FK)
+  - Frontend: NotificationBell component in ClientList header
+    - Red unread count badge (displays "9+" for counts >9)
+    - Dropdown panel with emoji icons (🔔 submitted, ✅ approved, ❌ rejected)
+    - Colored left borders (amber/green/red) matching trade statuses
+    - Auto-polling every 60 seconds
+    - Mark-all-read on panel open
+    - Click notification to navigate to client's 360° page
+    - Mobile-responsive (full-width dropdown on small screens)
+    - Loading skeleton + empty state
+  - Documentation: New "Notifications" section added to HelpPage covering bell UI, behavior, color coding
+  - Deployed: Vercel frontend + Render backend live ✅
+  - Commit: `3058623` — git push + vercel --prod
+
 ## What Shipped (2026-03-21 — Session 13)
 - **FEAT-903: Advisor self-edit profile page** — display_name, city, region; referral code read-only
 - **FEAT-905: Full advisor object on /me** — Personal profile card shows name, city, region, referral, rating

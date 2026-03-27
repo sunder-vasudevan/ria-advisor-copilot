@@ -127,3 +127,28 @@
 
 **Known gaps:** Live debounced recalculation not yet built — FEAT-503 is next
 **Blocked on:** FEAT-503
+
+### [TEST-007] — Trade Notifications UI (FEAT-1004)
+**Date:** 2026-03-27
+**Phase:** 2
+**Tested by:** Sunny Hayes
+**Test type:** Manual + API verification
+**Environment:** Render+Vercel (prod)
+
+| Test Case | Expected | Result | Status |
+|-----------|----------|--------|--------|
+| NotificationBell component renders | Bell icon visible in header | Visible ✅ | ✅ Pass |
+| Unread badge displays count | Red badge with number (max 9+) | Badge displays correctly | ✅ Pass |
+| Dropdown panel opens on click | Panel expands from bell icon | Opens correctly | ✅ Pass |
+| Click-outside dismisses panel | Panel closes when clicking outside | Dismisses correctly | ✅ Pass |
+| Empty state displays | "You're all caught up" when no notifications | Displays correctly | ✅ Pass |
+| Notification icons show | 🔔 submitted, ✅ approved, ❌ rejected | Icons render correctly | ✅ Pass |
+| Border colors match status | Amber/green/red left borders | Colors correct | ✅ Pass |
+| Auto-polling works | Fetches every 60s | Polls correctly | ✅ Pass |
+| Mark-all-read on open | Opening panel marks unread as read | Works correctly | ✅ Pass |
+| Click notification navigates | Clicking notification → client 360° | Navigation works | ✅ Pass |
+| Mobile dropdown responsive | Full-width on small screens | Responsive ✅ | ✅ Pass |
+| API returns client_id | NotificationOut schema has client_id | Returns correctly | ✅ Pass |
+
+**Known gaps:** Notifications only appear when client has personal_user_id (requires Personal ARIA integration)
+**Blocked on:** Personal ARIA user linking (not blocking feature — works once integrated)

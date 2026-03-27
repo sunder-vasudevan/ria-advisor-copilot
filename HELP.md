@@ -1,5 +1,5 @@
 # ARIA Advisor Workbench — Help Guide
-**Version 1.2** · Last updated: 2026-03-16
+**Version 1.2+** · Last updated: 2026-03-27
 
 ---
 
@@ -87,7 +87,15 @@ In the Goals tab, expand the **What-if Scenario** panel to model how changes aff
 
 > **How it works:** 1,000 Monte Carlo paths are run per goal. Each path simulates monthly portfolio growth with random return variation (±5% annualised volatility) around the assumed rate, compounding SIP contributions. The target is inflated using compound inflation before counting successes.
 
-### 8. Client Portal
+### 8. Notifications (FEAT-1004)
+The bell icon in the top-right header shows unread notifications (red badge with count). Click the bell to open the notification panel:
+- **Notification types:** Trade Submitted (amber), Trade Approved (green), Trade Rejected (red)
+- **Auto-polling:** Refreshes every 60 seconds
+- **Mark as read:** Opening the panel marks all visible notifications as read
+- **Navigate:** Click any notification to jump directly to that client's 360° page
+- **Mobile:** Dropdown expands full-width on small screens
+
+### 9. Client Portal
 Clients can log in at `/client-portal/login` to view a read-only summary of their own portfolio and goals. No sensitive advisor data is exposed.
 
 ---

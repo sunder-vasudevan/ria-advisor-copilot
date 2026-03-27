@@ -258,3 +258,8 @@ class Notification(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
     trade = relationship("Trade", foreign_keys=[trade_id])
+
+    @property
+    def client_id(self):
+        """Resolve client_id from related trade."""
+        return self.trade.client_id if self.trade else None

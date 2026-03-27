@@ -1,8 +1,8 @@
 import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap } from 'lucide-react'
-import { getClients, getBriefing, getClient, fmt } from '../api/client'
+import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap } from 'lucide-react'
+import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 
 function UrgencyBadge({ flag }) {
@@ -69,6 +69,163 @@ function Avatar({ name }) {
   return (
     <div className="w-9 h-9 rounded-full bg-blue-100 text-[#1D6FDB] flex items-center justify-center text-sm font-bold flex-shrink-0">
       {initials}
+    </div>
+  )
+}
+
+function NotificationBell() {
+  const [open, setOpen] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const panelRef = useRef(null)
+  const navigate = useNavigate()
+
+  const fetchNotifications = async () => {
+    setLoading(true)
+    try {
+      const response = await getAdvisorNotifications(20)
+      setNotifications(response.notifications || [])
+      setUnreadCount(response.unread_count || 0)
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const handleOpen = async () => {
+    setOpen(true)
+    if (unreadCount > 0) {
+      const unread = notifications.filter(n => !n.read)
+      await Promise.allSettled(unread.map(n => markNotificationRead(n.id)))
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+      setUnreadCount(0)
+    }
+  }
+
+  const relTime = (isoString) => {
+    const now = new Date()
+    const created = new Date(isoString)
+    const diffMs = now - created
+    const diffM = Math.floor(diffMs / 60000)
+    const diffH = Math.floor(diffMs / 3600000)
+    const diffD = Math.floor(diffMs / 86400000)
+
+    if (diffM < 1) return 'just now'
+    if (diffM < 60) return `${diffM}m ago`
+    if (diffH < 24) return `${diffH}h ago`
+    return `${diffD}d ago`
+  }
+
+  const typeConfig = {
+    trade_submitted: { emoji: '🔔', borderColor: 'border-amber-400', bgUnread: 'bg-amber-50' },
+    trade_approved:  { emoji: '✅', borderColor: 'border-green-400', bgUnread: 'bg-green-50' },
+    trade_rejected:  { emoji: '❌', borderColor: 'border-red-400', bgUnread: 'bg-red-50' },
+  }
+
+  const badgeLabel = unreadCount > 9 ? '9+' : String(unreadCount)
+
+  return (
+    <div className="relative" ref={panelRef}>
+      <button
+        onClick={handleOpen}
+        className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+        aria-label="Notifications"
+      >
+        {unreadCount > 0 ? (
+          <BellRing size={18} className="text-[#1D6FDB]" />
+        ) : (
+          <Bell size={18} />
+        )}
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+            {badgeLabel}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-[380px] max-sm:w-screen max-sm:right-auto max-sm:left-1/2 max-sm:-translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 flex flex-col max-h-[480px]">
+
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <span className="text-sm font-semibold text-gray-900">Notifications</span>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          <div className="overflow-y-auto flex-1">
+            {loading && notifications.length === 0 ? (
+              [1, 2, 3].map(i => (
+                <div
+                  key={i}
+                  className="px-4 py-3 flex gap-3 border-b border-gray-50 animate-pulse"
+                >
+                  <div className="w-6 h-6 rounded-full bg-gray-100 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-gray-100 rounded w-4/5" />
+                    <div className="h-2 bg-gray-100 rounded w-2/5" />
+                  </div>
+                </div>
+              ))
+            ) : notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <CheckCircle size={32} className="text-gray-200 mb-3" />
+                <p className="text-sm font-medium text-gray-400">You're all caught up</p>
+                <p className="text-xs text-gray-300 mt-1">No new notifications</p>
+              </div>
+            ) : (
+              notifications.map(n => {
+                const config = typeConfig[n.notification_type] || typeConfig.trade_submitted
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => {
+                      if (n.client_id) {
+                        navigate(`/clients/${n.client_id}`)
+                      }
+                      setOpen(false)
+                    }}
+                    className={`w-full text-left px-4 py-3 flex items-start gap-3 border-l-4 ${config.borderColor} ${
+                      !n.read ? config.bgUnread : 'bg-white'
+                    } hover:bg-gray-50 transition-colors border-b border-gray-50`}
+                  >
+                    <span className="text-base flex-shrink-0 mt-0.5">{config.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 leading-snug">{n.message}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{relTime(n.created_at)}</p>
+                    </div>
+                    {!n.read && (
+                      <span className="w-2 h-2 rounded-full bg-[#1D6FDB] flex-shrink-0 mt-1.5" />
+                    )}
+                  </button>
+                )
+              })
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -186,6 +343,7 @@ export default function ClientList() {
             {briefingLoading ? <RefreshCw size={13} className="animate-spin" /> : <Bell size={13} />}
             <span className="hidden lg:inline">{briefingLoading ? 'Loading…' : 'Briefing'}</span>
           </button>
+          <NotificationBell />
           <button
             onClick={() => navigate('/clients/new')}
             className="flex items-center gap-1.5 px-4 py-2 bg-[#1D6FDB] text-white text-sm font-semibold rounded-lg hover:bg-blue-700 shadow-sm transition-colors"

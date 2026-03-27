@@ -376,6 +376,7 @@ class NotificationOut(BaseModel):
     personal_user_id: Optional[int]
     notification_type: str  # trade_submitted | trade_approved | trade_rejected
     trade_id: Optional[int]
+    client_id: Optional[int]
     message: str
     read: bool
     created_at: datetime

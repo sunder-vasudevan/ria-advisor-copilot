@@ -18,6 +18,7 @@ import {
   AlertCircle,
   History,
   ArrowLeft,
+  Bell,
 } from 'lucide-react'
 
 const sections = [
@@ -190,6 +191,29 @@ const sections = [
     ],
   },
   {
+    id: 'notifications',
+    icon: <Bell size={18} />,
+    title: 'Notifications',
+    content: [
+      {
+        heading: 'What triggers a notification',
+        text: 'You receive a notification whenever a trade changes status. Three types exist: Trade Submitted (a draft trade has been sent for approval), Trade Approved (a submitted trade has been approved), and Trade Rejected (a submitted trade has been rejected).',
+      },
+      {
+        heading: 'The notification bell',
+        text: 'The bell icon in the top-right header shows a red badge with the count of unread notifications (max shown: 9+). Click the bell to open the notification panel. Notifications are fetched automatically every 60 seconds.',
+      },
+      {
+        heading: 'Reading notifications',
+        text: 'Opening the notification panel marks all visible notifications as read. You can also click any notification to jump directly to that client\'s 360° page.',
+      },
+      {
+        heading: 'Colour coding',
+        text: 'Each notification has a coloured left border: amber for submitted, green for approved, red for rejected — matching the trade status colours used throughout the app.',
+      },
+    ],
+  },
+  {
     id: 'setup',
     icon: <Wrench size={18} />,
     title: 'Environment Setup',
@@ -312,7 +336,7 @@ export default function HelpPage() {
 
         {/* Quick nav */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {['Getting Started', 'Client Book', 'Morning Briefing', 'Client 360°', 'Copilot', 'Goals', 'Setup'].map((label) => (
+          {['Getting Started', 'Client Book', 'Morning Briefing', 'Client 360°', 'Copilot', 'Goals', 'Notifications', 'Setup'].map((label) => (
             <span key={label} className="px-2.5 py-1 rounded-full border border-gray-200 text-xs text-gray-600 bg-white">
               {label}
             </span>

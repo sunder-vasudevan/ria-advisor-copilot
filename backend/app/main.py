@@ -112,55 +112,29 @@ def _seed_client_advisor_assignments():
 
 
 def _seed_personal_user_assignments():
-    """Link all unlinked personal users to Rahul and create client + portfolio rows (idempotent)."""
+    """Ensure all personal users have client + portfolio rows (idempotent, no forced advisor assignment)."""
     with engine.connect() as conn:
         try:
-            # Get Rahul's ID
-            rahul = conn.execute(text("SELECT id FROM advisors WHERE referral_code = 'RAHUL01' LIMIT 1")).fetchone()
-            if not rahul:
-                return
-            rahul_id = rahul[0]
-
-            # Get all personal users with no advisor_id
-            users = conn.execute(text("SELECT id, display_name FROM personal_users WHERE advisor_id IS NULL")).fetchall()
+            # Get all personal users without a client row
+            users = conn.execute(text("SELECT id, display_name FROM personal_users WHERE id NOT IN (SELECT DISTINCT personal_user_id FROM clients WHERE personal_user_id IS NOT NULL)")).fetchall()
             for user_id, display_name in users:
-                # Set advisor_id
+                # Create standalone client (no advisor forced)
                 conn.execute(
-                    text("UPDATE personal_users SET advisor_id = :aid WHERE id = :uid"),
-                    {"aid": rahul_id, "uid": user_id}
+                    text("""
+                        INSERT INTO clients (name, age, segment, risk_score, risk_category, advisor_id, personal_user_id, source)
+                        VALUES (:name, 0, 'Retail', 5, 'Moderate', NULL, :puid, 'portal')
+                    """),
+                    {"name": display_name.strip(), "puid": user_id}
                 )
 
-                # Check if client exists under Rahul with this name
-                existing_client = conn.execute(
-                    text("SELECT id FROM clients WHERE advisor_id = :aid AND personal_user_id IS NULL AND LOWER(name) = LOWER(:name) LIMIT 1"),
-                    {"aid": rahul_id, "name": display_name.strip()}
+                # Get the inserted client_id
+                client_id_row = conn.execute(
+                    text("SELECT id FROM clients WHERE personal_user_id = :puid ORDER BY id DESC LIMIT 1"),
+                    {"puid": user_id}
                 ).fetchone()
+                client_id = client_id_row[0] if client_id_row else None
 
-                client_id = None
-                if existing_client:
-                    # Link existing client
-                    client_id = existing_client[0]
-                    conn.execute(
-                        text("UPDATE clients SET personal_user_id = :puid WHERE id = :cid"),
-                        {"puid": user_id, "cid": client_id}
-                    )
-                else:
-                    # Create new client
-                    result = conn.execute(
-                        text("""
-                            INSERT INTO clients (name, age, segment, risk_score, risk_category, advisor_id, personal_user_id, source)
-                            VALUES (:name, 0, 'Retail', 5, 'Moderate', :aid, :puid, 'portal')
-                        """),
-                        {"name": display_name.strip(), "aid": rahul_id, "puid": user_id}
-                    )
-                    # Get the inserted client_id
-                    client_id_row = conn.execute(
-                        text("SELECT id FROM clients WHERE advisor_id = :aid AND personal_user_id = :puid ORDER BY id DESC LIMIT 1"),
-                        {"aid": rahul_id, "puid": user_id}
-                    ).fetchone()
-                    client_id = client_id_row[0] if client_id_row else None
-
-                # Ensure portfolio exists (idempotent)
+                # Create portfolio
                 if client_id:
                     existing_portfolio = conn.execute(
                         text("SELECT id FROM portfolios WHERE personal_user_id = :puid LIMIT 1"),

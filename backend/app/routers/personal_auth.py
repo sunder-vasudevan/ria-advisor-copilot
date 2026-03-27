@@ -65,6 +65,83 @@ def _set_advisor_id(user_id: int, advisor_id: int, db: Session):
     db.commit()
 
 
+def _create_personal_client_and_portfolio(display_name: str, personal_user_id: int, advisor_id: Optional[int], db: Session) -> bool:
+    """Create client and portfolio rows for a personal user (idempotent). Advisor link is optional."""
+    try:
+        # Check if client already exists for this personal user
+        existing = db.execute(
+            text("SELECT id FROM clients WHERE personal_user_id = :puid LIMIT 1"),
+            {"puid": personal_user_id}
+        ).fetchone()
+
+        client_id = None
+        if existing:
+            client_id = existing[0]
+        else:
+            # Create client row
+            if advisor_id:
+                # Try to match with existing unlinked client under advisor
+                match = db.execute(
+                    text("SELECT id FROM clients WHERE advisor_id = :aid AND personal_user_id IS NULL AND LOWER(name) = LOWER(:name) LIMIT 1"),
+                    {"aid": advisor_id, "name": display_name.strip()}
+                ).fetchone()
+                if match:
+                    # Link existing client
+                    client_id = match[0]
+                    db.execute(
+                        text("UPDATE clients SET personal_user_id = :puid, source = 'portal' WHERE id = :cid"),
+                        {"puid": personal_user_id, "cid": client_id}
+                    )
+                else:
+                    # Create new client under advisor
+                    db.execute(
+                        text("""
+                            INSERT INTO clients (name, age, segment, risk_score, risk_category, advisor_id, personal_user_id, source)
+                            VALUES (:name, 0, 'Retail', 5, 'Moderate', :aid, :puid, 'portal')
+                        """),
+                        {"name": display_name.strip(), "aid": advisor_id, "puid": personal_user_id}
+                    )
+                    result = db.execute(
+                        text("SELECT id FROM clients WHERE advisor_id = :aid AND personal_user_id = :puid ORDER BY id DESC LIMIT 1"),
+                        {"aid": advisor_id, "puid": personal_user_id}
+                    ).fetchone()
+                    client_id = result[0] if result else None
+            else:
+                # Create standalone client (no advisor)
+                db.execute(
+                    text("""
+                        INSERT INTO clients (name, age, segment, risk_score, risk_category, advisor_id, personal_user_id, source)
+                        VALUES (:name, 0, 'Retail', 5, 'Moderate', NULL, :puid, 'portal')
+                    """),
+                    {"name": display_name.strip(), "puid": personal_user_id}
+                )
+                result = db.execute(
+                    text("SELECT id FROM clients WHERE personal_user_id = :puid ORDER BY id DESC LIMIT 1"),
+                    {"puid": personal_user_id}
+                ).fetchone()
+                client_id = result[0] if result else None
+
+        # Ensure portfolio exists
+        if client_id:
+            existing_portfolio = db.execute(
+                text("SELECT id FROM portfolios WHERE personal_user_id = :puid LIMIT 1"),
+                {"puid": personal_user_id}
+            ).fetchone()
+            if not existing_portfolio:
+                db.execute(
+                    text("""
+                        INSERT INTO portfolios (client_id, personal_user_id, total_value, equity_pct, debt_pct, cash_pct, target_equity_pct, target_debt_pct, target_cash_pct)
+                        VALUES (:cid, :puid, 0, 0, 0, 100, 60, 30, 10)
+                    """),
+                    {"cid": client_id, "puid": personal_user_id}
+                )
+        db.commit()
+        return True
+    except Exception as e:
+        logger.error("_create_personal_client_and_portfolio failed: %s", e)
+    return False
+
+
 def _link_client_by_name(display_name: str, advisor_id: int, personal_user_id: int, db: Session) -> bool:
     """Find existing client by name under advisor and link, or create a new portal client."""
     try:
@@ -124,13 +201,15 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    # Link advisor via referral code (raw SQL — advisor_id not in ORM model)
+    # Resolve advisor if referral code provided
     advisor_id = None
     if payload.referral_code:
         advisor_id = _resolve_advisor_id(payload.referral_code, db)
         if advisor_id:
             _set_advisor_id(user.id, advisor_id, db)
-            _link_client_by_name(payload.display_name, advisor_id, user.id, db)
+
+    # Create client and portfolio rows (advisor linkage is optional)
+    _create_personal_client_and_portfolio(payload.display_name, user.id, advisor_id, db)
 
     token = create_access_token({"sub": user.email, "user_id": user.id})
     return TokenResponse(

@@ -147,7 +147,7 @@ def approve_trade(
     trade_id: int,
     approve_data: schemas.TradeApprove,
     db: Session = Depends(get_db),
-    x_client_id: int = Header(None, alias="X-Client-Id"),
+    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
 ):
     """
     Client approves trade (pending_approval → approved → settled).
@@ -156,10 +156,15 @@ def approve_trade(
     - Mock banking: Create debit/credit log
     - Status: approved → settled (system auto-settles)
 
-    Request headers: X-Client-Id (from JWT token)
+    Request headers: X-Personal-User-Id (from JWT token)
     """
-    if not x_client_id:
-        raise HTTPException(status_code=401, detail="X-Client-Id header required")
+    if not x_personal_user_id:
+        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
+
+    # Resolve client_id from personal user
+    client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
+    if not client_id:
+        raise HTTPException(status_code=404, detail="No client linked to this user")
 
     trade = db.query(models.Trade).filter(
         models.Trade.id == trade_id,
@@ -226,15 +231,20 @@ def reject_trade(
     trade_id: int,
     reject_data: schemas.TradeReject,
     db: Session = Depends(get_db),
-    x_client_id: int = Header(None, alias="X-Client-Id"),
+    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
 ):
     """
     Client rejects trade (pending_approval → rejected).
 
-    Request headers: X-Client-Id (from JWT token)
+    Request headers: X-Personal-User-Id (from JWT token)
     """
-    if not x_client_id:
-        raise HTTPException(status_code=401, detail="X-Client-Id header required")
+    if not x_personal_user_id:
+        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
+
+    # Resolve client_id from personal user
+    client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
+    if not client_id:
+        raise HTTPException(status_code=404, detail="No client linked to this user")
 
     trade = db.query(models.Trade).filter(
         models.Trade.id == trade_id,

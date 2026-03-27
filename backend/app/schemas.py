@@ -92,6 +92,7 @@ class ClientListItem(BaseModel):
     urgency_score: int  # for sorting
     portal_active: bool = False
     direct_signup: bool = False  # True = self-registered via Personal portal
+    needs_advisor: bool = False  # True if advisor_id is NULL
 
     class Config:
         from_attributes = True

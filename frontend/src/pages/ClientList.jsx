@@ -56,6 +56,14 @@ function DirectBadge() {
   )
 }
 
+function NeedsAdvisorBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+      <AlertTriangle size={10} /> Needs Advisor
+    </span>
+  )
+}
+
 function Avatar({ name }) {
   const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
   return (
@@ -416,6 +424,7 @@ function ClientCard({ client, navigate, onMouseEnter }) {
       </div>
       <div className="mt-2.5 flex flex-wrap gap-1">
         <ProbabilityPill urgencyScore={client.urgency_score} />
+        {client.needs_advisor && <NeedsAdvisorBadge />}
         {client.direct_signup && <DirectBadge />}
         {client.portal_active && !client.direct_signup && <PortalBadge />}
         {client.urgency_flags.slice(0, 1).map((f, i) => <UrgencyBadge key={i} flag={f} />)}
@@ -467,6 +476,7 @@ function ClientTable({ clients, navigate, onPrefetch }) {
             <td className="px-6 py-4">
               <div className="flex items-center gap-1.5">
                 <ProbabilityPill urgencyScore={client.urgency_score} />
+                {client.needs_advisor && <NeedsAdvisorBadge />}
                 {client.direct_signup && <DirectBadge />}
                 {client.portal_active && !client.direct_signup && <PortalBadge />}
               </div>

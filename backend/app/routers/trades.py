@@ -316,6 +316,33 @@ def list_advisor_trades(
     return trades
 
 
+# ─── Personal App Endpoints (JWT-based) ─ MUST come before {client_id} routes ──
+
+@router.get("/personal/clients/me/trades", response_model=List[schemas.TradeOut])
+def list_personal_trades_jwt(
+    db: Session = Depends(get_db),
+    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
+):
+    """
+    Personal app client views their trades using JWT.
+
+    Header: X-Personal-User-Id (from personal JWT)
+    """
+    if not x_personal_user_id:
+        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
+
+    # Resolve client_id from personal_user_id
+    client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
+    if not client_id:
+        raise HTTPException(status_code=404, detail="No client linked to this user")
+
+    trades = db.query(models.Trade).filter(
+        models.Trade.client_id == client_id
+    ).order_by(models.Trade.created_at.desc()).all()
+
+    return trades
+
+
 @router.get("/personal/clients/{client_id}/trades", response_model=List[schemas.TradeOut])
 def list_personal_trades(
     client_id: int,
@@ -388,30 +415,3 @@ def update_crypto_tx_hash(
     db.refresh(trade)
 
     return trade
-
-
-# ─── Personal App Endpoints (JWT-based) ────────────────────────────────────────
-
-@router.get("/personal/clients/me/trades", response_model=List[schemas.TradeOut])
-def list_personal_trades_jwt(
-    db: Session = Depends(get_db),
-    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
-):
-    """
-    Personal app client views their trades using JWT.
-
-    Header: X-Personal-User-Id (from personal JWT)
-    """
-    if not x_personal_user_id:
-        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
-
-    # Resolve client_id from personal_user_id
-    client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
-    if not client_id:
-        raise HTTPException(status_code=404, detail="No client linked to this user")
-
-    trades = db.query(models.Trade).filter(
-        models.Trade.client_id == client_id
-    ).order_by(models.Trade.created_at.desc()).all()
-
-    return trades

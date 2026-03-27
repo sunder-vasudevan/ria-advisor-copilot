@@ -77,6 +77,25 @@ export const deleteLifeEvent = (clientId, eventId) =>
 export const updateAdvisorProfile = (data) =>
   api.put('/advisor/me', data).then(r => r.data)
 
+// Trade Management
+export const createTradeDraft = (clientId, data) =>
+  api.post(`/trades/clients/${clientId}/trades`, data).then(r => r.data)
+
+export const submitTrade = (tradeId, data) =>
+  api.put(`/trades/${tradeId}`, data).then(r => r.data)
+
+export const getTrades = (clientId) =>
+  api.get(`/trades/clients/${clientId}/trades`).then(r => r.data)
+
+export const approveTrade = (tradeId, data) =>
+  api.put(`/trades/${tradeId}/approve`, data).then(r => r.data)
+
+export const rejectTrade = (tradeId, data) =>
+  api.put(`/trades/${tradeId}/reject`, data).then(r => r.data)
+
+export const updateCryptoTxHash = (tradeId, data) =>
+  api.put(`/trades/${tradeId}/tx-hash`, data).then(r => r.data)
+
 export const fmt = {
   inr: (v) => {
     if (!v && v !== 0) return '—'

@@ -1,7 +1,8 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, Boolean, desc
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, Boolean, desc, Enum
 from sqlalchemy.orm import relationship
 from .database import Base
+import enum
 
 
 class Advisor(Base):
@@ -23,6 +24,7 @@ class Advisor(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     clients = relationship("Client", back_populates="advisor")
+    trades = relationship("Trade", back_populates="advisor", foreign_keys="Trade.advisor_id")
 
 
 class Client(Base):
@@ -58,6 +60,7 @@ class Client(Base):
     life_events = relationship("LifeEvent", back_populates="client")
     audit_logs = relationship("AuditLog", back_populates="client")
     interactions = relationship("ClientInteraction", back_populates="client")
+    trades = relationship("Trade", back_populates="client", foreign_keys="Trade.client_id")
 
 
 class Portfolio(Base):
@@ -154,3 +157,79 @@ class ClientInteraction(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     client = relationship("Client", back_populates="interactions")
+
+
+# Trade Management Enums
+class AssetTypeEnum(str, enum.Enum):
+    mutual_fund = "mutual_fund"
+    crypto = "crypto"
+
+
+class ActionEnum(str, enum.Enum):
+    buy = "buy"
+    sell = "sell"
+
+
+class TradeStatusEnum(str, enum.Enum):
+    draft = "draft"
+    pending_approval = "pending_approval"
+    approved = "approved"
+    settled = "settled"
+    rejected = "rejected"
+    cancelled = "cancelled"
+
+
+class TradeAuditActionEnum(str, enum.Enum):
+    created = "created"
+    submitted = "submitted"
+    approved = "approved"
+    rejected = "rejected"
+    executed = "executed"
+    settled = "settled"
+    cancelled = "cancelled"
+
+
+class TradeActorEnum(str, enum.Enum):
+    advisor = "advisor"
+    client = "client"
+    system = "system"
+
+
+class Trade(Base):
+    __tablename__ = "trades"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False, index=True)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=False, index=True)
+    asset_type = Column(Enum(AssetTypeEnum), nullable=False)  # mutual_fund | crypto
+    action = Column(Enum(ActionEnum), nullable=False)  # buy | sell
+    asset_code = Column(String, nullable=False)  # ISIN for MF, ticker for crypto
+    quantity = Column(Float, nullable=False)
+    estimated_value = Column(Float, nullable=False)  # Snapshot at creation in INR
+    actual_value = Column(Float, nullable=True)  # Set at execution
+    status = Column(Enum(TradeStatusEnum), nullable=False, default=TradeStatusEnum.draft)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    submitted_at = Column(DateTime, nullable=True)
+    approved_at = Column(DateTime, nullable=True)
+    executed_at = Column(DateTime, nullable=True)
+    settled_at = Column(DateTime, nullable=True)
+    client_comment = Column(Text, nullable=True)  # Client approval comment
+    advisor_note = Column(Text, nullable=True)
+    tx_hash = Column(String, nullable=True)  # For crypto trades: transaction hash
+
+    client = relationship("Client", foreign_keys=[client_id])
+    advisor = relationship("Advisor", foreign_keys=[advisor_id])
+    audit_logs = relationship("TradeAuditLog", back_populates="trade", cascade="all, delete-orphan")
+
+
+class TradeAuditLog(Base):
+    __tablename__ = "trade_audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    trade_id = Column(Integer, ForeignKey("trades.id"), nullable=False, index=True)
+    action = Column(Enum(TradeAuditActionEnum), nullable=False)
+    actor = Column(Enum(TradeActorEnum), nullable=False)  # advisor | client | system
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    note = Column(Text, nullable=True)
+
+    trade = relationship("Trade", back_populates="audit_logs")

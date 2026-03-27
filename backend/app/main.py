@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 
 from .database import engine, Base, SessionLocal
-from .routers import clients, copilot, briefing, situation, meeting_prep, interactions
+from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
 from .routers import advisor_auth
 from . import models          # ensure advisors table registered before personal_models
@@ -137,6 +137,14 @@ def _run_migrations():
             except Exception:
                 pass  # Column already exists
 
+    # FEAT-TRADES: tx_hash field for crypto trades
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE trades ADD COLUMN tx_hash VARCHAR"))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists or table being created
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -171,6 +179,7 @@ app.include_router(briefing.router)
 app.include_router(situation.router)
 app.include_router(meeting_prep.router)
 app.include_router(interactions.router)
+app.include_router(trades.router)
 app.include_router(personal_auth.router)
 app.include_router(personal_portfolio.router)
 app.include_router(personal_goals.router)

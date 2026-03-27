@@ -84,6 +84,18 @@ This scenario must work end-to-end for every demo:
 | ⬜ | Planned — not started |
 | ❌ | Explicitly out of scope v1 |
 
+### Architectural Note — Dual-App Design
+**Every feature involving client interaction must be planned and built across BOTH apps simultaneously:**
+- **ARIA Advisor** (RM's workbench) — initiation, data entry, approval workflows from advisor side
+- **ARIA Personal** (client portal) — client-facing approval, execution, and personal history views
+
+Example (Trade Management):
+- Advisor initiates trade → Personal app shows "Pending Trades" for client to approve
+- Advisor views trade history per client → Client sees their complete trade history in Personal
+- Both apps share the same backend Trade + TradeAuditLog tables; UX differs but workflows are synchronized
+
+**Consequence:** Feature specifications must always describe both app's UX, not just one.
+
 ---
 
 ### Module 1 — Client Profile & Risk Assessment
@@ -222,16 +234,18 @@ This scenario must work end-to-end for every demo:
 
 ### Module 8 — Trade Management
 
+**How it works:** Advisor proposes a trade in ARIA Advisor → Client approves in ARIA Personal → Backend logs and mock-settles the trade. No real money moves in Phase 1. Full audit trail throughout.
+
 | Feature | Status | FEAT ID | Notes |
 |---------|--------|---------|-------|
-| Trade initiation form (advisor) | ⬜ | FEAT-1001 | Asset type (MF / Crypto), action (buy/sell), quantity, estimated value |
-| Trade approval workflow (client) | ⬜ | FEAT-1002 | Client sees pending trades in ARIA Personal, approve/reject with comment |
-| Trade status tracking & audit | ⬜ | FEAT-1003 | Draft → Pending → Approved → Settled; immutable audit logs |
-| Trade notifications | ⬜ | FEAT-1004 | Notify client on initiation; notify advisor on approval |
-| Trade history & reporting | ⬜ | FEAT-1005 | Sortable, filterable trade history in both Advisor + Personal apps |
-| Mock banking layer (Phase 1) | ⬜ | FEAT-1006 | Mock debit/credit on approval; real APIs Phase 2 |
-| Crypto external wallet UX | ⬜ | FEAT-1007 | Client approves in ARIA → executes on Coinbase/Kraken/MetaMask; optional tx hash submission |
-| Mutual fund auto-settlement | ⬜ | FEAT-1008 | MF trades mock-settle on approval; real APIs Phase 2 |
+| Trade initiation form (advisor) | ✅ | FEAT-1001 | **Advisor-facing.** RM selects asset type (Mutual Fund or Crypto), buy or sell, enters asset code/ticker, quantity, and estimated value. Trade saved as `draft`. Advisor clicks "Submit for Approval" → status moves to `pending_approval`, client is notified. |
+| Trade approval workflow (client) | ✅ | FEAT-1002 | **Client-facing in ARIA Personal.** Client sees "Pending Trades" section showing all advisor-proposed trades — asset, action, quantity, value, advisor name, and date. Client taps Approve or Reject with optional comment. On approval, backend mock-settles immediately. |
+| Trade status tracking & audit trail | ✅ | FEAT-1003 | Every trade moves through: `draft` → `pending_approval` → `approved` → `settled` (or `rejected` / `cancelled`). Every status change writes to an immutable `TradeAuditLog` recording actor (advisor / client / system), timestamp, and note. Logs cannot be edited or deleted. |
+| Trade notification system | ⬜ | FEAT-1004 | Two triggers: (1) Advisor submits trade → client gets in-app notification. (2) Client approves or rejects → advisor gets in-app notification. Phase 2: email/WhatsApp via Twilio or WATI. |
+| Trade history & reporting | ✅ | FEAT-1005 | **Advisor app:** Trades tab in Client 360 shows all trades for that client (all statuses), sortable by date. **Personal app:** Trades tab shows client's full trade history. Both views show the full audit trail on click. |
+| Mock banking layer (Phase 1) | ✅ | FEAT-1006 | On client approval, backend logs a mock debit/credit against the client's account — no real bank API call is made. Phase 2 replaces this with real banking APIs (Razorpay, Smallcase, or bank direct). |
+| Crypto — external wallet execution (Phase 1) | ✅ | FEAT-1007 | **ARIA does not hold or execute crypto.** On approval, client is shown: "Go to your exchange (Coinbase, Kraken, MetaMask) and execute this trade yourself." Client optionally submits the tx hash back to ARIA as proof of execution. Status then moves to `settled`. Phase 2: wallet API integration for auto-execution. |
+| Mutual fund mock-execution (Phase 1) | ✅ | FEAT-1008 | On client approval, backend marks the MF trade as `settled` and logs a mock bank debit/credit. No real fund order is placed. Phase 2: Smallcase or BSE StAR MF API for real order placement and settlement. |
 
 ---
 
@@ -269,21 +283,21 @@ This scenario must work end-to-end for every demo:
 
 | FEAT ID | Feature | Status | Notes |
 |---------|---------|--------|-------|
-| FEAT-1001 | Trade initiation form (advisor-facing) | ⬜ | Asset type (MF / Crypto), action (buy/sell), quantity, estimated value |
-| FEAT-1002 | Trade approval workflow (client-facing) | ⬜ | Client sees pending trades in ARIA Personal, approve/reject with comment |
-| FEAT-1003 | Trade status tracking & audit trail | ⬜ | Draft → Pending Approval → Approved → Settled; immutable logs |
-| FEAT-1004 | Trade notification system | ⬜ | Notify client on trade initiation; notify advisor on client approval |
-| FEAT-1005 | Trade history & reporting | ⬜ | History tab in ARIA Advisor (per client) + ARIA Personal (per client); sortable, filterable |
-| FEAT-1006 | Mock banking layer | ⬜ | Phase 1: mock debit/credit on approval; Phase 2: real API integration |
-| FEAT-1007 | Crypto-first UX (external wallet execution) | ⬜ | Client approves in ARIA → manually executes on Coinbase/Kraken/MetaMask → optionally submits tx hash |
-| FEAT-1008 | Mutual fund auto-execution (mock) | ⬜ | MF trades mock-execute on approval; Phase 2: Smallcase / BSE API integration |
+| FEAT-1001 | Trade initiation form (advisor-facing) | ✅ | RM selects asset type (MF or Crypto), buy/sell action, asset code/ticker, quantity, and estimated value. Trade saved as `draft`. RM submits for approval → status moves to `pending_approval`, client is notified. |
+| FEAT-1002 | Trade approval workflow (client-facing) | ✅ | Client sees all pending advisor trades in ARIA Personal "Pending Trades" section. Each card shows asset, action, quantity, value, advisor, and date. Client taps Approve or Reject with optional comment. On approval, backend mock-settles immediately. |
+| FEAT-1003 | Trade status tracking & audit trail | ✅ | Trade lifecycle: `draft` → `pending_approval` → `approved` → `settled` (or `rejected` / `cancelled`). Every transition logged to immutable `TradeAuditLog` with actor, timestamp, note. Logs cannot be edited. |
+| FEAT-1004 | Trade notification system | ⬜ | Two triggers: (1) Advisor submits trade → client in-app notification. (2) Client approves/rejects → advisor in-app notification. Phase 2: email/WhatsApp via Twilio or WATI. |
+| FEAT-1005 | Trade history & reporting | ✅ | **Advisor app:** Trades tab in Client 360 shows all trades for client, sortable. **Personal app:** Trades tab shows all client trades. Both views show full audit trail on click. |
+| FEAT-1006 | Mock banking layer | ✅ | On client approval, backend logs a mock bank debit/credit (no real API call). Phase 2 replaces with real banking integration. |
+| FEAT-1007 | Crypto — external wallet execution (Phase 1) | ✅ | **Crucial:** ARIA does not hold, custody, or execute crypto. On approval, client sees: "Go to Coinbase/Kraken/MetaMask and execute this trade yourself." Client optionally submits tx hash as proof. Status moves to `settled`. **Phase 2 only:** wallet API integration for auto-execution. |
+| FEAT-1008 | Mutual funds — mock-execution (Phase 1) | ✅ | On client approval, backend marks MF trade as `settled` and logs a mock debit/credit. No real fund order placed. **Phase 2 only:** Smallcase or BSE StAR MF API for real settlement. |
 
-**Key Design Decisions:**
-- **Crypto:** ARIA guides trade proposal; client executes on external wallet (no custody). Phase 2: integrate wallet APIs (MetaMask, Coinbase, WalletConnect).
-- **Mutual Funds:** ARIA initiates → client approves → backend mocks settlement. Phase 2: real mutual fund APIs.
-- **Banking Layer:** Mocked in Phase 1 (no real debit/credit). Phase 2 onward: Razorpay, Smallcase, or custom banking integrations.
-- **Execution Flow:** Advisor initiates → Client approves in ARIA Personal → Amount mocked as debited/credited to bank → Trade marked settled.
-- **Scope:** Mutual funds + Crypto buy/sell only. Direct stocks, bonds, insurance parked for future phase.
+**Key Design Decisions (Locked):**
+1. **Crypto — No Custody:** Phase 1 is advisor proposal + client execution on external exchange (Coinbase, Kraken, MetaMask). ARIA never holds crypto. Phase 2+: integrate wallet APIs (MetaMask, WalletConnect, Coinbase) for auto-execution *if* client opts in.
+2. **Mutual Funds — Mocked Phase 1:** Backend mock-settles on approval. Phase 2: real fund APIs (Smallcase, BSE StAR MF).
+3. **Banking — Mocked Phase 1:** No real bank API calls. Phase 2: Razorpay, Smallcase, or bank direct integration.
+4. **Execution Flow:** Advisor proposes in ARIA Advisor → Client approves in ARIA Personal → Backend logs mock debit/credit → Trade marked `settled`. Full audit trail throughout.
+5. **Asset Scope:** Mutual funds + Crypto (buy/sell) only. Direct stocks, bonds, insurance, ETFs parked for Phase 2+.
 
 **Data Model Additions:**
 ```
@@ -493,11 +507,12 @@ Client
 
 | Item | Reason |
 |------|--------|
-| Order execution (live) | Regulatory complexity |
-| Real KYC/AML integration | Mock + define contract |
-| Core banking (live) | Middleware pitch — not replacement |
-| Payment / settlement | Out of scope entirely |
-| Mobile app (native) | Phase 4 — web is now mobile-responsive |
-| Multiple RM users / RBAC | Demo uses hardcoded RM |
+| Crypto custody (ARIA holding client's crypto) | Regulatory + operational complexity. Phase 1: client holds on external exchange; ARIA guides/tracks only. |
+| Order execution (live, real fund orders) | Regulatory complexity. Phase 1: mock execution; Phase 2: real APIs. |
+| Real KYC/AML integration | Mock + define contract only — not live verification. |
+| Core banking system (live integration) | Middleware pitch — ARIA sits on top, not replacement. |
+| Real payment / settlement | Phase 1 mocked entirely. Phase 2: real banking APIs. |
+| Mobile app (native iOS/Android) | Phase 4+. Web is fully mobile-responsive. |
+| Multiple RM users / RBAC | Demo uses hardcoded RM; Phase 3+: proper user management. |
 
 ---

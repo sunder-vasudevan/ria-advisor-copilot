@@ -11,6 +11,7 @@ import CopilotChat from '../components/CopilotChat'
 import SituationSummary from '../components/SituationSummary'
 import MeetingPrepPanel from '../components/MeetingPrepPanel'
 import InteractionsPanel from '../components/InteractionsPanel'
+import TradesPanel from '../components/TradesPanel'
 import { fmt } from '../api/client'
 
 const INPUT_CLS = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-300'
@@ -460,12 +461,14 @@ export default function Client360() {
   const desktopTabs = [
     { key: 'portfolio', label: 'Portfolio & Holdings' },
     { key: 'goals', label: `Goals (${client.goals.length})` },
+    { key: 'trades', label: 'Trades' },
     { key: 'events', label: `Life Events (${displayEvents.length})` },
     { key: 'interactions', label: 'Interactions' },
   ]
   const mobileTabs = [
     { key: 'portfolio', label: 'Portfolio' },
     { key: 'goals', label: `Goals` },
+    { key: 'trades', label: 'Trades' },
     { key: 'events', label: 'Life Events' },
     { key: 'interactions', label: 'Interactions' },
     { key: 'info', label: 'Client Info' },
@@ -776,6 +779,12 @@ export default function Client360() {
                     ))
                 )}
               </div>
+            </div>
+          )}
+
+          {everActiveRef.current.trades && (
+            <div className={activeTab === 'trades' ? '' : 'hidden'}>
+              <TradesPanel clientId={id} />
             </div>
           )}
 

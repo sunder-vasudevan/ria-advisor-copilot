@@ -296,3 +296,72 @@ class MeetingPrepCard(BaseModel):
     suggested_questions: List[str]
     life_events_to_reference: List[str]
     generated_at: str
+
+
+# ─── Trade Management ─────────────────────────────────────────────────────
+
+class TradeCreate(BaseModel):
+    """Advisor initiates a trade (creates as draft)."""
+    asset_type: str  # "mutual_fund" | "crypto"
+    action: str  # "buy" | "sell"
+    asset_code: str  # ISIN for MF, ticker for crypto
+    quantity: float
+    estimated_value: float
+    advisor_note: Optional[str] = None
+
+
+class TradeSubmit(BaseModel):
+    """Advisor submits trade for approval (draft → pending_approval)."""
+    advisor_note: Optional[str] = None
+
+
+class TradeApprove(BaseModel):
+    """Client approves trade (pending_approval → approved → settled)."""
+    client_comment: Optional[str] = None
+
+
+class TradeReject(BaseModel):
+    """Client rejects trade (pending_approval → rejected)."""
+    client_comment: Optional[str] = None
+
+
+class TradeUpdateTxHash(BaseModel):
+    """Client provides crypto transaction hash after approval."""
+    tx_hash: str
+
+
+class TradeAuditLogOut(BaseModel):
+    id: int
+    trade_id: int
+    action: str
+    actor: str  # advisor | client | system
+    timestamp: datetime
+    note: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+
+class TradeOut(BaseModel):
+    id: int
+    client_id: int
+    advisor_id: int
+    asset_type: str
+    action: str
+    asset_code: str
+    quantity: float
+    estimated_value: float
+    actual_value: Optional[float]
+    status: str  # draft | pending_approval | approved | settled | rejected | cancelled
+    created_at: datetime
+    submitted_at: Optional[datetime]
+    approved_at: Optional[datetime]
+    executed_at: Optional[datetime]
+    settled_at: Optional[datetime]
+    client_comment: Optional[str]
+    advisor_note: Optional[str]
+    tx_hash: Optional[str]
+    audit_logs: List[TradeAuditLogOut] = []
+
+    class Config:
+        from_attributes = True

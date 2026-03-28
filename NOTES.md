@@ -50,6 +50,7 @@
 
 ## ← START HERE NEXT SESSION
 **Parked features:**
+- **Delete or make inactive client** — Advisor needs option to delete or soft-delete (mark inactive) client (Session 31, Sunny Hayes)
 - Email invite flow — advisor sends ARIA Personal link to client via email (choose: Resend or SendGrid)
 - Superadmin view: collapsible advisor→clients tree, unassigned clients, assign client to advisor
 - Advisor discovery by location — /advisor/all backend ready, Personal frontend UI needed

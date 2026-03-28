@@ -128,13 +128,23 @@ def submit_trade_for_approval(
     # Create notification for client (FEAT-1004)
     client = db.query(models.Client).filter(models.Client.id == trade.client_id).first()
     if client and client.personal_user_id:
-        notification = create_notification(
-            db=db,
-            personal_user_id=client.personal_user_id,
-            notification_type=models.NotificationTypeEnum.trade_submitted.value,
-            trade_id=trade.id,
-            message=f"New trade pending your approval: {trade.action.value} {trade.asset_code} ({trade.quantity} units, ₹{trade.estimated_value})",
-        )
+        # Validate: Portfolio must be linked to client for notification to work
+        portfolio = db.query(models.Portfolio).filter(
+            models.Portfolio.client_id == client.id,
+            models.Portfolio.personal_user_id == client.personal_user_id
+        ).first()
+
+        if not portfolio:
+            # Log warning but don't fail — notification won't be created but trade submission succeeds
+            print(f"[WARN] Client {client.id} personal_user_id={client.personal_user_id} has no linked portfolio. Notification skipped.")
+        else:
+            notification = create_notification(
+                db=db,
+                personal_user_id=client.personal_user_id,
+                notification_type=models.NotificationTypeEnum.trade_submitted.value,
+                trade_id=trade.id,
+                message=f"New trade pending your approval: {trade.action.value} {trade.asset_code} ({trade.quantity} units, ₹{trade.estimated_value})",
+            )
 
     db.commit()
     db.refresh(trade)

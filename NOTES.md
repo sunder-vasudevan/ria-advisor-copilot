@@ -28,16 +28,25 @@
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
-## What Shipped This Session (2026-03-28 — Session 29)
-- **INFRA: E2E Test Data Cleanup System** ✅
+## What Shipped This Session (2026-03-28 — Session 30)
+- **INFRA: CLAUDE.md Hierarchy Consolidation** ✅
+  - Global `project-CLAUDE.md` → consolidated into root `/Users/sunnyhayes/.claude/CLAUDE.md` (850 lines, token-optimized)
+  - Directory-specific overrides: `backend/CLAUDE.md`, `frontend/CLAUDE.md`, `e2e-tests/CLAUDE.md` (per-module rules)
+  - Unified 5 scattered memory files (Python 3.14, mobile-first, Safari compat, etc.) into single hierarchy
+  - All standards now auto-loaded by Claude Code based on file path context (no manual inclusion needed)
+  - Format: Tables instead of prose (compact for token efficiency), critical rules extracted from feedback memory
+- **INFRA: Deployment Aliases Fixed** ✅
+  - `aria-advisor.vercel.app` → re-aliased to latest deployment (9h old, was pointing to stale deployment)
+  - `a-ria.vercel.app` → recreated, also points to latest deployment
+  - Both aliases active; short alias works without SSO prompt (primary domain has team SSO enabled — parked for now)
+- **INFRA: Test Data Cleanup** ✅
+  - Deleted all 50 `[TEST]` clients (IDs 62–111) from production DB via direct psql
+  - Cascade delete: 50 clients + 4 portfolios + 46 goals
+  - Remaining: ~40 clean production clients (real data)
+- **Previous:** E2E Test Data Cleanup System (session 29)
   - Backend: `DELETE /clients/{id}` with cascade (models + endpoint)
-  - Backend: `DELETE /personal/auth/test-cleanup` (deletes `@aria-test.com` users + `[E2E]` trades)
-  - Frontend: All test data now uses `[TEST]` prefix (display names) + `[E2E]` prefix (notes)
-  - Playwright: Global teardown auto-fires after every test run, calls cleanup endpoint
-  - Memory: Universal E2E naming convention locked + documented (all projects, future-proof)
-  - DB cleanup: Deleted 39 accumulated test clients via direct psql (IDs 21–25, 30–61)
-  - Remaining: 48 clean production clients (IDs 1–20 seeded + valid test data)
-  - **Note:** Render redeploy still pending (DELETE endpoint not live yet); direct DB deletion was faster
+  - Playwright: Global teardown auto-fires after every test run
+  - Memory: Universal E2E naming convention locked (`[TEST]` prefix, `*-test.com` emails)
 
 ## ← START HERE NEXT SESSION
 **Parked features:**

@@ -50,6 +50,8 @@
 
 ## ← START HERE NEXT SESSION
 **Parked features:**
+- **BLOCKING: Trade visibility — client personal_user_id not linked** — Joshua (client 112) has no personal_user_id, so trades don't appear in ARIA Personal even when pending_approval. Need: (1) Joshua signs up in ARIA Personal OR (2) manual link of personal_user_id to client record. Affects all direct portal clients.
+- **Sale trade — show only available holdings** — For sell orders, TradesPanel should only allow selection of funds already in client's portfolio (not all funds in the world). Requires: frontend holdings filter + backend validation.
 - **Delete or make inactive client** — Advisor needs option to delete or soft-delete (mark inactive) client (Session 31, Sunny Hayes)
 - Email invite flow — advisor sends ARIA Personal link to client via email (choose: Resend or SendGrid)
 - Superadmin view: collapsible advisor→clients tree, unassigned clients, assign client to advisor

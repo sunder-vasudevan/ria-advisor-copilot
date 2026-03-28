@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: false,
   retries: 1,
   workers: 1,
-  globalTeardown: require.resolve('./global-teardown'),
+  globalTeardown: './global-teardown.ts',
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }], ['list']],
   use: {
     trace: 'on-first-retry',

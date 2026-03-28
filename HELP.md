@@ -1,5 +1,5 @@
 # ARIA Advisor Workbench — Help Guide
-**Version 1.2+** · Last updated: 2026-03-27
+**Version 1.3** · Last updated: 2026-03-28
 
 ---
 
@@ -95,7 +95,40 @@ The bell icon in the top-right header shows unread notifications (red badge with
 - **Navigate:** Click any notification to jump directly to that client's 360° page
 - **Mobile:** Dropdown expands full-width on small screens
 
-### 9. Client Portal
+### 9. Trade Workflow (Phase 1A)
+
+On any client's 360° page, you can create and submit trades for approval.
+
+**Step 1: Create Trade (Draft)**
+- Click **Create Trade** on the client's page
+- Fill in:
+  - **Asset Type:** Mutual Fund or Crypto
+  - **Action:** Buy or Sell
+  - **Asset Code:** Fund name (e.g. "HDFC Balanced Advantage") or ticker (e.g. "BTC")
+  - **Quantity:** Units to buy/sell
+  - **Estimated Value:** Total INR amount
+  - **Note (optional):** Context for the client
+- Click **Save** — trade is saved as **Draft** (hidden from client)
+
+**Step 2: Review & Submit for Approval**
+- View draft trades in the **Trades** section (collapsed by default)
+- Click **Submit for Approval** to send to client
+- Trade status changes to **⏳ Pending Approval**
+- Client receives notification on their ARIA Personal dashboard
+
+**Step 3: Monitor Client Response**
+- Bell icon (top right) shows unread notifications
+- When client approves/rejects, you'll be notified
+- **Approved:** ✅ Client approved; you will process in 1-2 business days (mutual funds) or immediately (crypto)
+- **Rejected:** ❌ Client rejected; you can modify and resubmit
+
+**Asset-Specific Notes:**
+- **Mutual Funds:** You process the trade after client approval (mock banking for now)
+- **Crypto:** After client approval, the client executes the trade on their own exchange (Coinbase/Kraken/MetaMask) — you coordinate via notifications
+
+---
+
+### 10. Client Portal
 Clients can log in at `/client-portal/login` to view a read-only summary of their own portfolio and goals. No sensitive advisor data is exposed.
 
 ---
@@ -149,6 +182,15 @@ To re-seed: `cd backend && python seed.py`
 ---
 
 ## Changelog
+
+### v1.3 (2026-03-28)
+- **Trade Workflow (Phase 1A):** Create, submit, and track trades
+  - Draft → Pending Approval → Approved/Rejected
+  - Support for mutual funds and crypto
+  - Client notifications on trade submission
+  - Advisor notifications on client approval/rejection
+  - Draft trades hidden from clients
+  - Visual warning banner for draft trades
 
 ### v1.2 (2026-03-16)
 - Meeting Prep Card (FEAT-308)

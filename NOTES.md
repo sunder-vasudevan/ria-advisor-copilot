@@ -28,6 +28,17 @@
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
+## What Shipped This Session (2026-03-28 — Session 29)
+- **INFRA: E2E Test Data Cleanup System** ✅
+  - Backend: `DELETE /clients/{id}` with cascade (models + endpoint)
+  - Backend: `DELETE /personal/auth/test-cleanup` (deletes `@aria-test.com` users + `[E2E]` trades)
+  - Frontend: All test data now uses `[TEST]` prefix (display names) + `[E2E]` prefix (notes)
+  - Playwright: Global teardown auto-fires after every test run, calls cleanup endpoint
+  - Memory: Universal E2E naming convention locked + documented (all projects, future-proof)
+  - DB cleanup: Deleted 39 accumulated test clients via direct psql (IDs 21–25, 30–61)
+  - Remaining: 48 clean production clients (IDs 1–20 seeded + valid test data)
+  - **Note:** Render redeploy still pending (DELETE endpoint not live yet); direct DB deletion was faster
+
 ## ← START HERE NEXT SESSION
 **Parked features:**
 - Email invite flow — advisor sends ARIA Personal link to client via email (choose: Resend or SendGrid)
@@ -35,7 +46,8 @@
 - Advisor discovery by location — /advisor/all backend ready, Personal frontend UI needed
 - Advisor accept/reject client requests — needs pending_requests table or status flag on Client
 - New advisor signup flow — self-service registration, awaits superadmin approval or auto-activates
-- ✅ **Thorough Testing of all features of both ARIA apps** — 2026-03-27 E2E regression test complete. Advisor: Client List, Client 360 (Portfolio, Goals, Trades, Life Events, Interactions tabs), Copilot. Personal: Dashboard, Goals, Life Events, Pending Trades UI verified. 15 screenshots, comprehensive test report. Trades UI now visible (was missing before rebuild). Backend API pending Render redeploy (no code issues).
+- FEAT-503: Live goal probability recalculation (debounced sliders, auto-update cards, replace "Run Scenario" button)
+- FEAT-301: Book-level copilot (after FEAT-503)
 
 ## LOCKED — Trade Management Module (Design Phase Complete — 2026-03-27)
 **Session 14:** Trade Management Module design & spec fully locked. Ready for implementation.

@@ -193,6 +193,16 @@ export default function TradesPanel({ clientId }) {
         </div>
       )}
 
+      {/* Draft trades warning */}
+      {trades.some(t => t.status === 'draft') && (
+        <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <AlertCircle size={14} className="text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-blue-700">
+            <strong>Draft trades are hidden from client.</strong> Click expand and select "Submit for Approval" to make visible.
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
       {!loading && trades.length === 0 && (
         <div className="flex flex-col items-center py-12 text-center">

@@ -1,0 +1,1280 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic:
+    - img
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - heading "RIA Advisor Copilot API 1.0.0 OAS 3.1" [level=1] [ref=e9]:
+        - text: RIA Advisor Copilot API
+        - generic [ref=e10]:
+          - generic [ref=e12]: 1.0.0
+          - generic [ref=e14]: OAS 3.1
+      - link "/openapi.json" [ref=e15] [cursor=pointer]:
+        - /url: /openapi.json
+        - generic [ref=e16]: /openapi.json
+    - button "Authorize" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: Authorize
+      - img [ref=e22]
+    - generic [ref=e26]:
+      - generic [ref=e28]:
+        - heading "clients Collapse operation" [level=3] [ref=e29] [cursor=pointer]:
+          - link "clients" [ref=e30]:
+            - /url: "#/clients"
+          - button "Collapse operation" [expanded] [ref=e31]:
+            - img [ref=e32]
+        - generic [ref=e35]:
+          - generic [ref=e38] [cursor=pointer]:
+            - button "GET /clients List Clients" [ref=e39]:
+              - generic [ref=e40]: GET
+              - generic [ref=e41]:
+                - link "/clients" [ref=e43]:
+                  - /url: "#/clients/list_clients_clients_get"
+                - generic [ref=e44]: List Clients
+            - generic "Copy to clipboard"
+            - button "get /clients" [ref=e47]:
+              - img [ref=e48]
+          - generic [ref=e52] [cursor=pointer]:
+            - button "POST /clients Create Client" [ref=e53]:
+              - generic [ref=e54]: POST
+              - generic [ref=e55]:
+                - link "/clients" [ref=e57]:
+                  - /url: "#/clients/create_client_clients_post"
+                - generic [ref=e58]: Create Client
+            - generic "Copy to clipboard"
+            - button "post /clients" [ref=e61]:
+              - img [ref=e62]
+          - generic [ref=e66] [cursor=pointer]:
+            - 'button "GET /clients/{client_id} Get Client" [ref=e67]':
+              - generic [ref=e68]: GET
+              - generic [ref=e69]:
+                - 'link "/clients/{client_id}" [ref=e71]':
+                  - /url: "#/clients/get_client_clients__client_id__get"
+                  - generic [ref=e72]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                - generic [ref=e73]: Get Client
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}" [ref=e76]':
+              - img [ref=e77]
+          - generic [ref=e81] [cursor=pointer]:
+            - 'button "PUT /clients/{client_id} Update Client" [ref=e82]':
+              - generic [ref=e83]: PUT
+              - generic [ref=e84]:
+                - 'link "/clients/{client_id}" [ref=e86]':
+                  - /url: "#/clients/update_client_clients__client_id__put"
+                  - generic [ref=e87]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                - generic [ref=e88]: Update Client
+            - generic "Copy to clipboard"
+            - 'button "put /clients/{client_id}" [ref=e91]':
+              - img [ref=e92]
+          - generic [ref=e96] [cursor=pointer]:
+            - 'button "GET /clients/{client_id}/holdings Get Holdings" [ref=e97]':
+              - generic [ref=e98]: GET
+              - generic [ref=e99]:
+                - 'link "/clients/{client_id}/holdings" [ref=e101]':
+                  - /url: "#/clients/get_holdings_clients__client_id__holdings_get"
+                  - generic [ref=e102]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /holdings
+                - generic [ref=e103]: Get Holdings
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}/holdings" [ref=e106]':
+              - img [ref=e107]
+          - generic [ref=e111] [cursor=pointer]:
+            - 'button "GET /clients/{client_id}/goals Get Goals" [ref=e112]':
+              - generic [ref=e113]: GET
+              - generic [ref=e114]:
+                - 'link "/clients/{client_id}/goals" [ref=e116]':
+                  - /url: "#/clients/get_goals_clients__client_id__goals_get"
+                  - generic [ref=e117]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /goals
+                - generic [ref=e118]: Get Goals
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}/goals" [ref=e121]':
+              - img [ref=e122]
+          - generic [ref=e126] [cursor=pointer]:
+            - 'button "POST /clients/{client_id}/goals Create Goal" [ref=e127]':
+              - generic [ref=e128]: POST
+              - generic [ref=e129]:
+                - 'link "/clients/{client_id}/goals" [ref=e131]':
+                  - /url: "#/clients/create_goal_clients__client_id__goals_post"
+                  - generic [ref=e132]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /goals
+                - generic [ref=e133]: Create Goal
+            - generic "Copy to clipboard"
+            - 'button "post /clients/{client_id}/goals" [ref=e136]':
+              - img [ref=e137]
+          - generic [ref=e141] [cursor=pointer]:
+            - 'button "POST /clients/{client_id}/portfolio Create Portfolio" [ref=e142]':
+              - generic [ref=e143]: POST
+              - generic [ref=e144]:
+                - 'link "/clients/{client_id}/portfolio" [ref=e146]':
+                  - /url: "#/clients/create_portfolio_clients__client_id__portfolio_post"
+                  - generic [ref=e147]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /portfolio
+                - generic [ref=e148]: Create Portfolio
+            - generic "Copy to clipboard"
+            - 'button "post /clients/{client_id}/portfolio" [ref=e151]':
+              - img [ref=e152]
+          - generic [ref=e156] [cursor=pointer]:
+            - 'button "PUT /clients/{client_id}/goals/{goal_id} Update Goal" [ref=e157]':
+              - generic [ref=e158]: PUT
+              - generic [ref=e159]:
+                - 'link "/clients/{client_id}/goals/{goal_id}" [ref=e161]':
+                  - /url: "#/clients/update_goal_clients__client_id__goals__goal_id__put"
+                  - generic [ref=e162]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /goals
+                    - text: "/{goal_id}"
+                - generic [ref=e163]: Update Goal
+            - generic "Copy to clipboard"
+            - 'button "put /clients/{client_id}/goals/{goal_id}" [ref=e166]':
+              - img [ref=e167]
+          - generic [ref=e171] [cursor=pointer]:
+            - 'button "DELETE /clients/{client_id}/goals/{goal_id} Delete Goal" [ref=e172]':
+              - generic [ref=e173]: DELETE
+              - generic [ref=e174]:
+                - 'link "/clients/{client_id}/goals/{goal_id}" [ref=e176]':
+                  - /url: "#/clients/delete_goal_clients__client_id__goals__goal_id__delete"
+                  - generic [ref=e177]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /goals
+                    - text: "/{goal_id}"
+                - generic [ref=e178]: Delete Goal
+            - generic "Copy to clipboard"
+            - 'button "delete /clients/{client_id}/goals/{goal_id}" [ref=e181]':
+              - img [ref=e182]
+          - generic [ref=e186] [cursor=pointer]:
+            - 'button "GET /clients/{client_id}/life-events Get Life Events" [ref=e187]':
+              - generic [ref=e188]: GET
+              - generic [ref=e189]:
+                - 'link "/clients/{client_id}/life-events" [ref=e191]':
+                  - /url: "#/clients/get_life_events_clients__client_id__life_events_get"
+                  - generic [ref=e192]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /life-events
+                - generic [ref=e193]: Get Life Events
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}/life-events" [ref=e196]':
+              - img [ref=e197]
+          - generic [ref=e201] [cursor=pointer]:
+            - 'button "POST /clients/{client_id}/life-events Create Life Event" [ref=e202]':
+              - generic [ref=e203]: POST
+              - generic [ref=e204]:
+                - 'link "/clients/{client_id}/life-events" [ref=e206]':
+                  - /url: "#/clients/create_life_event_clients__client_id__life_events_post"
+                  - generic [ref=e207]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /life-events
+                - generic [ref=e208]: Create Life Event
+            - generic "Copy to clipboard"
+            - 'button "post /clients/{client_id}/life-events" [ref=e211]':
+              - img [ref=e212]
+          - generic [ref=e216] [cursor=pointer]:
+            - 'button "PUT /clients/{client_id}/life-events/{event_id} Update Life Event" [ref=e217]':
+              - generic [ref=e218]: PUT
+              - generic [ref=e219]:
+                - 'link "/clients/{client_id}/life-events/{event_id}" [ref=e221]':
+                  - /url: "#/clients/update_life_event_clients__client_id__life_events__event_id__put"
+                  - generic [ref=e222]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /life-events
+                    - text: "/{event_id}"
+                - generic [ref=e223]: Update Life Event
+            - generic "Copy to clipboard"
+            - 'button "put /clients/{client_id}/life-events/{event_id}" [ref=e226]':
+              - img [ref=e227]
+          - generic [ref=e231] [cursor=pointer]:
+            - 'button "DELETE /clients/{client_id}/life-events/{event_id} Delete Life Event" [ref=e232]':
+              - generic [ref=e233]: DELETE
+              - generic [ref=e234]:
+                - 'link "/clients/{client_id}/life-events/{event_id}" [ref=e236]':
+                  - /url: "#/clients/delete_life_event_clients__client_id__life_events__event_id__delete"
+                  - generic [ref=e237]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /life-events
+                    - text: "/{event_id}"
+                - generic [ref=e238]: Delete Life Event
+            - generic "Copy to clipboard"
+            - 'button "delete /clients/{client_id}/life-events/{event_id}" [ref=e241]':
+              - img [ref=e242]
+          - generic [ref=e246] [cursor=pointer]:
+            - 'button "GET /clients/{client_id}/goal-projection Get Goal Projection" [ref=e247]':
+              - generic [ref=e248]: GET
+              - generic [ref=e249]:
+                - 'link "/clients/{client_id}/goal-projection" [ref=e251]':
+                  - /url: "#/clients/get_goal_projection_clients__client_id__goal_projection_get"
+                  - generic [ref=e252]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /goal-projection
+                - generic [ref=e253]: Get Goal Projection
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}/goal-projection" [ref=e256]':
+              - img [ref=e257]
+      - generic [ref=e260]:
+        - heading "copilot Collapse operation" [level=3] [ref=e261] [cursor=pointer]:
+          - link "copilot" [ref=e262]:
+            - /url: "#/copilot"
+          - button "Collapse operation" [expanded] [ref=e263]:
+            - img [ref=e264]
+        - generic [ref=e270] [cursor=pointer]:
+          - 'button "POST /clients/{client_id}/copilot Copilot Chat" [ref=e271]':
+            - generic [ref=e272]: POST
+            - generic [ref=e273]:
+              - 'link "/clients/{client_id}/copilot" [ref=e275]':
+                - /url: "#/copilot/copilot_chat_clients__client_id__copilot_post"
+                - generic [ref=e276]:
+                  - text: /clients
+                  - text: "/{client_id}"
+                  - text: /copilot
+              - generic [ref=e277]: Copilot Chat
+          - generic "Copy to clipboard"
+          - 'button "post /clients/{client_id}/copilot" [ref=e280]':
+            - img [ref=e281]
+      - generic [ref=e284]:
+        - heading "briefing Collapse operation" [level=3] [ref=e285] [cursor=pointer]:
+          - link "briefing" [ref=e286]:
+            - /url: "#/briefing"
+          - button "Collapse operation" [expanded] [ref=e287]:
+            - img [ref=e288]
+        - generic [ref=e294] [cursor=pointer]:
+          - 'button "GET /briefing/{rm_id} Morning Briefing" [ref=e295]':
+            - generic [ref=e296]: GET
+            - generic [ref=e297]:
+              - 'link "/briefing/{rm_id}" [ref=e299]':
+                - /url: "#/briefing/morning_briefing_briefing__rm_id__get"
+                - generic [ref=e300]:
+                  - text: /briefing
+                  - text: "/{rm_id}"
+              - generic [ref=e301]: Morning Briefing
+          - generic "Copy to clipboard"
+          - 'button "get /briefing/{rm_id}" [ref=e304]':
+            - img [ref=e305]
+      - generic [ref=e308]:
+        - heading "situation Collapse operation" [level=3] [ref=e309] [cursor=pointer]:
+          - link "situation" [ref=e310]:
+            - /url: "#/situation"
+          - button "Collapse operation" [expanded] [ref=e311]:
+            - img [ref=e312]
+        - generic [ref=e318] [cursor=pointer]:
+          - 'button "GET /clients/{client_id}/situation Get Situation Summary" [ref=e319]':
+            - generic [ref=e320]: GET
+            - generic [ref=e321]:
+              - 'link "/clients/{client_id}/situation" [ref=e323]':
+                - /url: "#/situation/get_situation_summary_clients__client_id__situation_get"
+                - generic [ref=e324]:
+                  - text: /clients
+                  - text: "/{client_id}"
+                  - text: /situation
+              - generic [ref=e325]: Get Situation Summary
+          - generic "Copy to clipboard"
+          - 'button "get /clients/{client_id}/situation" [ref=e328]':
+            - img [ref=e329]
+      - generic [ref=e332]:
+        - heading "meeting-prep Collapse operation" [level=3] [ref=e333] [cursor=pointer]:
+          - link "meeting-prep" [ref=e334]:
+            - /url: "#/meeting-prep"
+          - button "Collapse operation" [expanded] [ref=e335]:
+            - img [ref=e336]
+        - generic [ref=e342] [cursor=pointer]:
+          - 'button "GET /clients/{client_id}/meeting-prep Get Meeting Prep" [ref=e343]':
+            - generic [ref=e344]: GET
+            - generic [ref=e345]:
+              - 'link "/clients/{client_id}/meeting-prep" [ref=e347]':
+                - /url: "#/meeting-prep/get_meeting_prep_clients__client_id__meeting_prep_get"
+                - generic [ref=e348]:
+                  - text: /clients
+                  - text: "/{client_id}"
+                  - text: /meeting-prep
+              - generic [ref=e349]: Get Meeting Prep
+          - generic "Copy to clipboard"
+          - 'button "get /clients/{client_id}/meeting-prep" [ref=e352]':
+            - img [ref=e353]
+      - generic [ref=e356]:
+        - heading "interactions Collapse operation" [level=3] [ref=e357] [cursor=pointer]:
+          - link "interactions" [ref=e358]:
+            - /url: "#/interactions"
+          - button "Collapse operation" [expanded] [ref=e359]:
+            - img [ref=e360]
+        - generic [ref=e363]:
+          - generic [ref=e366] [cursor=pointer]:
+            - 'button "GET /clients/{client_id}/interactions List Interactions" [ref=e367]':
+              - generic [ref=e368]: GET
+              - generic [ref=e369]:
+                - 'link "/clients/{client_id}/interactions" [ref=e371]':
+                  - /url: "#/interactions/list_interactions_clients__client_id__interactions_get"
+                  - generic [ref=e372]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /interactions
+                - generic [ref=e373]: List Interactions
+            - generic "Copy to clipboard"
+            - 'button "get /clients/{client_id}/interactions" [ref=e376]':
+              - img [ref=e377]
+          - generic [ref=e381] [cursor=pointer]:
+            - 'button "POST /clients/{client_id}/interactions Create Interaction" [ref=e382]':
+              - generic [ref=e383]: POST
+              - generic [ref=e384]:
+                - 'link "/clients/{client_id}/interactions" [ref=e386]':
+                  - /url: "#/interactions/create_interaction_clients__client_id__interactions_post"
+                  - generic [ref=e387]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /interactions
+                - generic [ref=e388]: Create Interaction
+            - generic "Copy to clipboard"
+            - 'button "post /clients/{client_id}/interactions" [ref=e391]':
+              - img [ref=e392]
+          - generic [ref=e396] [cursor=pointer]:
+            - 'button "DELETE /clients/{client_id}/interactions/{interaction_id} Delete Interaction" [ref=e397]':
+              - generic [ref=e398]: DELETE
+              - generic [ref=e399]:
+                - 'link "/clients/{client_id}/interactions/{interaction_id}" [ref=e401]':
+                  - /url: "#/interactions/delete_interaction_clients__client_id__interactions__interaction_id__delete"
+                  - generic [ref=e402]:
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /interactions
+                    - text: "/{interaction_id}"
+                - generic [ref=e403]: Delete Interaction
+            - generic "Copy to clipboard"
+            - 'button "delete /clients/{client_id}/interactions/{interaction_id}" [ref=e406]':
+              - img [ref=e407]
+      - generic [ref=e410]:
+        - heading "trades Collapse operation" [level=3] [ref=e411] [cursor=pointer]:
+          - link "trades" [ref=e412]:
+            - /url: "#/trades"
+          - button "Collapse operation" [expanded] [ref=e413]:
+            - img [ref=e414]
+        - generic [ref=e417]:
+          - generic [ref=e420] [cursor=pointer]:
+            - 'button "POST /trades/clients/{client_id}/trades Create Trade Draft" [ref=e421]':
+              - generic [ref=e422]: POST
+              - generic [ref=e423]:
+                - 'link "/trades/clients/{client_id}/trades" [ref=e425]':
+                  - /url: "#/trades/create_trade_draft_trades_clients__client_id__trades_post"
+                  - generic [ref=e426]:
+                    - text: /trades
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /trades
+                - generic [ref=e427]: Create Trade Draft
+            - generic "Copy to clipboard"
+            - 'button "post /trades/clients/{client_id}/trades" [ref=e430]':
+              - img [ref=e431]
+          - generic [ref=e435] [cursor=pointer]:
+            - 'button "GET /trades/clients/{client_id}/trades List Advisor Trades" [ref=e436]':
+              - generic [ref=e437]: GET
+              - generic [ref=e438]:
+                - 'link "/trades/clients/{client_id}/trades" [ref=e440]':
+                  - /url: "#/trades/list_advisor_trades_trades_clients__client_id__trades_get"
+                  - generic [ref=e441]:
+                    - text: /trades
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /trades
+                - generic [ref=e442]: List Advisor Trades
+            - generic "Copy to clipboard"
+            - 'button "get /trades/clients/{client_id}/trades" [ref=e445]':
+              - img [ref=e446]
+          - generic [ref=e450] [cursor=pointer]:
+            - 'button "PUT /trades/{trade_id} Submit Trade For Approval" [ref=e451]':
+              - generic [ref=e452]: PUT
+              - generic [ref=e453]:
+                - 'link "/trades/{trade_id}" [ref=e455]':
+                  - /url: "#/trades/submit_trade_for_approval_trades__trade_id__put"
+                  - generic [ref=e456]:
+                    - text: /trades
+                    - text: "/{trade_id}"
+                - generic [ref=e457]: Submit Trade For Approval
+            - generic "Copy to clipboard"
+            - 'button "put /trades/{trade_id}" [ref=e460]':
+              - img [ref=e461]
+          - generic [ref=e465] [cursor=pointer]:
+            - 'button "PUT /trades/{trade_id}/approve Approve Trade" [ref=e466]':
+              - generic [ref=e467]: PUT
+              - generic [ref=e468]:
+                - 'link "/trades/{trade_id}/approve" [ref=e470]':
+                  - /url: "#/trades/approve_trade_trades__trade_id__approve_put"
+                  - generic [ref=e471]:
+                    - text: /trades
+                    - text: "/{trade_id}"
+                    - text: /approve
+                - generic [ref=e472]: Approve Trade
+            - generic "Copy to clipboard"
+            - 'button "put /trades/{trade_id}/approve" [ref=e475]':
+              - img [ref=e476]
+          - generic [ref=e480] [cursor=pointer]:
+            - 'button "PUT /trades/{trade_id}/reject Reject Trade" [ref=e481]':
+              - generic [ref=e482]: PUT
+              - generic [ref=e483]:
+                - 'link "/trades/{trade_id}/reject" [ref=e485]':
+                  - /url: "#/trades/reject_trade_trades__trade_id__reject_put"
+                  - generic [ref=e486]:
+                    - text: /trades
+                    - text: "/{trade_id}"
+                    - text: /reject
+                - generic [ref=e487]: Reject Trade
+            - generic "Copy to clipboard"
+            - 'button "put /trades/{trade_id}/reject" [ref=e490]':
+              - img [ref=e491]
+          - generic [ref=e495] [cursor=pointer]:
+            - button "GET /trades/personal/clients/me/trades List Personal Trades Jwt" [ref=e496]:
+              - generic [ref=e497]: GET
+              - generic [ref=e498]:
+                - link "/trades/personal/clients/me/trades" [ref=e500]:
+                  - /url: "#/trades/list_personal_trades_jwt_trades_personal_clients_me_trades_get"
+                  - generic [ref=e501]:
+                    - text: /trades
+                    - text: /personal
+                    - text: /clients
+                    - text: /me
+                    - text: /trades
+                - generic [ref=e502]: List Personal Trades Jwt
+            - generic "Copy to clipboard"
+            - button "get /trades/personal/clients/me/trades" [ref=e505]:
+              - img [ref=e506]
+          - generic [ref=e510] [cursor=pointer]:
+            - 'button "GET /trades/personal/clients/{client_id}/trades List Personal Trades" [ref=e511]':
+              - generic [ref=e512]: GET
+              - generic [ref=e513]:
+                - 'link "/trades/personal/clients/{client_id}/trades" [ref=e515]':
+                  - /url: "#/trades/list_personal_trades_trades_personal_clients__client_id__trades_get"
+                  - generic [ref=e516]:
+                    - text: /trades
+                    - text: /personal
+                    - text: /clients
+                    - text: "/{client_id}"
+                    - text: /trades
+                - generic [ref=e517]: List Personal Trades
+            - generic "Copy to clipboard"
+            - 'button "get /trades/personal/clients/{client_id}/trades" [ref=e520]':
+              - img [ref=e521]
+          - generic [ref=e525] [cursor=pointer]:
+            - 'button "PUT /trades/{trade_id}/tx-hash Update Crypto Tx Hash" [ref=e526]':
+              - generic [ref=e527]: PUT
+              - generic [ref=e528]:
+                - 'link "/trades/{trade_id}/tx-hash" [ref=e530]':
+                  - /url: "#/trades/update_crypto_tx_hash_trades__trade_id__tx_hash_put"
+                  - generic [ref=e531]:
+                    - text: /trades
+                    - text: "/{trade_id}"
+                    - text: /tx-hash
+                - generic [ref=e532]: Update Crypto Tx Hash
+            - generic "Copy to clipboard"
+            - 'button "put /trades/{trade_id}/tx-hash" [ref=e535]':
+              - img [ref=e536]
+      - generic [ref=e539]:
+        - heading "notifications Collapse operation" [level=3] [ref=e540] [cursor=pointer]:
+          - link "notifications" [ref=e541]:
+            - /url: "#/notifications"
+          - button "Collapse operation" [expanded] [ref=e542]:
+            - img [ref=e543]
+        - generic [ref=e546]:
+          - generic [ref=e549] [cursor=pointer]:
+            - button "GET /notifications/advisor/me Get Advisor Notifications" [ref=e550]:
+              - generic [ref=e551]: GET
+              - generic [ref=e552]:
+                - link "/notifications/advisor/me" [ref=e554]:
+                  - /url: "#/notifications/get_advisor_notifications_notifications_advisor_me_get"
+                  - generic [ref=e555]:
+                    - text: /notifications
+                    - text: /advisor
+                    - text: /me
+                - generic [ref=e556]: Get Advisor Notifications
+            - generic "Copy to clipboard"
+            - button "get /notifications/advisor/me" [ref=e559]:
+              - img [ref=e560]
+          - generic [ref=e564] [cursor=pointer]:
+            - button "GET /notifications/personal/me Get Personal Notifications" [ref=e565]:
+              - generic [ref=e566]: GET
+              - generic [ref=e567]:
+                - link "/notifications/personal/me" [ref=e569]:
+                  - /url: "#/notifications/get_personal_notifications_notifications_personal_me_get"
+                  - generic [ref=e570]:
+                    - text: /notifications
+                    - text: /personal
+                    - text: /me
+                - generic [ref=e571]: Get Personal Notifications
+            - generic "Copy to clipboard"
+            - button "get /notifications/personal/me" [ref=e574]:
+              - img [ref=e575]
+          - generic [ref=e579] [cursor=pointer]:
+            - 'button "PUT /notifications/{notification_id}/read Mark Notification Read" [ref=e580]':
+              - generic [ref=e581]: PUT
+              - generic [ref=e582]:
+                - 'link "/notifications/{notification_id}/read" [ref=e584]':
+                  - /url: "#/notifications/mark_notification_read_notifications__notification_id__read_put"
+                  - generic [ref=e585]:
+                    - text: /notifications
+                    - text: "/{notification_id}"
+                    - text: /read
+                - generic [ref=e586]: Mark Notification Read
+            - generic "Copy to clipboard"
+            - 'button "put /notifications/{notification_id}/read" [ref=e589]':
+              - img [ref=e590]
+          - generic [ref=e594] [cursor=pointer]:
+            - 'button "DELETE /notifications/{notification_id} Delete Notification" [ref=e595]':
+              - generic [ref=e596]: DELETE
+              - generic [ref=e597]:
+                - 'link "/notifications/{notification_id}" [ref=e599]':
+                  - /url: "#/notifications/delete_notification_notifications__notification_id__delete"
+                  - generic [ref=e600]:
+                    - text: /notifications
+                    - text: "/{notification_id}"
+                - generic [ref=e601]: Delete Notification
+            - generic "Copy to clipboard"
+            - 'button "delete /notifications/{notification_id}" [ref=e604]':
+              - img [ref=e605]
+      - generic [ref=e608]:
+        - heading "personal-auth Collapse operation" [level=3] [ref=e609] [cursor=pointer]:
+          - link "personal-auth" [ref=e610]:
+            - /url: "#/personal-auth"
+          - button "Collapse operation" [expanded] [ref=e611]:
+            - img [ref=e612]
+        - generic [ref=e615]:
+          - generic [ref=e618] [cursor=pointer]:
+            - button "POST /personal/auth/register Register" [ref=e619]:
+              - generic [ref=e620]: POST
+              - generic [ref=e621]:
+                - link "/personal/auth/register" [ref=e623]:
+                  - /url: "#/personal-auth/register_personal_auth_register_post"
+                  - generic [ref=e624]:
+                    - text: /personal
+                    - text: /auth
+                    - text: /register
+                - generic [ref=e625]: Register
+            - generic "Copy to clipboard"
+            - button "post /personal/auth/register" [ref=e628]:
+              - img [ref=e629]
+          - generic [ref=e633] [cursor=pointer]:
+            - button "POST /personal/auth/login Login" [ref=e634]:
+              - generic [ref=e635]: POST
+              - generic [ref=e636]:
+                - link "/personal/auth/login" [ref=e638]:
+                  - /url: "#/personal-auth/login_personal_auth_login_post"
+                  - generic [ref=e639]:
+                    - text: /personal
+                    - text: /auth
+                    - text: /login
+                - generic [ref=e640]: Login
+            - generic "Copy to clipboard"
+            - button "post /personal/auth/login" [ref=e643]:
+              - img [ref=e644]
+          - generic [ref=e648] [cursor=pointer]:
+            - button "GET /personal/auth/me Get Me" [ref=e649]:
+              - generic [ref=e650]: GET
+              - generic [ref=e651]:
+                - link "/personal/auth/me" [ref=e653]:
+                  - /url: "#/personal-auth/get_me_personal_auth_me_get"
+                  - generic [ref=e654]:
+                    - text: /personal
+                    - text: /auth
+                    - text: /me
+                - generic [ref=e655]: Get Me
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e658]:
+              - img [ref=e659]
+            - button "get /personal/auth/me" [ref=e661]:
+              - img [ref=e662]
+          - generic [ref=e666] [cursor=pointer]:
+            - button "POST /personal/auth/link-advisor Link Advisor" [ref=e667]:
+              - generic [ref=e668]: POST
+              - generic [ref=e669]:
+                - link "/personal/auth/link-advisor" [ref=e671]:
+                  - /url: "#/personal-auth/link_advisor_personal_auth_link_advisor_post"
+                  - generic [ref=e672]:
+                    - text: /personal
+                    - text: /auth
+                    - text: /link-advisor
+                - generic [ref=e673]: Link Advisor
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e676]:
+              - img [ref=e677]
+            - button "post /personal/auth/link-advisor" [ref=e679]:
+              - img [ref=e680]
+          - generic [ref=e684] [cursor=pointer]:
+            - button "PUT /personal/auth/profile Update Profile" [ref=e685]:
+              - generic [ref=e686]: PUT
+              - generic [ref=e687]:
+                - link "/personal/auth/profile" [ref=e689]:
+                  - /url: "#/personal-auth/update_profile_personal_auth_profile_put"
+                  - generic [ref=e690]:
+                    - text: /personal
+                    - text: /auth
+                    - text: /profile
+                - generic [ref=e691]: Update Profile
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e694]:
+              - img [ref=e695]
+            - button "put /personal/auth/profile" [ref=e697]:
+              - img [ref=e698]
+      - generic [ref=e701]:
+        - heading "personal-portfolio Collapse operation" [level=3] [ref=e702] [cursor=pointer]:
+          - link "personal-portfolio" [ref=e703]:
+            - /url: "#/personal-portfolio"
+          - button "Collapse operation" [expanded] [ref=e704]:
+            - img [ref=e705]
+        - generic [ref=e708]:
+          - generic [ref=e711] [cursor=pointer]:
+            - button "GET /personal/portfolio Get Portfolio" [ref=e712]:
+              - generic [ref=e713]: GET
+              - generic [ref=e714]:
+                - link "/personal/portfolio" [ref=e716]:
+                  - /url: "#/personal-portfolio/get_portfolio_personal_portfolio_get"
+                  - generic [ref=e717]:
+                    - text: /personal
+                    - text: /portfolio
+                - generic [ref=e718]: Get Portfolio
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e721]:
+              - img [ref=e722]
+            - button "get /personal/portfolio" [ref=e724]:
+              - img [ref=e725]
+          - generic [ref=e729] [cursor=pointer]:
+            - button "POST /personal/portfolio Save Portfolio" [ref=e730]:
+              - generic [ref=e731]: POST
+              - generic [ref=e732]:
+                - link "/personal/portfolio" [ref=e734]:
+                  - /url: "#/personal-portfolio/save_portfolio_personal_portfolio_post"
+                  - generic [ref=e735]:
+                    - text: /personal
+                    - text: /portfolio
+                - generic [ref=e736]: Save Portfolio
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e739]:
+              - img [ref=e740]
+            - button "post /personal/portfolio" [ref=e742]:
+              - img [ref=e743]
+      - generic [ref=e746]:
+        - heading "personal-goals Collapse operation" [level=3] [ref=e747] [cursor=pointer]:
+          - link "personal-goals" [ref=e748]:
+            - /url: "#/personal-goals"
+          - button "Collapse operation" [expanded] [ref=e749]:
+            - img [ref=e750]
+        - generic [ref=e753]:
+          - generic [ref=e756] [cursor=pointer]:
+            - button "GET /personal/goals Get Goals" [ref=e757]:
+              - generic [ref=e758]: GET
+              - generic [ref=e759]:
+                - link "/personal/goals" [ref=e761]:
+                  - /url: "#/personal-goals/get_goals_personal_goals_get"
+                  - generic [ref=e762]:
+                    - text: /personal
+                    - text: /goals
+                - generic [ref=e763]: Get Goals
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e766]:
+              - img [ref=e767]
+            - button "get /personal/goals" [ref=e769]:
+              - img [ref=e770]
+          - generic [ref=e774] [cursor=pointer]:
+            - button "POST /personal/goals Create Goal" [ref=e775]:
+              - generic [ref=e776]: POST
+              - generic [ref=e777]:
+                - link "/personal/goals" [ref=e779]:
+                  - /url: "#/personal-goals/create_goal_personal_goals_post"
+                  - generic [ref=e780]:
+                    - text: /personal
+                    - text: /goals
+                - generic [ref=e781]: Create Goal
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e784]:
+              - img [ref=e785]
+            - button "post /personal/goals" [ref=e787]:
+              - img [ref=e788]
+          - generic [ref=e792] [cursor=pointer]:
+            - 'button "PUT /personal/goals/{goal_id} Update Goal" [ref=e793]':
+              - generic [ref=e794]: PUT
+              - generic [ref=e795]:
+                - 'link "/personal/goals/{goal_id}" [ref=e797]':
+                  - /url: "#/personal-goals/update_goal_personal_goals__goal_id__put"
+                  - generic [ref=e798]:
+                    - text: /personal
+                    - text: /goals
+                    - text: "/{goal_id}"
+                - generic [ref=e799]: Update Goal
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e802]:
+              - img [ref=e803]
+            - 'button "put /personal/goals/{goal_id}" [ref=e805]':
+              - img [ref=e806]
+          - generic [ref=e810] [cursor=pointer]:
+            - 'button "DELETE /personal/goals/{goal_id} Delete Goal" [ref=e811]':
+              - generic [ref=e812]: DELETE
+              - generic [ref=e813]:
+                - 'link "/personal/goals/{goal_id}" [ref=e815]':
+                  - /url: "#/personal-goals/delete_goal_personal_goals__goal_id__delete"
+                  - generic [ref=e816]:
+                    - text: /personal
+                    - text: /goals
+                    - text: "/{goal_id}"
+                - generic [ref=e817]: Delete Goal
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e820]:
+              - img [ref=e821]
+            - 'button "delete /personal/goals/{goal_id}" [ref=e823]':
+              - img [ref=e824]
+          - generic [ref=e828] [cursor=pointer]:
+            - button "POST /personal/goals/simulate Simulate Goal" [ref=e829]:
+              - generic [ref=e830]: POST
+              - generic [ref=e831]:
+                - link "/personal/goals/simulate" [ref=e833]:
+                  - /url: "#/personal-goals/simulate_goal_personal_goals_simulate_post"
+                  - generic [ref=e834]:
+                    - text: /personal
+                    - text: /goals
+                    - text: /simulate
+                - generic [ref=e835]: Simulate Goal
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e838]:
+              - img [ref=e839]
+            - button "post /personal/goals/simulate" [ref=e841]:
+              - img [ref=e842]
+          - generic [ref=e846] [cursor=pointer]:
+            - button "GET /personal/goals/projection Get Goal Projection" [ref=e847]:
+              - generic [ref=e848]: GET
+              - generic [ref=e849]:
+                - link "/personal/goals/projection" [ref=e851]:
+                  - /url: "#/personal-goals/get_goal_projection_personal_goals_projection_get"
+                  - generic [ref=e852]:
+                    - text: /personal
+                    - text: /goals
+                    - text: /projection
+                - generic [ref=e853]: Get Goal Projection
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e856]:
+              - img [ref=e857]
+            - button "get /personal/goals/projection" [ref=e859]:
+              - img [ref=e860]
+      - generic [ref=e863]:
+        - heading "personal-life-events Collapse operation" [level=3] [ref=e864] [cursor=pointer]:
+          - link "personal-life-events" [ref=e865]:
+            - /url: "#/personal-life-events"
+          - button "Collapse operation" [expanded] [ref=e866]:
+            - img [ref=e867]
+        - generic [ref=e870]:
+          - generic [ref=e873] [cursor=pointer]:
+            - button "GET /personal/life-events Get Life Events" [ref=e874]:
+              - generic [ref=e875]: GET
+              - generic [ref=e876]:
+                - link "/personal/life-events" [ref=e878]:
+                  - /url: "#/personal-life-events/get_life_events_personal_life_events_get"
+                  - generic [ref=e879]:
+                    - text: /personal
+                    - text: /life-events
+                - generic [ref=e880]: Get Life Events
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e883]:
+              - img [ref=e884]
+            - button "get /personal/life-events" [ref=e886]:
+              - img [ref=e887]
+          - generic [ref=e891] [cursor=pointer]:
+            - button "POST /personal/life-events Create Life Event" [ref=e892]:
+              - generic [ref=e893]: POST
+              - generic [ref=e894]:
+                - link "/personal/life-events" [ref=e896]:
+                  - /url: "#/personal-life-events/create_life_event_personal_life_events_post"
+                  - generic [ref=e897]:
+                    - text: /personal
+                    - text: /life-events
+                - generic [ref=e898]: Create Life Event
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e901]:
+              - img [ref=e902]
+            - button "post /personal/life-events" [ref=e904]:
+              - img [ref=e905]
+          - generic [ref=e909] [cursor=pointer]:
+            - 'button "PUT /personal/life-events/{event_id} Update Life Event" [ref=e910]':
+              - generic [ref=e911]: PUT
+              - generic [ref=e912]:
+                - 'link "/personal/life-events/{event_id}" [ref=e914]':
+                  - /url: "#/personal-life-events/update_life_event_personal_life_events__event_id__put"
+                  - generic [ref=e915]:
+                    - text: /personal
+                    - text: /life-events
+                    - text: "/{event_id}"
+                - generic [ref=e916]: Update Life Event
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e919]:
+              - img [ref=e920]
+            - 'button "put /personal/life-events/{event_id}" [ref=e922]':
+              - img [ref=e923]
+          - generic [ref=e927] [cursor=pointer]:
+            - 'button "DELETE /personal/life-events/{event_id} Delete Life Event" [ref=e928]':
+              - generic [ref=e929]: DELETE
+              - generic [ref=e930]:
+                - 'link "/personal/life-events/{event_id}" [ref=e932]':
+                  - /url: "#/personal-life-events/delete_life_event_personal_life_events__event_id__delete"
+                  - generic [ref=e933]:
+                    - text: /personal
+                    - text: /life-events
+                    - text: "/{event_id}"
+                - generic [ref=e934]: Delete Life Event
+            - generic "Copy to clipboard"
+            - button "authorization button unlocked" [ref=e937]:
+              - img [ref=e938]
+            - 'button "delete /personal/life-events/{event_id}" [ref=e940]':
+              - img [ref=e941]
+      - generic [ref=e944]:
+        - heading "personal-copilot Collapse operation" [level=3] [ref=e945] [cursor=pointer]:
+          - link "personal-copilot" [ref=e946]:
+            - /url: "#/personal-copilot"
+          - button "Collapse operation" [expanded] [ref=e947]:
+            - img [ref=e948]
+        - generic [ref=e954] [cursor=pointer]:
+          - button "POST /personal/copilot Personal Copilot" [ref=e955]:
+            - generic [ref=e956]: POST
+            - generic [ref=e957]:
+              - link "/personal/copilot" [ref=e959]:
+                - /url: "#/personal-copilot/personal_copilot_personal_copilot_post"
+                - generic [ref=e960]:
+                  - text: /personal
+                  - text: /copilot
+              - generic [ref=e961]: Personal Copilot
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=e964]:
+            - img [ref=e965]
+          - button "post /personal/copilot" [ref=e967]:
+            - img [ref=e968]
+      - generic [ref=e971]:
+        - heading "advisor-auth Collapse operation" [level=3] [ref=e972] [cursor=pointer]:
+          - link "advisor-auth" [ref=e973]:
+            - /url: "#/advisor-auth"
+          - button "Collapse operation" [expanded] [ref=e974]:
+            - img [ref=e975]
+        - generic [ref=e978]:
+          - generic [ref=e981] [cursor=pointer]:
+            - button "POST /advisor/login Advisor Login" [ref=e982]:
+              - generic [ref=e983]: POST
+              - generic [ref=e984]:
+                - link "/advisor/login" [ref=e986]:
+                  - /url: "#/advisor-auth/advisor_login_advisor_login_post"
+                  - generic [ref=e987]:
+                    - text: /advisor
+                    - text: /login
+                - generic [ref=e988]: Advisor Login
+            - generic "Copy to clipboard"
+            - button "post /advisor/login" [ref=e991]:
+              - img [ref=e992]
+          - generic [ref=e996] [cursor=pointer]:
+            - 'button "GET /advisor/profile/{username} Get Advisor Profile" [ref=e997]':
+              - generic [ref=e998]: GET
+              - generic [ref=e999]:
+                - 'link "/advisor/profile/{username}" [ref=e1001]':
+                  - /url: "#/advisor-auth/get_advisor_profile_advisor_profile__username__get"
+                  - generic [ref=e1002]:
+                    - text: /advisor
+                    - text: /profile
+                    - text: "/{username}"
+                - generic [ref=e1003]: Get Advisor Profile
+            - generic "Copy to clipboard"
+            - 'button "get /advisor/profile/{username}" [ref=e1006]':
+              - img [ref=e1007]
+          - generic [ref=e1011] [cursor=pointer]:
+            - button "GET /advisor/all List Advisors" [ref=e1012]:
+              - generic [ref=e1013]: GET
+              - generic [ref=e1014]:
+                - link "/advisor/all" [ref=e1016]:
+                  - /url: "#/advisor-auth/list_advisors_advisor_all_get"
+                  - generic [ref=e1017]:
+                    - text: /advisor
+                    - text: /all
+                - generic [ref=e1018]: List Advisors
+            - generic "Copy to clipboard"
+            - button "get /advisor/all" [ref=e1021]:
+              - img [ref=e1022]
+          - generic [ref=e1026] [cursor=pointer]:
+            - button "PUT /advisor/me Update Advisor Profile" [ref=e1027]:
+              - generic [ref=e1028]: PUT
+              - generic [ref=e1029]:
+                - link "/advisor/me" [ref=e1031]:
+                  - /url: "#/advisor-auth/update_advisor_profile_advisor_me_put"
+                  - generic [ref=e1032]:
+                    - text: /advisor
+                    - text: /me
+                - generic [ref=e1033]: Update Advisor Profile
+            - generic "Copy to clipboard"
+            - button "put /advisor/me" [ref=e1036]:
+              - img [ref=e1037]
+      - generic [ref=e1040]:
+        - heading "default Collapse operation" [level=3] [ref=e1041] [cursor=pointer]:
+          - link "default" [ref=e1042]:
+            - /url: "#/default"
+          - button "Collapse operation" [expanded] [ref=e1043]:
+            - img [ref=e1044]
+        - generic [ref=e1047]:
+          - generic [ref=e1050] [cursor=pointer]:
+            - button "GET /health Health" [ref=e1051]:
+              - generic [ref=e1052]: GET
+              - generic [ref=e1053]:
+                - link "/health" [ref=e1055]:
+                  - /url: "#/default/health_health_head"
+                - generic [ref=e1056]: Health
+            - generic "Copy to clipboard"
+            - button "get /health" [ref=e1059]:
+              - img [ref=e1060]
+          - generic [ref=e1064] [cursor=pointer]:
+            - button "HEAD /health Health" [ref=e1065]:
+              - generic [ref=e1066]: HEAD
+              - generic [ref=e1067]:
+                - link "/health" [ref=e1069]:
+                  - /url: "#/default/health_health_head"
+                - generic [ref=e1070]: Health
+            - generic "Copy to clipboard"
+            - button "head /health" [ref=e1073]:
+              - img [ref=e1074]
+    - generic [ref=e1078]:
+      - heading "Schemas" [level=4] [ref=e1079] [cursor=pointer]:
+        - button "Schemas" [expanded] [ref=e1080]:
+          - generic [ref=e1081]: Schemas
+          - img [ref=e1082]
+      - generic [ref=e1084]:
+        - article [ref=e1085]:
+          - generic [ref=e1086]:
+            - button "AdvisorLoginRequest" [ref=e1087] [cursor=pointer]:
+              - generic [ref=e1089]: AdvisorLoginRequest
+              - img [ref=e1091]
+            - button "Expand all" [ref=e1093] [cursor=pointer]
+            - strong [ref=e1094]: object
+        - article [ref=e1095]:
+          - generic [ref=e1096]:
+            - button "AdvisorProfile" [ref=e1097] [cursor=pointer]:
+              - generic [ref=e1099]: AdvisorProfile
+              - img [ref=e1101]
+            - button "Expand all" [ref=e1103] [cursor=pointer]
+            - strong [ref=e1104]: object
+        - article [ref=e1105]:
+          - generic [ref=e1106]:
+            - button "AdvisorUpdateRequest" [ref=e1107] [cursor=pointer]:
+              - generic [ref=e1109]: AdvisorUpdateRequest
+              - img [ref=e1111]
+            - button "Expand all" [ref=e1113] [cursor=pointer]
+            - strong [ref=e1114]: object
+        - article [ref=e1115]:
+          - generic [ref=e1116]:
+            - button "BriefingClientSummary" [ref=e1117] [cursor=pointer]:
+              - generic [ref=e1119]: BriefingClientSummary
+              - img [ref=e1121]
+            - button "Expand all" [ref=e1123] [cursor=pointer]
+            - strong [ref=e1124]: object
+        - article [ref=e1125]:
+          - generic [ref=e1126]:
+            - button "BriefingResponse" [ref=e1127] [cursor=pointer]:
+              - generic [ref=e1129]: BriefingResponse
+              - img [ref=e1131]
+            - button "Expand all" [ref=e1133] [cursor=pointer]
+            - strong [ref=e1134]: object
+        - article [ref=e1135]:
+          - generic [ref=e1136]:
+            - button "Client360" [ref=e1137] [cursor=pointer]:
+              - generic [ref=e1139]: Client360
+              - img [ref=e1141]
+            - button "Expand all" [ref=e1143] [cursor=pointer]
+            - strong [ref=e1144]: object
+        - article [ref=e1145]:
+          - generic [ref=e1146]:
+            - button "ClientCreate" [ref=e1147] [cursor=pointer]:
+              - generic [ref=e1149]: ClientCreate
+              - img [ref=e1151]
+            - button "Expand all" [ref=e1153] [cursor=pointer]
+            - strong [ref=e1154]: object
+        - article [ref=e1155]:
+          - generic [ref=e1156]:
+            - button "ClientListItem" [ref=e1157] [cursor=pointer]:
+              - generic [ref=e1159]: ClientListItem
+              - img [ref=e1161]
+            - button "Expand all" [ref=e1163] [cursor=pointer]
+            - strong [ref=e1164]: object
+        - article [ref=e1165]:
+          - generic [ref=e1166]:
+            - button "ClientUpdate" [ref=e1167] [cursor=pointer]:
+              - generic [ref=e1169]: ClientUpdate
+              - img [ref=e1171]
+            - button "Expand all" [ref=e1173] [cursor=pointer]
+            - strong [ref=e1174]: object
+        - article [ref=e1175]:
+          - generic [ref=e1176]:
+            - button "CopilotRequest" [ref=e1177] [cursor=pointer]:
+              - generic [ref=e1179]: CopilotRequest
+              - img [ref=e1181]
+            - button "Expand all" [ref=e1183] [cursor=pointer]
+            - strong [ref=e1184]: object
+        - article [ref=e1185]:
+          - generic [ref=e1186]:
+            - button "CopilotResponse" [ref=e1187] [cursor=pointer]:
+              - generic [ref=e1189]: CopilotResponse
+              - img [ref=e1191]
+            - button "Expand all" [ref=e1193] [cursor=pointer]
+            - strong [ref=e1194]: object
+        - article [ref=e1195]:
+          - generic [ref=e1196]:
+            - button "GoalCreate" [ref=e1197] [cursor=pointer]:
+              - generic [ref=e1199]: GoalCreate
+              - img [ref=e1201]
+            - button "Expand all" [ref=e1203] [cursor=pointer]
+            - strong [ref=e1204]: object
+        - article [ref=e1205]:
+          - generic [ref=e1206]:
+            - button "GoalIn" [ref=e1207] [cursor=pointer]:
+              - generic [ref=e1209]: GoalIn
+              - img [ref=e1211]
+            - button "Expand all" [ref=e1213] [cursor=pointer]
+            - strong [ref=e1214]: object
+        - article [ref=e1215]:
+          - generic [ref=e1216]:
+            - button "GoalOut" [ref=e1217] [cursor=pointer]:
+              - generic [ref=e1219]: GoalOut
+              - img [ref=e1221]
+            - button "Expand all" [ref=e1223] [cursor=pointer]
+            - strong [ref=e1224]: object
+        - article [ref=e1225]:
+          - generic [ref=e1226]:
+            - button "GoalProjection" [ref=e1227] [cursor=pointer]:
+              - generic [ref=e1229]: GoalProjection
+              - img [ref=e1231]
+            - button "Expand all" [ref=e1233] [cursor=pointer]
+            - strong [ref=e1234]: object
+        - article [ref=e1235]:
+          - generic [ref=e1236]:
+            - button "GoalUpdate" [ref=e1237] [cursor=pointer]:
+              - generic [ref=e1239]: GoalUpdate
+              - img [ref=e1241]
+            - button "Expand all" [ref=e1243] [cursor=pointer]
+            - strong [ref=e1244]: object
+        - article [ref=e1245]:
+          - generic [ref=e1246]:
+            - button "HTTPValidationError" [ref=e1247] [cursor=pointer]:
+              - generic [ref=e1249]: HTTPValidationError
+              - img [ref=e1251]
+            - button "Expand all" [ref=e1253] [cursor=pointer]
+            - strong [ref=e1254]: object
+        - article [ref=e1255]:
+          - generic [ref=e1256]:
+            - button "HoldingCreate" [ref=e1257] [cursor=pointer]:
+              - generic [ref=e1259]: HoldingCreate
+              - img [ref=e1261]
+            - button "Expand all" [ref=e1263] [cursor=pointer]
+            - strong [ref=e1264]: object
+        - article [ref=e1265]:
+          - generic [ref=e1266]:
+            - button "HoldingIn" [ref=e1267] [cursor=pointer]:
+              - generic [ref=e1269]: HoldingIn
+              - img [ref=e1271]
+            - button "Expand all" [ref=e1273] [cursor=pointer]
+            - strong [ref=e1274]: object
+        - article [ref=e1275]:
+          - generic [ref=e1276]:
+            - button "HoldingOut" [ref=e1277] [cursor=pointer]:
+              - generic [ref=e1279]: HoldingOut
+              - img [ref=e1281]
+            - button "Expand all" [ref=e1283] [cursor=pointer]
+            - strong [ref=e1284]: object
+        - article [ref=e1285]:
+          - generic [ref=e1286]:
+            - button "InteractionCreate" [ref=e1287] [cursor=pointer]:
+              - generic [ref=e1289]: InteractionCreate
+              - img [ref=e1291]
+            - button "Expand all" [ref=e1293] [cursor=pointer]
+            - strong [ref=e1294]: object
+        - article [ref=e1295]:
+          - generic [ref=e1296]:
+            - button "InteractionOut" [ref=e1297] [cursor=pointer]:
+              - generic [ref=e1299]: InteractionOut
+              - img [ref=e1301]
+            - button "Expand all" [ref=e1303] [cursor=pointer]
+            - strong [ref=e1304]: object
+        - article [ref=e1305]:
+          - generic [ref=e1306]:
+            - button "LifeEventCreate" [ref=e1307] [cursor=pointer]:
+              - generic [ref=e1309]: LifeEventCreate
+              - img [ref=e1311]
+            - button "Expand all" [ref=e1313] [cursor=pointer]
+            - strong [ref=e1314]: object
+        - article [ref=e1315]:
+          - generic [ref=e1316]:
+            - button "LifeEventIn" [ref=e1317] [cursor=pointer]:
+              - generic [ref=e1319]: LifeEventIn
+              - img [ref=e1321]
+            - button "Expand all" [ref=e1323] [cursor=pointer]
+            - strong [ref=e1324]: object
+        - article [ref=e1325]:
+          - generic [ref=e1326]:
+            - button "LifeEventOut" [ref=e1327] [cursor=pointer]:
+              - generic [ref=e1329]: LifeEventOut
+              - img [ref=e1331]
+            - button "Expand all" [ref=e1333] [cursor=pointer]
+            - strong [ref=e1334]: object
+        - article [ref=e1335]:
+          - generic [ref=e1336]:
+            - button "LifeEventUpdate" [ref=e1337] [cursor=pointer]:
+              - generic [ref=e1339]: LifeEventUpdate
+              - img [ref=e1341]
+            - button "Expand all" [ref=e1343] [cursor=pointer]
+            - strong [ref=e1344]: object
+        - article [ref=e1345]:
+          - generic [ref=e1346]:
+            - button "LinkAdvisorRequest" [ref=e1347] [cursor=pointer]:
+              - generic [ref=e1349]: LinkAdvisorRequest
+              - img [ref=e1351]
+            - button "Expand all" [ref=e1353] [cursor=pointer]
+            - strong [ref=e1354]: object
+        - article [ref=e1355]:
+          - generic [ref=e1356]:
+            - button "LoginRequest" [ref=e1357] [cursor=pointer]:
+              - generic [ref=e1359]: LoginRequest
+              - img [ref=e1361]
+            - button "Expand all" [ref=e1363] [cursor=pointer]
+            - strong [ref=e1364]: object
+        - article [ref=e1365]:
+          - generic [ref=e1366]:
+            - button "MeetingPrepCard" [ref=e1367] [cursor=pointer]:
+              - generic [ref=e1369]: MeetingPrepCard
+              - img [ref=e1371]
+            - button "Expand all" [ref=e1373] [cursor=pointer]
+            - strong [ref=e1374]: object
+        - article [ref=e1375]:
+          - generic [ref=e1376]:
+            - button "NotificationListOut" [ref=e1377] [cursor=pointer]:
+              - generic [ref=e1379]: NotificationListOut
+              - img [ref=e1381]
+            - button "Expand all" [ref=e1383] [cursor=pointer]
+            - strong [ref=e1384]: object
+        - article [ref=e1385]:
+          - generic [ref=e1386]:
+            - button "NotificationOut" [ref=e1387] [cursor=pointer]:
+              - generic [ref=e1389]: NotificationOut
+              - img [ref=e1391]
+            - button "Expand all" [ref=e1393] [cursor=pointer]
+            - strong [ref=e1394]: object
+        - article [ref=e1395]:
+          - generic [ref=e1396]:
+            - button "PortfolioCreate" [ref=e1397] [cursor=pointer]:
+              - generic [ref=e1399]: PortfolioCreate
+              - img [ref=e1401]
+            - button "Expand all" [ref=e1403] [cursor=pointer]
+            - strong [ref=e1404]: object
+        - article [ref=e1405]:
+          - generic [ref=e1406]:
+            - button "PortfolioIn" [ref=e1407] [cursor=pointer]:
+              - generic [ref=e1409]: PortfolioIn
+              - img [ref=e1411]
+            - button "Expand all" [ref=e1413] [cursor=pointer]
+            - strong [ref=e1414]: object
+        - article [ref=e1415]:
+          - generic [ref=e1416]:
+            - button "PortfolioOut" [ref=e1417] [cursor=pointer]:
+              - generic [ref=e1419]: PortfolioOut
+              - img [ref=e1421]
+            - button "Expand all" [ref=e1423] [cursor=pointer]
+            - strong [ref=e1424]: object
+        - article [ref=e1425]:
+          - generic [ref=e1426]:
+            - button "RegisterRequest" [ref=e1427] [cursor=pointer]:
+              - generic [ref=e1429]: RegisterRequest
+              - img [ref=e1431]
+            - button "Expand all" [ref=e1433] [cursor=pointer]
+            - strong [ref=e1434]: object
+        - article [ref=e1435]:
+          - generic [ref=e1436]:
+            - button "SimulateIn" [ref=e1437] [cursor=pointer]:
+              - generic [ref=e1439]: SimulateIn
+              - img [ref=e1441]
+            - button "Expand all" [ref=e1443] [cursor=pointer]
+            - strong [ref=e1444]: object
+        - article [ref=e1445]:
+          - generic [ref=e1446]:
+            - button "SituationSummaryResponse" [ref=e1447] [cursor=pointer]:
+              - generic [ref=e1449]: SituationSummaryResponse
+              - img [ref=e1451]
+            - button "Expand all" [ref=e1453] [cursor=pointer]
+            - strong [ref=e1454]: object
+        - article [ref=e1455]:
+          - generic [ref=e1456]:
+            - button "TokenResponse" [ref=e1457] [cursor=pointer]:
+              - generic [ref=e1459]: TokenResponse
+              - img [ref=e1461]
+            - button "Expand all" [ref=e1463] [cursor=pointer]
+            - strong [ref=e1464]: object
+        - article [ref=e1465]:
+          - generic [ref=e1466]:
+            - button "TradeApprove" [ref=e1467] [cursor=pointer]:
+              - generic [ref=e1469]: TradeApprove
+              - img [ref=e1471]
+            - button "Expand all" [ref=e1473] [cursor=pointer]
+            - strong [ref=e1474]: object
+        - article [ref=e1475]:
+          - generic [ref=e1476]:
+            - button "TradeAuditLogOut" [ref=e1477] [cursor=pointer]:
+              - generic [ref=e1479]: TradeAuditLogOut
+              - img [ref=e1481]
+            - button "Expand all" [ref=e1483] [cursor=pointer]
+            - strong [ref=e1484]: object
+        - article [ref=e1485]:
+          - generic [ref=e1486]:
+            - button "TradeCreate" [ref=e1487] [cursor=pointer]:
+              - generic [ref=e1489]: TradeCreate
+              - img [ref=e1491]
+            - button "Expand all" [ref=e1493] [cursor=pointer]
+            - strong [ref=e1494]: object
+        - article [ref=e1495]:
+          - generic [ref=e1496]:
+            - button "TradeOut" [ref=e1497] [cursor=pointer]:
+              - generic [ref=e1499]: TradeOut
+              - img [ref=e1501]
+            - button "Expand all" [ref=e1503] [cursor=pointer]
+            - strong [ref=e1504]: object
+        - article [ref=e1505]:
+          - generic [ref=e1506]:
+            - button "TradeReject" [ref=e1507] [cursor=pointer]:
+              - generic [ref=e1509]: TradeReject
+              - img [ref=e1511]
+            - button "Expand all" [ref=e1513] [cursor=pointer]
+            - strong [ref=e1514]: object
+        - article [ref=e1515]:
+          - generic [ref=e1516]:
+            - button "TradeSubmit" [ref=e1517] [cursor=pointer]:
+              - generic [ref=e1519]: TradeSubmit
+              - img [ref=e1521]
+            - button "Expand all" [ref=e1523] [cursor=pointer]
+            - strong [ref=e1524]: object
+        - article [ref=e1525]:
+          - generic [ref=e1526]:
+            - button "TradeUpdateTxHash" [ref=e1527] [cursor=pointer]:
+              - generic [ref=e1529]: TradeUpdateTxHash
+              - img [ref=e1531]
+            - button "Expand all" [ref=e1533] [cursor=pointer]
+            - strong [ref=e1534]: object
+        - article [ref=e1535]:
+          - generic [ref=e1536]:
+            - button "UrgencyFlag" [ref=e1537] [cursor=pointer]:
+              - generic [ref=e1539]: UrgencyFlag
+              - img [ref=e1541]
+            - button "Expand all" [ref=e1543] [cursor=pointer]
+            - strong [ref=e1544]: object
+        - article [ref=e1545]:
+          - generic [ref=e1546]:
+            - button "ValidationError" [ref=e1547] [cursor=pointer]:
+              - generic [ref=e1549]: ValidationError
+              - img [ref=e1551]
+            - button "Expand all" [ref=e1553] [cursor=pointer]
+            - strong [ref=e1554]: object
+```

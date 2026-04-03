@@ -1,5 +1,5 @@
 # ARIA Advisor Workbench — Help Guide
-**Version 1.3** · Last updated: 2026-03-28
+**Version 1.4** · Last updated: 2026-04-03
 
 ---
 
@@ -122,6 +122,8 @@ On any client's 360° page, you can create and submit trades for approval.
 - **Approved:** ✅ Client approved; you will process in 1-2 business days (mutual funds) or immediately (crypto)
 - **Rejected:** ❌ Client rejected; you can modify and resubmit
 
+> **Client-Initiated Trades:** If your client initiates a trade themselves from their Personal dashboard, you'll receive an informational notification. These trades auto-settle immediately — no action required from you.
+
 **Asset-Specific Notes:**
 - **Mutual Funds:** You process the trade after client approval (mock banking for now)
 - **Crypto:** After client approval, the client executes the trade on their own exchange (Coinbase/Kraken/MetaMask) — you coordinate via notifications
@@ -182,6 +184,20 @@ To re-seed: `cd backend && python seed.py`
 ---
 
 ## Changelog
+
+### v1.4 (2026-04-03)
+- **Client-Initiated Trades:** Clients can now initiate trades from their Personal dashboard
+  - Trades settle immediately — no advisor approval required
+  - If client has a linked advisor, advisor receives an informational notification
+  - No advisor linked = trade still processes silently
+- **Balance Validation on Approve:** Running balance check before settling advisor-initiated trades
+  - Buy trades: blocked if `cash_balance < estimated_value` (shows shortfall amount)
+  - Sell trades: blocked if `units_held < quantity` for the specific asset
+  - Inline ⚠️ warning shown to client before approving
+- **Cash Balance:** Portfolio now tracks a cash balance (INR liquid)
+  - Shown on dashboard as "💵 Cash available: ₹X"
+  - Deducted on buy settle; credited on sell settle
+- **Test Data:** Joshua, Ruben, and Kate now have seed holdings across stocks, mutual funds, crypto, bonds, and commodities with cash balances
 
 ### v1.3 (2026-03-28)
 - **Trade Workflow (Phase 1A):** Create, submit, and track trades

@@ -327,16 +327,43 @@ def update_profile(
 
 @router.delete("/test-cleanup")
 def cleanup_test_users(db: Session = Depends(get_db)):
-    """Delete all test users (email LIKE '*@aria-test.com') and their trades. Used by E2E teardown."""
-    # Delete test trades (notes start with [E2E])
-    deleted_trades = db.execute(
-        text("DELETE FROM trades WHERE notes LIKE '[E2E]%'")
-    ).rowcount
+    """
+    Delete all [TEST] accounts and associated data. Used by E2E teardown after every run.
+    Matches: display_name LIKE '[TEST]%' OR email LIKE '%@aria-test.com'
+    Also deletes [TEST] clients and all their cascaded data.
+    """
+    # Resolve IDs
+    test_personal_ids = [r[0] for r in db.execute(
+        text("SELECT id FROM personal_users WHERE display_name LIKE '[TEST]%' OR email LIKE '%@aria-test.com'")
+    ).fetchall()]
 
-    # Delete test users (email ends with @aria-test.com)
-    deleted_users = db.execute(
-        text("DELETE FROM personal_users WHERE email LIKE '%@aria-test.com'")
-    ).rowcount
+    test_client_ids = [r[0] for r in db.execute(
+        text("SELECT id FROM clients WHERE name LIKE '[TEST]%'")
+    ).fetchall()]
+
+    deleted_trades = 0
+    deleted_users = 0
+    deleted_clients = 0
+
+    if test_client_ids:
+        db.execute(text("DELETE FROM notifications WHERE trade_id IN (SELECT id FROM trades WHERE client_id = ANY(:ids))"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM trade_audit_logs WHERE trade_id IN (SELECT id FROM trades WHERE client_id = ANY(:ids))"), {"ids": test_client_ids})
+        deleted_trades += db.execute(text("DELETE FROM trades WHERE client_id = ANY(:ids)"), {"ids": test_client_ids}).rowcount
+        db.execute(text("DELETE FROM client_interactions WHERE client_id = ANY(:ids)"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM life_events WHERE client_id = ANY(:ids)"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM goals WHERE client_id = ANY(:ids)"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM holdings WHERE portfolio_id IN (SELECT id FROM portfolios WHERE client_id = ANY(:ids))"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM portfolios WHERE client_id = ANY(:ids)"), {"ids": test_client_ids})
+        db.execute(text("DELETE FROM audit_logs WHERE client_id = ANY(:ids)"), {"ids": test_client_ids})
+        deleted_clients = db.execute(text("DELETE FROM clients WHERE id = ANY(:ids)"), {"ids": test_client_ids}).rowcount
+
+    if test_personal_ids:
+        db.execute(text("DELETE FROM notifications WHERE personal_user_id = ANY(:ids)"), {"ids": test_personal_ids})
+        db.execute(text("DELETE FROM life_events WHERE personal_user_id = ANY(:ids)"), {"ids": test_personal_ids})
+        db.execute(text("DELETE FROM goals WHERE personal_user_id = ANY(:ids)"), {"ids": test_personal_ids})
+        db.execute(text("DELETE FROM holdings WHERE portfolio_id IN (SELECT id FROM portfolios WHERE personal_user_id = ANY(:ids))"), {"ids": test_personal_ids})
+        db.execute(text("DELETE FROM portfolios WHERE personal_user_id = ANY(:ids)"), {"ids": test_personal_ids})
+        deleted_users = db.execute(text("DELETE FROM personal_users WHERE id = ANY(:ids)"), {"ids": test_personal_ids}).rowcount
 
     db.commit()
-    return {"deleted_users": deleted_users, "deleted_trades": deleted_trades}
+    return {"deleted_clients": deleted_clients, "deleted_users": deleted_users, "deleted_trades": deleted_trades}

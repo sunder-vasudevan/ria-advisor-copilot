@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: aria-asset-sdk
+Version: 0.1.0.dev0
+Summary: Unified Asset SDK (mock) for ARIA — crypto, stocks, MF, bonds, commodities, forex
+Requires-Python: >=3.9

@@ -388,3 +388,73 @@ class NotificationOut(BaseModel):
 class NotificationListOut(BaseModel):
     notifications: List[NotificationOut]
     unread_count: int
+
+
+# ─── Asset SDK ────────────────────────────────────────────────────────────────
+
+class AssetAccountConnect(BaseModel):
+    """Request to connect an asset provider account."""
+    asset_type: str  # crypto | stock | mutual_fund | bond | commodity | forex
+    api_key: str
+    account_ref: Optional[str] = None
+    # Advisor or personal owner (backend resolves from auth headers)
+
+
+class AssetAccountOut(BaseModel):
+    id: int
+    client_id: Optional[int]
+    personal_user_id: Optional[int]
+    provider: str
+    account_ref: str
+    asset_type: str
+    label: Optional[str]
+    connected_at: datetime
+    disconnected_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+class AssetHoldingOut(BaseModel):
+    account_id: str
+    asset_type: str
+    asset_code: str
+    asset_name: str
+    units_held: float
+    price_per_unit: float
+    current_value: float
+    category: Optional[str] = None
+    provider: Optional[str] = None
+    as_of: datetime
+
+
+class AssetTransactionOut(BaseModel):
+    transaction_id: str
+    account_id: str
+    asset_type: str
+    action: str
+    asset_code: str
+    quantity: float
+    executed_value: float
+    status: str
+    executed_at: datetime
+    tx_hash: Optional[str] = None
+    failure_reason: Optional[str] = None
+
+
+class AssetTransactionRequest(BaseModel):
+    account_id: str
+    asset_type: str
+    action: str  # buy | sell | transfer_in | transfer_out
+    asset_code: str
+    quantity: float
+    estimated_value: float
+
+
+class WebhookEventOut(BaseModel):
+    event_id: str
+    event_type: str
+    account_id: str
+    asset_type: str
+    payload: dict
+    occurred_at: datetime

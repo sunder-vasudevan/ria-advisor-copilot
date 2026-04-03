@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aria-asset-sdk"
+version = "0.1.0.dev0"
+description = "Unified Asset SDK (mock) for ARIA — crypto, stocks, MF, bonds, commodities, forex"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aria_asset_sdk*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

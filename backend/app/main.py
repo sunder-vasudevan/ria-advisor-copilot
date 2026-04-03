@@ -8,7 +8,7 @@ from sqlalchemy import text
 from .database import engine, Base, SessionLocal
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades, notifications
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
-from .routers import advisor_auth
+from .routers import advisor_auth, asset_sync
 from . import models          # ensure advisors table registered before personal_models
 from . import personal_models  # personal_users.advisor_id FK references advisors.id
 
@@ -358,6 +358,29 @@ def _run_migrations():
         except Exception:
             pass  # Column already exists or table being created
 
+    # FEAT-ASSET-SDK: extend holdings + new asset_accounts table
+    asset_holding_columns = [
+        ("asset_type", "VARCHAR DEFAULT 'mutual_fund'"),
+        ("asset_code", "VARCHAR"),
+        ("price_per_unit", "FLOAT"),
+    ]
+    with engine.connect() as conn:
+        for col, col_type in asset_holding_columns:
+            try:
+                conn.execute(text(f"ALTER TABLE holdings ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass  # Already exists
+
+    # make fund_name / fund_category / fund_house nullable (Postgres only — safe to ignore on SQLite)
+    with engine.connect() as conn:
+        for col in ("fund_name", "fund_category", "fund_house"):
+            try:
+                conn.execute(text(f"ALTER TABLE holdings ALTER COLUMN {col} DROP NOT NULL"))
+                conn.commit()
+            except Exception:
+                pass
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -404,6 +427,7 @@ app.include_router(personal_goals.router)
 app.include_router(personal_life_events.router)
 app.include_router(personal_copilot.router)
 app.include_router(advisor_auth.router)
+app.include_router(asset_sync.router)
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])

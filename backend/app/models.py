@@ -88,14 +88,22 @@ class Holding(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False)
-    fund_name = Column(String, nullable=False)
-    fund_category = Column(String, nullable=False)  # Large Cap, Flexi Cap, etc.
-    fund_house = Column(String, nullable=False)
+
+    # Asset type — defaults to mutual_fund for backward compat
+    asset_type = Column(String, nullable=True, default="mutual_fund")
+    asset_code = Column(String, nullable=True)  # ISIN / ticker / symbol
+
+    # Mutual fund fields (nullable for non-MF assets)
+    fund_name = Column(String, nullable=True)
+    fund_category = Column(String, nullable=True)
+    fund_house = Column(String, nullable=True)
+
     current_value = Column(Float, nullable=False)
     target_pct = Column(Float, nullable=False)
     current_pct = Column(Float, nullable=False)
     units_held = Column(Float, nullable=True)
-    nav_per_unit = Column(Float, nullable=True)
+    nav_per_unit = Column(Float, nullable=True)   # MF: NAV; others: price_per_unit
+    price_per_unit = Column(Float, nullable=True)  # generic alias for non-MF assets
 
     portfolio = relationship("Portfolio", back_populates="holdings")
 
@@ -163,6 +171,10 @@ class ClientInteraction(Base):
 class AssetTypeEnum(str, enum.Enum):
     mutual_fund = "mutual_fund"
     crypto = "crypto"
+    stock = "stock"
+    bond = "bond"
+    commodity = "commodity"
+    forex = "forex"
 
 
 class ActionEnum(str, enum.Enum):
@@ -263,3 +275,19 @@ class Notification(Base):
     def client_id(self):
         """Resolve client_id from related trade."""
         return self.trade.client_id if self.trade else None
+
+
+# Asset Account — linked provider account per client or personal user
+class AssetAccount(Base):
+    __tablename__ = "asset_accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # Owner: either client_id (Advisor side) or personal_user_id (Personal side)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=True, index=True)
+    personal_user_id = Column(Integer, nullable=True, index=True)  # personal_users.id
+    provider = Column(String, nullable=False, default="mock_provider")
+    account_ref = Column(String, nullable=False)  # provider-side account identifier
+    asset_type = Column(String, nullable=False)   # AssetTypeEnum value
+    label = Column(String, nullable=True)
+    connected_at = Column(DateTime, default=datetime.utcnow)
+    disconnected_at = Column(DateTime, nullable=True)

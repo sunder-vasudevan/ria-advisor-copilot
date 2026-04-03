@@ -79,6 +79,8 @@ class Portfolio(Base):
     target_debt_pct = Column(Float, nullable=False)
     target_cash_pct = Column(Float, nullable=False)
 
+    cash_balance = Column(Float, nullable=True, default=0.0)  # INR liquid cash for trade validation
+
     client = relationship("Client", back_populates="portfolio")
     holdings = relationship("Holding", back_populates="portfolio", cascade="all, delete-orphan")
 
@@ -249,9 +251,10 @@ class TradeAuditLog(Base):
 
 # Notification System (FEAT-1004)
 class NotificationTypeEnum(str, enum.Enum):
-    trade_submitted = "trade_submitted"  # Advisor submitted trade → Client notified
-    trade_approved = "trade_approved"    # Client approved trade → Advisor notified
-    trade_rejected = "trade_rejected"    # Client rejected trade → Advisor notified
+    trade_submitted = "trade_submitted"          # Advisor submitted trade → Client notified
+    trade_approved = "trade_approved"            # Client approved trade → Advisor notified
+    trade_rejected = "trade_rejected"            # Client rejected trade → Advisor notified
+    trade_client_submitted = "trade_client_submitted"  # Client initiated trade → Advisor notified
 
 
 class Notification(Base):

@@ -368,6 +368,24 @@ class TradeOut(BaseModel):
         from_attributes = True
 
 
+class ClientTradeCreate(BaseModel):
+    """Client initiates a trade. Requires advisor linked. Auto-settles."""
+    asset_type: str   # mutual_fund | stock | crypto | bond | commodity | forex
+    action: str       # buy | sell
+    asset_code: str   # ticker / ISIN / symbol
+    quantity: float
+    estimated_value: float
+    client_note: Optional[str] = None
+
+
+class BalanceCheckOut(BaseModel):
+    """Balance check result returned before approve."""
+    sufficient: bool
+    available: float   # cash (buy) or units_held (sell)
+    required: float    # estimated_value (buy) or quantity (sell)
+    shortfall: float   # 0 if sufficient
+
+
 # ─── Notifications ────────────────────────────────────────────────────────────
 
 class NotificationOut(BaseModel):

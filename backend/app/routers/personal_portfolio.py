@@ -49,6 +49,7 @@ def _portfolio_out(p: Portfolio) -> dict:
     return {
         "id": p.id,
         "total_value": total,
+        "cash_balance": p.cash_balance or 0.0,
         "equity_pct": p.equity_pct,
         "debt_pct": p.debt_pct,
         "cash_pct": p.cash_pct,

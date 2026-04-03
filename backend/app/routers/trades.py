@@ -190,6 +190,24 @@ def approve_trade(
             detail=f"Can only approve pending trades. Current status: {trade.status.value}"
         )
 
+    # Balance check before approval
+    portfolio = _get_portfolio_for_personal_user(x_personal_user_id, db)
+    if portfolio:
+        if trade.action.value == "buy":
+            bal = _check_buy_balance(portfolio, trade.estimated_value)
+            if not bal["sufficient"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Insufficient cash balance. Available: ₹{bal['available']:,.0f}, Required: ₹{bal['required']:,.0f}. Update quantity or top up cash."
+                )
+        elif trade.action.value == "sell":
+            bal = _check_sell_balance(portfolio, trade.asset_code, trade.quantity)
+            if not bal["sufficient"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Insufficient holdings. Available: {bal['available']} units of {trade.asset_code}, Required: {bal['required']}."
+                )
+
     # Update status to approved
     trade.status = models.TradeStatusEnum.approved
     trade.approved_at = datetime.utcnow()
@@ -211,6 +229,39 @@ def approve_trade(
     trade.executed_at = datetime.utcnow()
     trade.settled_at = datetime.utcnow()
     trade.actual_value = trade.estimated_value  # Mock: use estimated for actual
+
+    # Update portfolio balances on settlement
+    if portfolio:
+        if trade.action.value == "buy":
+            portfolio.cash_balance = (portfolio.cash_balance or 0.0) - trade.estimated_value
+            holding = next(
+                (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == trade.asset_code.upper()),
+                None,
+            )
+            if holding:
+                holding.units_held = (holding.units_held or 0.0) + trade.quantity
+                holding.current_value = holding.units_held * (holding.nav_per_unit or (trade.estimated_value / trade.quantity))
+            else:
+                db.add(models.Holding(
+                    portfolio_id=portfolio.id,
+                    asset_type=trade.asset_type.value,
+                    asset_code=trade.asset_code,
+                    fund_name=trade.asset_code,
+                    current_value=trade.estimated_value,
+                    target_pct=0.0,
+                    current_pct=0.0,
+                    units_held=trade.quantity,
+                    nav_per_unit=trade.estimated_value / trade.quantity if trade.quantity else 0,
+                ))
+        else:  # sell
+            holding = next(
+                (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == trade.asset_code.upper()),
+                None,
+            )
+            if holding:
+                holding.units_held = (holding.units_held or 0.0) - trade.quantity
+                holding.current_value = max(0.0, (holding.current_value or 0.0) - trade.estimated_value)
+            portfolio.cash_balance = (portfolio.cash_balance or 0.0) + trade.estimated_value
 
     # Log settlement (mock banking)
     audit_log_settle = models.TradeAuditLog(
@@ -424,4 +475,196 @@ def update_crypto_tx_hash(
     db.commit()
     db.refresh(trade)
 
+    return trade
+
+
+# ─── Client-Initiated Trade (FEAT-CLIENT-TRADE) ──────────────────────────────
+
+def _get_portfolio_for_personal_user(personal_user_id: int, db: Session):
+    """Resolve Portfolio ORM object for a personal user."""
+    return db.query(models.Portfolio).filter(
+        models.Portfolio.personal_user_id == personal_user_id
+    ).first()
+
+
+def _get_advisor_id_for_personal_user(personal_user_id: int, db: Session) -> Optional[int]:
+    """Resolve advisor_id from personal_users table."""
+    row = db.execute(
+        text("SELECT advisor_id FROM personal_users WHERE id = :uid LIMIT 1"),
+        {"uid": personal_user_id},
+    ).fetchone()
+    return row[0] if row else None
+
+
+def _check_buy_balance(portfolio: models.Portfolio, estimated_value: float) -> dict:
+    available = portfolio.cash_balance or 0.0
+    sufficient = available >= estimated_value
+    return {"sufficient": sufficient, "available": available, "required": estimated_value, "shortfall": max(0.0, estimated_value - available)}
+
+
+def _check_sell_balance(portfolio: models.Portfolio, asset_code: str, quantity: float) -> dict:
+    holding = next(
+        (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == asset_code.upper()),
+        None,
+    )
+    available = holding.units_held if (holding and holding.units_held is not None) else 0.0
+    sufficient = available >= quantity
+    return {"sufficient": sufficient, "available": available, "required": quantity, "shortfall": max(0.0, quantity - available)}
+
+
+@router.get("/personal/me/balance-check", response_model=schemas.BalanceCheckOut)
+def client_balance_check(
+    action: str,
+    asset_code: str,
+    quantity: float,
+    estimated_value: float,
+    db: Session = Depends(get_db),
+    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
+):
+    """
+    Pre-approve balance check for client.
+    action=buy  → checks cash_balance >= estimated_value
+    action=sell → checks units_held of asset_code >= quantity
+    """
+    if not x_personal_user_id:
+        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
+    portfolio = _get_portfolio_for_personal_user(x_personal_user_id, db)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+
+    if action == "buy":
+        result = _check_buy_balance(portfolio, estimated_value)
+    elif action == "sell":
+        result = _check_sell_balance(portfolio, asset_code, quantity)
+    else:
+        raise HTTPException(status_code=400, detail="action must be buy or sell")
+
+    return schemas.BalanceCheckOut(**result)
+
+
+@router.post("/personal/me/trades", response_model=schemas.TradeOut, status_code=201)
+def client_submit_trade(
+    trade_data: schemas.ClientTradeCreate,
+    db: Session = Depends(get_db),
+    x_personal_user_id: int = Header(None, alias="X-Personal-User-Id"),
+):
+    """
+    Client initiates a trade.
+    - Requires advisor linked (403 if none).
+    - Validates balance: buy → cash_balance; sell → units_held.
+    - Creates trade as settled immediately + notifies advisor.
+    - Deducts cash (buy) or units (sell) from portfolio.
+    """
+    if not x_personal_user_id:
+        raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
+
+    advisor_id = _get_advisor_id_for_personal_user(x_personal_user_id, db)
+    if not advisor_id:
+        raise HTTPException(status_code=403, detail="No advisor linked. Connect an advisor to trade.")
+
+    client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
+    if not client_id:
+        raise HTTPException(status_code=404, detail="No client record found for this user")
+
+    portfolio = _get_portfolio_for_personal_user(x_personal_user_id, db)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+
+    # Balance check
+    if trade_data.action == "buy":
+        check = _check_buy_balance(portfolio, trade_data.estimated_value)
+        if not check["sufficient"]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Insufficient cash balance. Available: ₹{check['available']:,.0f}, Required: ₹{check['required']:,.0f}"
+            )
+    elif trade_data.action == "sell":
+        check = _check_sell_balance(portfolio, trade_data.asset_code, trade_data.quantity)
+        if not check["sufficient"]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Insufficient holdings. Available: {check['available']} units, Required: {check['required']} units of {trade_data.asset_code}"
+            )
+    else:
+        raise HTTPException(status_code=400, detail="action must be buy or sell")
+
+    now = datetime.utcnow()
+
+    # Create trade directly as settled
+    trade = models.Trade(
+        client_id=client_id,
+        advisor_id=advisor_id,
+        asset_type=trade_data.asset_type,
+        action=trade_data.action,
+        asset_code=trade_data.asset_code,
+        quantity=trade_data.quantity,
+        estimated_value=trade_data.estimated_value,
+        actual_value=trade_data.estimated_value,
+        status=models.TradeStatusEnum.settled,
+        client_comment=trade_data.client_note,
+        submitted_at=now,
+        approved_at=now,
+        executed_at=now,
+        settled_at=now,
+    )
+    db.add(trade)
+    db.flush()
+
+    # Audit logs
+    db.add(models.TradeAuditLog(
+        trade_id=trade.id,
+        action=models.TradeAuditActionEnum.created,
+        actor=models.TradeActorEnum.client,
+        note=f"Client-initiated: {trade_data.action} {trade_data.asset_code} {trade_data.quantity} units",
+    ))
+    db.add(models.TradeAuditLog(
+        trade_id=trade.id,
+        action=models.TradeAuditActionEnum.settled,
+        actor=models.TradeActorEnum.system,
+        note="Auto-settled on client submission",
+    ))
+
+    # Update portfolio balances
+    if trade_data.action == "buy":
+        portfolio.cash_balance = (portfolio.cash_balance or 0.0) - trade_data.estimated_value
+        holding = next(
+            (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == trade_data.asset_code.upper()),
+            None,
+        )
+        if holding:
+            holding.units_held = (holding.units_held or 0.0) + trade_data.quantity
+            holding.current_value = holding.units_held * (holding.nav_per_unit or (trade_data.estimated_value / trade_data.quantity))
+        else:
+            db.add(models.Holding(
+                portfolio_id=portfolio.id,
+                asset_type=trade_data.asset_type,
+                asset_code=trade_data.asset_code,
+                fund_name=trade_data.asset_code,
+                current_value=trade_data.estimated_value,
+                target_pct=0.0,
+                current_pct=0.0,
+                units_held=trade_data.quantity,
+                nav_per_unit=trade_data.estimated_value / trade_data.quantity if trade_data.quantity else 0,
+            ))
+    else:  # sell
+        holding = next(
+            (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == trade_data.asset_code.upper()),
+            None,
+        )
+        if holding:
+            holding.units_held = (holding.units_held or 0.0) - trade_data.quantity
+            holding.current_value = max(0.0, (holding.current_value or 0.0) - trade_data.estimated_value)
+        portfolio.cash_balance = (portfolio.cash_balance or 0.0) + trade_data.estimated_value
+
+    # Notify advisor
+    create_notification(
+        db=db,
+        advisor_id=advisor_id,
+        notification_type=models.NotificationTypeEnum.trade_client_submitted.value,
+        trade_id=trade.id,
+        message=f"Client trade: {trade_data.action.upper()} {trade_data.asset_code} — {trade_data.quantity} units @ ₹{trade_data.estimated_value:,.0f}",
+    )
+
+    db.commit()
+    db.refresh(trade)
     return trade

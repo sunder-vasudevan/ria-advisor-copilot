@@ -381,6 +381,14 @@ def _run_migrations():
             except Exception:
                 pass
 
+    # FEAT-CLIENT-TRADE: cash_balance on portfolios
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE portfolios ADD COLUMN cash_balance FLOAT DEFAULT 0.0"))
+            conn.commit()
+        except Exception:
+            pass
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

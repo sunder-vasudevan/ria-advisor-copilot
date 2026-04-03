@@ -559,8 +559,7 @@ def client_submit_trade(
         raise HTTPException(status_code=401, detail="X-Personal-User-Id header required")
 
     advisor_id = _get_advisor_id_for_personal_user(x_personal_user_id, db)
-    if not advisor_id:
-        raise HTTPException(status_code=403, detail="No advisor linked. Connect an advisor to trade.")
+    # No advisor = trade still processes, notification skipped
 
     client_id = _get_client_id_for_personal_user(x_personal_user_id, db)
     if not client_id:

@@ -644,6 +644,28 @@ export default function Client360() {
                 </div>
               </div>
             )}
+
+            {/* Compliance Snapshot — desktop sidebar */}
+            <div className="p-5 border-t border-navy-800">
+              <div className="text-navy-400 text-xs font-semibold uppercase tracking-wider mb-3">Compliance</div>
+              <div className="space-y-2">
+                {[
+                  { label: 'KYC', ok: !!client.pan_number, detail: client.pan_number ? `PAN ${client.pan_number}` : 'PAN not on file', status: client.pan_number ? 'Verified' : 'Pending' },
+                  { label: 'Suitability', ok: !!client.risk_score, detail: client.risk_score ? `Score ${client.risk_score}/10` : 'Assessment pending', status: client.risk_score ? 'Confirmed' : 'Pending' },
+                ].map(({ label, ok, detail, status }) => (
+                  <div key={label} className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-medium text-navy-200">{label}</div>
+                      <div className="text-xs text-navy-500">{detail}</div>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${ok ? 'bg-emerald-900/50 text-emerald-300' : 'bg-amber-900/30 text-amber-300'}`}>
+                      {ok ? <CheckCircle size={10} /> : <Clock size={10} />}
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         )}
       </div>

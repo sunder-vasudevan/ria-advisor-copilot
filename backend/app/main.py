@@ -11,6 +11,7 @@ from .routers import personal_auth, personal_portfolio, personal_goals, personal
 from .routers import advisor_auth, asset_sync, billing, prospects, tasks
 from . import models          # ensure advisors table registered before personal_models
 from . import personal_models  # personal_users.advisor_id FK references advisors.id
+from .seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
 
 load_dotenv()
 
@@ -441,6 +442,47 @@ def _run_prospect_task_migrations():
             conn.rollback()
 
 
+def _backfill_default_holdings():
+    """Idempotent: for any portfolio with fewer than 21 holdings, wipe and re-seed with the full default set."""
+    with engine.connect() as conn:
+        try:
+            # Find portfolios that don't have the full 21-instrument set (10 stocks + 10 MFs + BTC)
+            portfolios = conn.execute(text("""
+                SELECT p.id, p.client_id
+                FROM portfolios p
+                WHERE (SELECT COUNT(*) FROM holdings h WHERE h.portfolio_id = p.id) < 21
+            """)).fetchall()
+
+            for portfolio_id, client_id in portfolios:
+                # Clear existing incomplete/stale holdings
+                conn.execute(text("DELETE FROM holdings WHERE portfolio_id = :pid"), {"pid": portfolio_id})
+
+                # Seed full default set
+                holdings_data = build_default_holdings(portfolio_id)
+                for h in holdings_data:
+                    conn.execute(
+                        text("""
+                            INSERT INTO holdings (portfolio_id, asset_code, asset_type, fund_name, fund_category, fund_house,
+                                units_held, nav_per_unit, price_per_unit, current_value, target_pct, current_pct)
+                            VALUES (:portfolio_id, :asset_code, :asset_type, :fund_name, :fund_category, :fund_house,
+                                :units_held, :nav_per_unit, :price_per_unit, :current_value, :target_pct, :current_pct)
+                        """),
+                        h
+                    )
+
+                # Update portfolio cash_balance and total_value
+                total_value = sum(h["current_value"] for h in holdings_data)
+                conn.execute(
+                    text("UPDATE portfolios SET cash_balance = :cb, total_value = :tv WHERE id = :pid"),
+                    {"cb": DEFAULT_CASH_BALANCE, "tv": total_value, "pid": portfolio_id}
+                )
+
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            print(f"_backfill_default_holdings error: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)  # creates all new tables automatically
@@ -453,6 +495,7 @@ async def lifespan(app: FastAPI):
     _seed_client_advisor_assignments()
     _migrate_personal_user_scaffolds()  # one-time: link existing personal users to advisors
     _seed_personal_user_assignments()   # ongoing: ensure all personal users have basic scaffold
+    _backfill_default_holdings()        # backfill any portfolio missing the full 21-instrument set
     yield
 
 

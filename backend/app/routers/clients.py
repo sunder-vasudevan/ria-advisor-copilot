@@ -8,6 +8,7 @@ from ..models import Client, Portfolio, Holding, Goal, LifeEvent, AuditLog, Clie
 from ..schemas import ClientListItem, Client360, HoldingOut, GoalOut, UrgencyFlag, GoalProjection, ClientCreate, ClientUpdate, PortfolioCreate, GoalCreate, GoalUpdate, LifeEventOut, LifeEventCreate, LifeEventUpdate, derive_risk_category
 from ..urgency import compute_urgency, urgency_score
 from ..simulation import monte_carlo_goal_probability, find_required_sip
+from ..seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -94,16 +95,13 @@ def create_client(
     db.commit()
     db.refresh(client)
 
-    # Auto-seed a starter portfolio with dummy holdings
-    portfolio = Portfolio(client_id=client.id, total_value=580000, cash_balance=0)
+    # Auto-seed a starter portfolio with default holdings (10 stocks + 10 MFs + BTC)
+    total_seed = sum(h["current_value"] for h in build_default_holdings(0))
+    portfolio = Portfolio(client_id=client.id, total_value=total_seed, cash_balance=DEFAULT_CASH_BALANCE)
     db.add(portfolio)
     db.flush()
-    dummy_holdings = [
-        Holding(portfolio_id=portfolio.id, fund_name="ICICI Pru Bluechip Fund",     fund_category="Large Cap",      fund_house="ICICI Prudential", current_value=250000, target_pct=40, current_pct=42, units_held=1200.50, nav_per_unit=208.25, asset_type="mutual_fund"),
-        Holding(portfolio_id=portfolio.id, fund_name="Parag Parikh Flexi Cap Fund", fund_category="Flexi Cap",      fund_house="PPFAS",            current_value=180000, target_pct=35, current_pct=30, units_held=620.00,  nav_per_unit=290.32, asset_type="mutual_fund"),
-        Holding(portfolio_id=portfolio.id, fund_name="HDFC Short Term Debt Fund",   fund_category="Short Duration", fund_house="HDFC MF",          current_value=150000, target_pct=25, current_pct=28, units_held=3800.00, nav_per_unit=39.47,  asset_type="mutual_fund"),
-    ]
-    db.add_all(dummy_holdings)
+    holdings_data = build_default_holdings(portfolio.id)
+    db.add_all([Holding(**h) for h in holdings_data])
     db.commit()
     db.refresh(client)
 

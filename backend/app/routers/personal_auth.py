@@ -10,7 +10,9 @@ from sqlalchemy import text
 from ..database import get_db
 from ..personal_models import PersonalUser
 from ..auth import get_password_hash, verify_password, create_access_token, get_current_personal_user
+from .notifications import create_notification
 from ..schemas import derive_risk_category
+from ..seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
 
 router = APIRouter(prefix="/personal/auth", tags=["personal-auth"])
 
@@ -130,13 +132,31 @@ def _create_personal_client_and_portfolio(display_name: str, personal_user_id: i
                 {"puid": personal_user_id}
             ).fetchone()
             if not existing_portfolio:
+                total_seed = sum(h["current_value"] for h in build_default_holdings(0))
                 db.execute(
                     text("""
-                        INSERT INTO portfolios (client_id, personal_user_id, total_value, equity_pct, debt_pct, cash_pct, target_equity_pct, target_debt_pct, target_cash_pct)
-                        VALUES (:cid, :puid, 0, 0, 0, 100, 60, 30, 10)
+                        INSERT INTO portfolios (client_id, personal_user_id, total_value, equity_pct, debt_pct, cash_pct, target_equity_pct, target_debt_pct, target_cash_pct, cash_balance)
+                        VALUES (:cid, :puid, :tv, 60, 30, 10, 60, 30, 10, :cb)
                     """),
-                    {"cid": client_id, "puid": personal_user_id}
+                    {"cid": client_id, "puid": personal_user_id, "tv": total_seed, "cb": DEFAULT_CASH_BALANCE}
                 )
+                # Fetch the new portfolio id
+                new_pid = db.execute(
+                    text("SELECT id FROM portfolios WHERE client_id = :cid ORDER BY id DESC LIMIT 1"),
+                    {"cid": client_id}
+                ).fetchone()
+                if new_pid:
+                    holdings_data = build_default_holdings(new_pid[0])
+                    for h in holdings_data:
+                        db.execute(
+                            text("""
+                                INSERT INTO holdings (portfolio_id, asset_code, asset_type, fund_name, fund_category, fund_house,
+                                    units_held, nav_per_unit, price_per_unit, current_value, target_pct, current_pct)
+                                VALUES (:portfolio_id, :asset_code, :asset_type, :fund_name, :fund_category, :fund_house,
+                                    :units_held, :nav_per_unit, :price_per_unit, :current_value, :target_pct, :current_pct)
+                            """),
+                            h
+                        )
         db.commit()
         return True
     except Exception as e:
@@ -323,6 +343,33 @@ def update_profile(
     db.refresh(current_user)
     return {"id": current_user.id, "display_name": current_user.display_name,
             "risk_score": current_user.risk_score, "risk_category": current_user.risk_category}
+
+
+@router.post("/delink-advisor")
+def delink_advisor(
+    current_user: PersonalUser = Depends(get_current_personal_user),
+    db: Session = Depends(get_db),
+):
+    """Remove the advisor link from a personal user and their associated client record."""
+    advisor_id = _get_advisor_id_for_user(current_user.id, db)
+    if not advisor_id:
+        raise HTTPException(status_code=400, detail="No advisor linked")
+    # Null advisor_id on personal_users
+    _set_advisor_id(current_user.id, None, db)
+    # Null advisor_id on the linked client record
+    db.execute(
+        text("UPDATE clients SET advisor_id = NULL WHERE personal_user_id = :puid"),
+        {"puid": current_user.id},
+    )
+    # Notify the advisor
+    create_notification(
+        db=db,
+        advisor_id=advisor_id,
+        notification_type="client_delinked",
+        message=f"{current_user.display_name} has removed you as their advisor.",
+    )
+    db.commit()
+    return {"delinked": True}
 
 
 @router.delete("/test-cleanup")

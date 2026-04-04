@@ -1,7 +1,7 @@
 import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus } from 'lucide-react'
+import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus, Receipt } from 'lucide-react'
 import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 
@@ -347,6 +347,12 @@ export default function ClientList() {
         <nav className="hidden md:flex items-center gap-1">
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-[#1D6FDB] text-sm font-medium">
             <TrendingUp size={14} /> Clients
+          </button>
+          <button
+            onClick={() => navigate('/billing')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-gray-500 hover:bg-gray-100 text-sm font-medium transition-colors"
+          >
+            <Receipt size={14} /> Billing
           </button>
           <button
             onClick={() => navigate('/help')}

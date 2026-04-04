@@ -3,14 +3,19 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import RequireAdvisorAuth from './components/RequireAdvisorAuth'
 import RequireClientAuth from './components/RequireClientAuth'
 
-const ClientList   = lazy(() => import('./pages/ClientList'))
-const Client360    = lazy(() => import('./pages/Client360'))
-const ClientForm   = lazy(() => import('./pages/ClientForm'))
+const ClientList = lazy(() => import('./pages/ClientList'))
+const Client360 = lazy(() => import('./pages/Client360'))
+const ClientForm = lazy(() => import('./pages/ClientForm'))
 const AdvisorLogin = lazy(() => import('./pages/AdvisorLogin'))
-const ClientLogin  = lazy(() => import('./pages/ClientLogin'))
+const ClientLogin = lazy(() => import('./pages/ClientLogin'))
 const ClientPortal = lazy(() => import('./pages/ClientPortal'))
-const HelpPage           = lazy(() => import('./pages/HelpPage'))
+const HelpPage = lazy(() => import('./pages/HelpPage'))
 const AdvisorProfilePage = lazy(() => import('./pages/AdvisorProfilePage'))
+const Client360V2Preview = lazy(() => import('./pages/Client360V2Preview'))
+const AdvisorCollabPortalPreview = lazy(() => import('./pages/AdvisorCollabPortalPreview'))
+const AdvisorWorkspacePreview = lazy(() => import('./pages/AdvisorWorkspacePreview'))
+const AdvisorBillingPreview = lazy(() => import('./pages/AdvisorBillingPreview'))
+const BillingPage = lazy(() => import('./pages/BillingPage'))
 
 function PageLoader() {
   return (
@@ -47,6 +52,21 @@ export default function App() {
           } />
           <Route path="/profile" element={
             <RequireAdvisorAuth><AdvisorProfilePage /></RequireAdvisorAuth>
+          } />
+          <Route path="/client360-v2-preview/:id?" element={
+            <RequireAdvisorAuth><Client360V2Preview /></RequireAdvisorAuth>
+          } />
+          <Route path="/advisor-collab-preview" element={
+            <RequireAdvisorAuth><AdvisorCollabPortalPreview /></RequireAdvisorAuth>
+          } />
+          <Route path="/advisor-workspace-preview" element={
+            <RequireAdvisorAuth><AdvisorWorkspacePreview /></RequireAdvisorAuth>
+          } />
+          <Route path="/advisor-billing-preview" element={
+            <RequireAdvisorAuth><AdvisorBillingPreview /></RequireAdvisorAuth>
+          } />
+          <Route path="/billing" element={
+            <RequireAdvisorAuth><BillingPage /></RequireAdvisorAuth>
           } />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

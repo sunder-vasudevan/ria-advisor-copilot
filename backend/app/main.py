@@ -8,7 +8,7 @@ from sqlalchemy import text
 from .database import engine, Base, SessionLocal
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades, notifications
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
-from .routers import advisor_auth, asset_sync
+from .routers import advisor_auth, asset_sync, billing
 from . import models          # ensure advisors table registered before personal_models
 from . import personal_models  # personal_users.advisor_id FK references advisors.id
 
@@ -444,6 +444,7 @@ app.include_router(personal_life_events.router)
 app.include_router(personal_copilot.router)
 app.include_router(advisor_auth.router)
 app.include_router(asset_sync.router)
+app.include_router(billing.router)
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])

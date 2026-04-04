@@ -2,6 +2,7 @@ import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getClient, createPortfolio, archiveClient, getAdvisorNotifications, markNotificationRead } from '../api/client'
+import { getClientInvoices, createInvoice, collectInvoice, getClientFeeConfig, setClientFeeConfig, getFeeConfig } from '../api/billing'
 import { createLifeEvent, updateLifeEvent, deleteLifeEvent } from '../api/client'
 import { ArrowLeft, AlertTriangle, Clock, CheckCircle, CalendarCheck, Sparkles, Pencil, ChevronLeft, ChevronRight, Plus, X, Loader2, Trash2, Archive, Bell, BellRing } from 'lucide-react'
 import PortfolioChart from '../components/PortfolioChart'
@@ -399,6 +400,195 @@ function NotificationBell360() {
   )
 }
 
+const FEE_TYPE_LABELS = { aum: 'AUM %', retainer: 'Fixed Retainer', per_trade: 'Per-Trade', onboarding: 'Onboarding' }
+const INVOICE_STATUS_STYLES = {
+  pending: 'bg-amber-100 text-amber-700',
+  paid: 'bg-green-100 text-green-700',
+  overdue: 'bg-red-100 text-red-700',
+  waived: 'bg-gray-100 text-gray-500',
+}
+
+function ClientBillingTab({ clientId, portfolio }) {
+  const [invoices, setInvoices] = useState([])
+  const [feeConfig, setFeeConfigState] = useState(null)
+  const [advisorDefault, setAdvisorDefault] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [configEdit, setConfigEdit] = useState(false)
+  const [configForm, setConfigForm] = useState({ fee_type: 'aum', rate: 1.0, billing_period: 'monthly' })
+  const [savingConfig, setSavingConfig] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [collectingId, setCollectingId] = useState(null)
+  const [toast, setToast] = useState(null)
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  const loadBillingData = async () => {
+    setLoading(true)
+    try {
+      const [invRes, cfgRes, defRes] = await Promise.all([
+        getClientInvoices(clientId),
+        getClientFeeConfig(clientId),
+        getFeeConfig(),
+      ])
+      setInvoices(invRes.data || [])
+      setFeeConfigState(cfgRes.data)
+      setAdvisorDefault(defRes.data)
+      const active = cfgRes.data || defRes.data
+      if (active) setConfigForm({ fee_type: active.fee_type, rate: active.rate, billing_period: active.billing_period })
+    } catch (e) { console.error(e) }
+    finally { setLoading(false) }
+  }
+
+  useEffect(() => { loadBillingData() }, [clientId])
+
+  const handleSaveConfig = async () => {
+    setSavingConfig(true)
+    try {
+      const res = await setClientFeeConfig(clientId, configForm)
+      setFeeConfigState(res.data)
+      setConfigEdit(false)
+      showToast('Fee config saved')
+    } catch { showToast('Failed to save', 'error') }
+    finally { setSavingConfig(false) }
+  }
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    try {
+      await createInvoice(clientId, {})
+      showToast('Invoice generated')
+      await loadBillingData()
+    } catch (e) {
+      showToast(e?.response?.data?.detail || 'Failed to generate invoice', 'error')
+    } finally { setGenerating(false) }
+  }
+
+  const handleCollect = async (inv) => {
+    setCollectingId(inv.id)
+    try {
+      await collectInvoice(inv.id)
+      showToast(`Collected ${fmt.inr(inv.amount)}`)
+      await loadBillingData()
+    } catch (e) {
+      showToast(e?.response?.data?.detail || 'Collection failed', 'error')
+    } finally { setCollectingId(null) }
+  }
+
+  const activeConfig = feeConfig || advisorDefault
+  const cashBalance = portfolio?.cash_balance || 0
+
+  return (
+    <div className="space-y-4">
+      {toast && (
+        <div className={`fixed top-16 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium shadow-lg ${toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Fee Config */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fee Configuration</div>
+            {!feeConfig && advisorDefault && <div className="text-xs text-gray-400 mt-0.5">Using advisor default</div>}
+            {feeConfig && <div className="text-xs text-blue-500 mt-0.5">Client override active</div>}
+          </div>
+          <button onClick={() => setConfigEdit(!configEdit)} className="text-xs text-[#1D6FDB] hover:underline">
+            {configEdit ? 'Cancel' : 'Edit Override'}
+          </button>
+        </div>
+        {configEdit ? (
+          <div className="flex flex-wrap gap-3 items-end">
+            <div>
+              <label className="text-xs text-gray-500 block mb-1">Fee Type</label>
+              <select value={configForm.fee_type} onChange={e => setConfigForm(f => ({ ...f, fee_type: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+                {Object.entries(FEE_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 block mb-1">{configForm.fee_type === 'aum' ? 'Rate (%)' : 'Rate (₹)'}</label>
+              <input type="number" step="0.01" value={configForm.rate} onChange={e => setConfigForm(f => ({ ...f, rate: parseFloat(e.target.value) }))}
+                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-24" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 block mb-1">Period</label>
+              <select value={configForm.billing_period} onChange={e => setConfigForm(f => ({ ...f, billing_period: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+              </select>
+            </div>
+            <button onClick={handleSaveConfig} disabled={savingConfig} className="px-4 py-1.5 bg-[#1D6FDB] text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              {savingConfig ? 'Saving…' : 'Save'}
+            </button>
+          </div>
+        ) : activeConfig ? (
+          <div className="flex flex-wrap gap-6 text-sm">
+            <div><span className="text-gray-500">Type: </span><span className="font-medium">{FEE_TYPE_LABELS[activeConfig.fee_type]}</span></div>
+            <div><span className="text-gray-500">Rate: </span><span className="font-medium">{activeConfig.fee_type === 'aum' ? `${activeConfig.rate}%` : fmt.inr(activeConfig.rate)}</span></div>
+            <div><span className="text-gray-500">Period: </span><span className="font-medium capitalize">{activeConfig.billing_period}</span></div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400 italic">No fee config. Set one in Billing page or add a client override.</p>
+        )}
+      </div>
+
+      {/* Cash balance + Generate */}
+      <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-5 py-4">
+        <div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider">Cash Balance</div>
+          <div className={`text-lg font-bold ${cashBalance < 5000 ? 'text-red-600' : 'text-gray-900'}`}>{fmt.inr(cashBalance)}</div>
+          <div className="text-xs text-gray-400">Available for collection</div>
+        </div>
+        <button onClick={handleGenerate} disabled={generating}
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#1D6FDB] text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50">
+          {generating ? '…' : '+ Generate Invoice'}
+        </button>
+      </div>
+
+      {/* Invoice list */}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-3 border-b border-gray-100">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoices</span>
+        </div>
+        {loading ? (
+          <div className="p-6 text-center text-sm text-gray-400">Loading…</div>
+        ) : invoices.length === 0 ? (
+          <div className="p-6 text-center text-sm text-gray-400">No invoices yet. Generate one above.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {invoices.map(inv => (
+              <div key={inv.id} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{inv.description}</div>
+                  <div className="text-xs text-gray-400">{inv.period_start} → {inv.period_end} · {FEE_TYPE_LABELS[inv.fee_type]}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-gray-900">{fmt.inr(inv.amount)}</div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${INVOICE_STATUS_STYLES[inv.status] || INVOICE_STATUS_STYLES.pending}`}>
+                      {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
+                    </span>
+                  </div>
+                  {inv.status === 'pending' && (
+                    <button onClick={() => handleCollect(inv)} disabled={collectingId === inv.id || cashBalance < inv.amount}
+                      className="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 disabled:opacity-50 whitespace-nowrap"
+                      title={cashBalance < inv.amount ? 'Insufficient cash balance' : 'Collect fee'}>
+                      {collectingId === inv.id ? '…' : 'Collect'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function Client360() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -555,6 +745,7 @@ export default function Client360() {
     { key: 'trades', label: 'Trades' },
     { key: 'events', label: `Life Events (${displayEvents.length})` },
     { key: 'interactions', label: 'Interactions' },
+    { key: 'billing', label: 'Billing' },
   ]
   const mobileTabs = [
     { key: 'portfolio', label: 'Portfolio' },
@@ -562,6 +753,7 @@ export default function Client360() {
     { key: 'trades', label: 'Trades' },
     { key: 'events', label: 'Life Events' },
     { key: 'interactions', label: 'Interactions' },
+    { key: 'billing', label: 'Billing' },
     { key: 'info', label: 'Client Info' },
     { key: 'copilot', label: 'AI Copilot' },
   ]
@@ -1044,6 +1236,12 @@ export default function Client360() {
           {everActiveRef.current.interactions && (
             <div className={activeTab === 'interactions' ? '' : 'hidden'}>
               <InteractionsPanel clientId={id} />
+            </div>
+          )}
+
+          {everActiveRef.current.billing && (
+            <div className={activeTab === 'billing' ? '' : 'hidden'}>
+              <ClientBillingTab clientId={id} portfolio={client.portfolio} />
             </div>
           )}
 

@@ -4,6 +4,57 @@ import { useNavigate } from 'react-router-dom'
 import { getClient, fmt } from '../api/client'
 import { getClientSession, clientLogout } from '../auth'
 import PortfolioChart from '../components/PortfolioChart'
+import { getPersonalInvoices } from '../api/billing'
+
+const INVOICE_STATUS_PORTAL = {
+  pending: 'bg-amber-100 text-amber-700',
+  paid: 'bg-green-100 text-green-700',
+  overdue: 'bg-red-100 text-red-700',
+  waived: 'bg-gray-100 text-gray-500',
+}
+const FEE_LABELS = { aum: 'AUM %', retainer: 'Retainer', per_trade: 'Per-Trade', onboarding: 'Onboarding' }
+
+function BillingSection() {
+  const [invoices, setInvoices] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getPersonalInvoices()
+      .then(res => setInvoices(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <div>
+      <h2 className="text-base font-bold text-gray-900 mb-4">Billing & Fees</h2>
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {loading ? (
+          <div className="p-6 text-center text-sm text-gray-400">Loading…</div>
+        ) : invoices.length === 0 ? (
+          <div className="p-6 text-center text-sm text-gray-400">No invoices on record.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {invoices.map(inv => (
+              <div key={inv.id} className="flex items-center justify-between px-5 py-3">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{inv.description}</div>
+                  <div className="text-xs text-gray-400">{FEE_LABELS[inv.fee_type] || inv.fee_type} · {inv.period_start} → {inv.period_end}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-900">{fmt.inr(inv.amount)}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${INVOICE_STATUS_PORTAL[inv.status] || INVOICE_STATUS_PORTAL.pending}`}>
+                    {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 function GoalCard({ goal }) {
   const today = new Date()
@@ -140,6 +191,9 @@ export default function ClientPortal() {
             )}
           </div>
         </div>
+
+        {/* Billing */}
+        <BillingSection />
 
         {/* Your Advisor */}
         <div>

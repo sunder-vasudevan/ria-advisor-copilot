@@ -283,6 +283,73 @@ class Notification(Base):
         return self.trade.client_id if self.trade else None
 
 
+# Billing Module (FEAT-1009)
+class FeeTypeEnum(str, enum.Enum):
+    aum = "aum"
+    retainer = "retainer"
+    per_trade = "per_trade"
+    onboarding = "onboarding"
+
+
+class BillingPeriodEnum(str, enum.Enum):
+    monthly = "monthly"
+    quarterly = "quarterly"
+
+
+class InvoiceStatusEnum(str, enum.Enum):
+    pending = "pending"
+    paid = "paid"
+    overdue = "overdue"
+    waived = "waived"
+
+
+class AdvisorFeeConfig(Base):
+    __tablename__ = "advisor_fee_configs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), unique=True, nullable=False, index=True)
+    fee_type = Column(Enum(FeeTypeEnum), nullable=False, default=FeeTypeEnum.aum)
+    rate = Column(Float, nullable=False, default=1.0)  # % for AUM; INR for others
+    billing_period = Column(Enum(BillingPeriodEnum), nullable=False, default=BillingPeriodEnum.monthly)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    advisor = relationship("Advisor", foreign_keys=[advisor_id])
+
+
+class ClientFeeConfig(Base):
+    __tablename__ = "client_fee_configs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), unique=True, nullable=False, index=True)
+    fee_type = Column(Enum(FeeTypeEnum), nullable=False)
+    rate = Column(Float, nullable=False)
+    billing_period = Column(Enum(BillingPeriodEnum), nullable=False, default=BillingPeriodEnum.monthly)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    client = relationship("Client", foreign_keys=[client_id])
+
+
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False, index=True)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=False, index=True)
+    fee_type = Column(Enum(FeeTypeEnum), nullable=False)
+    amount = Column(Float, nullable=False)  # INR
+    period_start = Column(Date, nullable=False)
+    period_end = Column(Date, nullable=False)
+    status = Column(Enum(InvoiceStatusEnum), nullable=False, default=InvoiceStatusEnum.pending)
+    description = Column(String, nullable=False)  # e.g. "AUM Fee – Apr 2026"
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    paid_at = Column(DateTime, nullable=True)
+    trade_id = Column(Integer, ForeignKey("trades.id"), nullable=True)  # per_trade invoices only
+
+    client = relationship("Client", foreign_keys=[client_id])
+    advisor = relationship("Advisor", foreign_keys=[advisor_id])
+    trade = relationship("Trade", foreign_keys=[trade_id])
+
+
 # Asset Account — linked provider account per client or personal user
 class AssetAccount(Base):
     __tablename__ = "asset_accounts"

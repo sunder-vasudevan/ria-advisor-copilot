@@ -19,6 +19,7 @@ import {
   History,
   ArrowLeft,
   Bell,
+  Receipt,
 } from 'lucide-react'
 
 const sections = [
@@ -265,6 +266,37 @@ const sections = [
     ],
   },
   {
+    id: 'billing',
+    icon: <Receipt size={18} />,
+    title: 'Billing',
+    content: [
+      {
+        heading: 'Fee Types',
+        text: 'Four industry-standard fee types: AUM % (annual % of portfolio, billed monthly), Fixed Retainer (flat INR fee per period), Per-Trade (commission per settled trade), Onboarding (one-time fee).',
+      },
+      {
+        heading: 'Default Fee Config',
+        text: 'Go to Billing page (top nav) → Fee Configuration → Edit. Set your default fee type, rate, and billing period. This applies to all clients unless overridden.',
+      },
+      {
+        heading: 'Client Override',
+        text: 'In Client 360° → Billing tab → Fee Configuration → Edit Override. Per-client rates supersede the advisor default.',
+      },
+      {
+        heading: 'Generating Invoices',
+        text: 'Click "Generate Invoice" in Client 360° Billing tab to create one invoice for that client. Or use "Generate All Invoices" on the Billing page to invoice all clients at once.',
+      },
+      {
+        heading: 'Collecting Fees',
+        text: 'Click Collect on any pending invoice. The fee is deducted from the client\'s cash_balance and portfolio total. Collection is blocked if cash balance is insufficient.',
+      },
+      {
+        heading: 'Client View',
+        text: 'Clients see their invoices (read-only) in the Billing & Fees section of the Client Portal.',
+      },
+    ],
+  },
+  {
     id: 'troubleshooting',
     icon: <AlertCircle size={18} />,
     title: 'Troubleshooting',
@@ -288,6 +320,14 @@ const sections = [
     icon: <History size={18} />,
     title: 'Version History',
     content: [
+      {
+        heading: 'v1.6.0 (2026-04-04)',
+        text: 'Advisor Billing Module: fee config (AUM %, retainer, per-trade, onboarding), invoice generation, cash deduction on collect, consolidated Billing page, client portal billing view.',
+      },
+      {
+        heading: 'v1.5.0 (2026-04-04)',
+        text: 'Advisor UI Revamp: ClientList KPI bar + workflow strip + segment filter + delink; Client 360° 6-metric bar + Client Basics grid + Workflow Monitor + Activity Timeline + Notification bell.',
+      },
       {
         heading: 'v1.2 (2026-03-16)',
         text: 'Meeting Prep Card, Advisor Login, Client Login + Client Portal, audit logging on AI interactions, version number in UI.',
@@ -364,7 +404,7 @@ export default function HelpPage() {
 
         {/* Quick nav */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {['Getting Started', 'Client Book', 'Morning Briefing', 'Client 360°', 'Copilot', 'Goals', 'Notifications', 'Setup'].map((label) => (
+          {['Getting Started', 'Client Book', 'Client 360°', 'Billing', 'Goals', 'Notifications', 'Setup'].map((label) => (
             <span key={label} className="px-2.5 py-1 rounded-full border border-gray-200 text-xs text-gray-600 bg-white">
               {label}
             </span>

@@ -13,6 +13,16 @@ from .notifications import create_notification
 
 router = APIRouter(prefix="/trades", tags=["trades"])
 
+MIN_QUANTITY = {"crypto": 0.0001, "stock": 1.0, "mutual_fund": 0.0001}
+
+
+def _validate_min_quantity(asset_type: str, quantity: float):
+    min_qty = MIN_QUANTITY.get(asset_type, 0.0001)
+    if quantity < min_qty:
+        label = {"crypto": f"{min_qty} units (e.g. 0.0001 BTC)", "stock": "1 unit (whole shares only)", "mutual_fund": f"{min_qty} units"}.get(asset_type, str(min_qty))
+        raise HTTPException(status_code=400, detail=f"Minimum quantity for {asset_type} is {label}")
+
+
 
 def get_db():
     db = SessionLocal()
@@ -54,6 +64,8 @@ def create_trade_draft(
 
     if not client:
         raise HTTPException(status_code=404, detail="Client not found or access denied")
+
+    _validate_min_quantity(trade_data.asset_type, trade_data.quantity)
 
     # Create trade
     trade = models.Trade(
@@ -568,6 +580,8 @@ def client_submit_trade(
     portfolio = _get_portfolio_for_personal_user(x_personal_user_id, db)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
+
+    _validate_min_quantity(trade_data.asset_type, trade_data.quantity)
 
     # Balance check
     if trade_data.action == "buy":

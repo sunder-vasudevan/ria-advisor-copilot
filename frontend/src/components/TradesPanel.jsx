@@ -73,10 +73,13 @@ function TradeInitiateModal({ clientId, holdings, onClose, onSaved }) {
   const qty = parseFloat(units) || 0
   const estValue = parseFloat(amount) || 0
 
+  const MIN_QTY = selected?.type === 'crypto' ? 0.0001 : selected?.type === 'stock' ? 1 : 0.0001
+  const belowMinQty = qty > 0 && qty < MIN_QTY
+
   const sellExceedsHolding = action === 'sell' && qty > 0 && qty > unitsHeld
   const sellExceedsValue = action === 'sell' && estValue > 0 && estValue > holdingValue
 
-  const canSubmit = selected && qty > 0 && estValue > 0 && !sellExceedsHolding && !saving
+  const canSubmit = selected && qty > 0 && estValue > 0 && !belowMinQty && !sellExceedsHolding && !saving
 
   const handleSelectInstrument = (ins) => {
     setSelectedCode(ins.code)
@@ -261,6 +264,12 @@ function TradeInitiateModal({ clientId, holdings, onClose, onSaved }) {
                 </div>
               )}
 
+              {belowMinQty && (
+                <div className="flex items-start gap-1.5 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <AlertCircle size={12} className="shrink-0 mt-0.5" />
+                  Minimum is {MIN_QTY} {selected?.type === 'stock' ? 'unit (whole shares only)' : 'units'} for {selected?.type}
+                </div>
+              )}
               {(sellExceedsHolding || sellExceedsValue) && (
                 <div className="flex items-start gap-1.5 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                   <AlertCircle size={12} className="shrink-0 mt-0.5" />

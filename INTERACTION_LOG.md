@@ -259,3 +259,32 @@ Notifications will fully activate once Personal ARIA users are integrated and ha
 - `3058623`: FEAT-1004: Implement notification bell UI
 - `d723847`: docs: update NOTES.md, HELP.md, TEST_LOG.md for FEAT-1004
 
+
+---
+
+## Session 34 — 2026-04-04
+
+**Goal:** Trade workflow upgrade + live price refresh + default holdings
+
+**Shipped:**
+- FEAT-2001 Opportunity Pipeline (kanban, 4 stages, convert-to-client)
+- FEAT-2002 Task Queue (overdue/due-soon, filter tabs, KPI strip)
+- Advisor Workspace: 6-tile KPI bar + billing nav fix
+- Instrument dropdown: 30 instruments (10 stocks + 20 MFs) in both advisor + personal trade modals
+- Sell filtering: advisor sees only client's actual holdings; personal sees own holdings
+- Amount ↔ Units toggle with NAV auto-calculation on both modals
+- Min quantity enforced: crypto 0.0001, stocks 1 unit — frontend + backend (trades.py `_validate_min_quantity`)
+- Default holdings seed: `seed_holdings.py` — 22 instruments (10 stocks + 10 MFs + 5 BTC + 5 ETH) + ₹5L cash
+- Backfill: `_backfill_default_holdings()` in main.py (threshold < 22) — fixes Kate, Ruben on next restart
+- Live price refresh: `/prices` router — AMFI (MFs daily), CoinGecko (crypto INR, 5min), yfinance (stocks NSE)
+- Wired into: Dashboard load (personal) + TradesPanel mount (advisor)
+- HELP.md v2.0 (advisor) + v0.4.0 (personal); NOTES.md both projects
+
+**Next:**
+- FEAT-2005 Trade Compliance: consent checkbox + risk warning modal (plan saved)
+- FEAT-2003 Advisor Workspace Revamp (full ref HTML alignment)
+- yfinance → proper NSE data provider for production
+
+**Blockers:** None
+
+**Token efficiency:** 1.0M saved (81.6%) · $0.56/$18.00 used

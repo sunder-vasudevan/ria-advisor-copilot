@@ -398,6 +398,14 @@ def _run_migrations():
         except Exception:
             pass
 
+    # FEAT-2004: lifecycle_stage on clients
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE clients ADD COLUMN lifecycle_stage VARCHAR DEFAULT 'lead'"))
+            conn.commit()
+        except Exception:
+            pass
+
 
 def _run_prospect_task_migrations():
     """Add prospects + advisor_tasks tables and columns (idempotent)."""

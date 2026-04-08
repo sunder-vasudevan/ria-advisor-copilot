@@ -1,5 +1,5 @@
 # ARIA Advisor Workbench — Help Guide
-**Version 2.0** · Last updated: 2026-04-04
+**Version 2.1** · Last updated: 2026-04-08
 
 ---
 
@@ -133,6 +133,26 @@ On any client's 360° page, you can create and submit trades for approval.
 
 ---
 
+### 11. Client Lifecycle Stage (FEAT-2004)
+Each client has a lifecycle stage that tracks where they are in the advisory relationship.
+
+**Stages:**
+| Stage | Meaning |
+|---|---|
+| **Lead** | Prospect converted, not yet fully onboarded |
+| **Onboarded** | KYC complete, portfolio set up |
+| **Active** | Regular advisory relationship |
+| **Review Due** | Scheduled review overdue or triggered |
+| **Churned** | Relationship ended |
+
+**Where it appears:**
+- **Client 360° sidebar** — click any stage to update it instantly
+- **Mobile header** — coloured pill next to client name
+
+**API (BzHub / integrations):** `PATCH /clients/{id}/lifecycle` with body `{"stage": "active"}`
+
+---
+
 ### 10. Client Portal
 Clients can log in at `/client-portal/login` to view a read-only summary of their own portfolio and goals. No sensitive advisor data is exposed.
 
@@ -187,6 +207,13 @@ To re-seed: `cd backend && python seed.py`
 ---
 
 ## Changelog
+
+### v2.1 (2026-04-08)
+- **Client Lifecycle Stage (FEAT-2004):** First-class lifecycle field on every client
+  - 5 stages: Lead → Onboarded → Active → Review Due → Churned
+  - Clickable selector in Client 360° sidebar (desktop)
+  - Coloured badge in mobile header
+  - API: `PATCH /clients/{id}/lifecycle` — BzHub CRM integration-ready
 
 ### v2.0 (2026-04-04)
 - **Instrument Dropdown — Trade Initiation:** Searchable dropdown replaces free-text entry for advisor-initiated trades

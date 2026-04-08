@@ -44,6 +44,7 @@ def list_clients(
             portal_active=c.personal_user_id is not None,
             direct_signup=c.source == "portal",
             needs_advisor=c.advisor_id is None,
+            lifecycle_stage=c.lifecycle_stage or "lead",
         ))
     result.sort(key=lambda x: x.urgency_score, reverse=True)
     return result
@@ -67,6 +68,7 @@ def get_client(client_id: int, db: Session = Depends(get_db)):
         goals=client.goals,
         life_events=client.life_events,
         urgency_flags=flags,
+        lifecycle_stage=client.lifecycle_stage or "lead",
     )
 
 
@@ -90,6 +92,7 @@ def create_client(
         pincode=payload.pincode,
         pan_number=payload.pan_number,
         advisor_id=x_advisor_id,  # auto-assign to creating advisor
+        lifecycle_stage=payload.lifecycle_stage or "lead",
     )
     db.add(client)
     db.commit()
@@ -123,6 +126,7 @@ def create_client(
         goals=[],
         life_events=[],
         urgency_flags=[],
+        lifecycle_stage=client.lifecycle_stage or "lead",
     )
 
 
@@ -161,6 +165,7 @@ def update_client(client_id: int, payload: ClientUpdate, db: Session = Depends(g
         goals=client.goals,
         life_events=client.life_events,
         urgency_flags=flags,
+        lifecycle_stage=client.lifecycle_stage or "lead",
     )
 
 
@@ -241,6 +246,7 @@ def create_portfolio(client_id: int, payload: PortfolioCreate, db: Session = Dep
         goals=client.goals,
         life_events=client.life_events,
         urgency_flags=flags,
+        lifecycle_stage=client.lifecycle_stage or "lead",
     )
 
 
@@ -449,3 +455,24 @@ def delink_client(
     client.advisor_id = None
     db.commit()
     return {"id": client_id, "needs_advisor": True}
+
+
+VALID_LIFECYCLE_STAGES = {"lead", "onboarded", "active", "review_due", "churned"}
+
+
+@router.patch("/{client_id}/lifecycle")
+def update_lifecycle(
+    client_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+):
+    """Update a client's lifecycle stage (FEAT-2004)."""
+    stage = payload.get("stage")
+    if stage not in VALID_LIFECYCLE_STAGES:
+        raise HTTPException(status_code=422, detail=f"Invalid stage. Must be one of: {sorted(VALID_LIFECYCLE_STAGES)}")
+    client = db.query(Client).filter(Client.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    client.lifecycle_stage = stage
+    db.commit()
+    return {"id": client_id, "lifecycle_stage": stage}

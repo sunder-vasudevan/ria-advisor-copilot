@@ -93,6 +93,7 @@ class ClientListItem(BaseModel):
     portal_active: bool = False
     direct_signup: bool = False  # True = self-registered via Personal portal
     needs_advisor: bool = False  # True if advisor_id is NULL
+    lifecycle_stage: str = "lead"  # FEAT-2004
 
     class Config:
         from_attributes = True
@@ -118,6 +119,7 @@ class Client360(BaseModel):
     goals: List[GoalOut] = []
     life_events: List[LifeEventOut] = []
     urgency_flags: List[UrgencyFlag]
+    lifecycle_stage: str = "lead"  # FEAT-2004
 
     class Config:
         from_attributes = True
@@ -189,6 +191,7 @@ class ClientCreate(BaseModel):
     city: Optional[str] = None
     pincode: Optional[str] = None
     pan_number: Optional[str] = None
+    lifecycle_stage: Optional[str] = "lead"  # FEAT-2004
 
 
 class ClientUpdate(BaseModel):
@@ -203,6 +206,7 @@ class ClientUpdate(BaseModel):
     city: Optional[str] = None
     pincode: Optional[str] = None
     pan_number: Optional[str] = None
+    lifecycle_stage: Optional[str] = None  # FEAT-2004
 
 
 # ─── Copilot ─────────────────────────────────────────────────────────────────

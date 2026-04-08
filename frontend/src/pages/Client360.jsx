@@ -597,6 +597,7 @@ export default function Client360() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('portfolio')
   const [showMeetingPrep, setShowMeetingPrep] = useState(false)
+  const [lifecycleStage, setLifecycleStage] = useState('lead')
   const [copilotMessages, setCopilotMessages] = useState(undefined)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const everActiveRef = useRef({ portfolio: true })
@@ -627,6 +628,7 @@ export default function Client360() {
     getClient(id)
       .then(data => {
         setClient(data)
+        setLifecycleStage(data.lifecycle_stage || 'lead')
         window.__ariaClientCache = window.__ariaClientCache || {}
         window.__ariaClientCache[id] = data
         setLifeEvents(null) // reset local overrides
@@ -634,16 +636,28 @@ export default function Client360() {
       .catch(() => {})
   }
 
+  const updateLifecycle = (stage) => {
+    setLifecycleStage(stage) // optimistic
+    const BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+    fetch(`${BASE}/clients/${id}/lifecycle`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage }),
+    }).catch(() => {})
+  }
+
   useEffect(() => {
     setLoading(true)
     const cached = window.__ariaClientCache?.[id]
     if (cached) {
       setClient(cached)
+      setLifecycleStage(cached.lifecycle_stage || 'lead')
       setLoading(false)
     }
     getClient(id)
       .then(data => {
         setClient(data)
+        setLifecycleStage(data.lifecycle_stage || 'lead')
         window.__ariaClientCache = window.__ariaClientCache || {}
         window.__ariaClientCache[id] = data
       })
@@ -772,7 +786,18 @@ export default function Client360() {
         </button>
         <div className="text-center">
           <div className="text-white text-sm font-semibold">{client.name}</div>
-          <div className="text-navy-400 text-xs">{client.segment} · {fmt.inr(client.portfolio?.total_value)}</div>
+          <div className="text-navy-400 text-xs flex items-center justify-center gap-1.5">
+            {client.segment} · {fmt.inr(client.portfolio?.total_value)}
+            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+              lifecycleStage === 'active' ? 'bg-green-900/60 text-green-300' :
+              lifecycleStage === 'onboarded' ? 'bg-blue-900/60 text-blue-300' :
+              lifecycleStage === 'review_due' ? 'bg-amber-900/60 text-amber-300' :
+              lifecycleStage === 'churned' ? 'bg-red-900/60 text-red-300' :
+              'bg-violet-900/60 text-violet-300'
+            }`}>
+              {lifecycleStage === 'review_due' ? 'Review Due' : lifecycleStage.charAt(0).toUpperCase() + lifecycleStage.slice(1)}
+            </span>
+          </div>
         </div>
         <button
           onClick={() => setShowMeetingPrep(true)}
@@ -859,6 +884,32 @@ export default function Client360() {
                 }`}>
                   {client.segment}
                 </span>
+              </div>
+            </div>
+
+            {/* Lifecycle Stage — FEAT-2004 */}
+            <div className="p-5 border-b border-navy-800">
+              <div className="text-navy-400 text-xs font-semibold uppercase tracking-wider mb-3">Lifecycle Stage</div>
+              <div className="flex flex-col gap-1">
+                {[
+                  { key: 'lead', label: 'Lead', color: 'text-violet-300 bg-violet-900/40 border-violet-700' },
+                  { key: 'onboarded', label: 'Onboarded', color: 'text-blue-300 bg-blue-900/40 border-blue-700' },
+                  { key: 'active', label: 'Active', color: 'text-green-300 bg-green-900/40 border-green-700' },
+                  { key: 'review_due', label: 'Review Due', color: 'text-amber-300 bg-amber-900/40 border-amber-700' },
+                  { key: 'churned', label: 'Churned', color: 'text-red-300 bg-red-900/40 border-red-700' },
+                ].map(({ key, label, color }) => (
+                  <button
+                    key={key}
+                    onClick={() => updateLifecycle(key)}
+                    className={`text-xs px-2.5 py-1.5 rounded-lg border text-left font-medium transition-all ${
+                      lifecycleStage === key
+                        ? color
+                        : 'text-navy-400 bg-transparent border-navy-800 hover:border-navy-600 hover:text-navy-300'
+                    }`}
+                  >
+                    {lifecycleStage === key ? '● ' : '○ '}{label}
+                  </button>
+                ))}
               </div>
             </div>
 

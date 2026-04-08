@@ -27,6 +27,14 @@ class Advisor(Base):
     trades = relationship("Trade", back_populates="advisor", foreign_keys="Trade.advisor_id")
 
 
+class ClientLifecycleEnum(str, enum.Enum):
+    lead = "lead"
+    onboarded = "onboarded"
+    active = "active"
+    review_due = "review_due"
+    churned = "churned"
+
+
 class Client(Base):
     __tablename__ = "clients"
 
@@ -48,6 +56,9 @@ class Client(Base):
 
     # Archive flag — soft delete only, no hard deletes allowed
     is_archived = Column(Boolean, nullable=False, default=False)
+
+    # Client lifecycle stage (FEAT-2004)
+    lifecycle_stage = Column(String, nullable=False, default="lead")
 
     # Contact & personal details (FEAT-101)
     phone = Column(String, nullable=True)

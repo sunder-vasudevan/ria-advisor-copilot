@@ -336,7 +336,10 @@ def download_risk_pdf(
         raise HTTPException(status_code=404, detail="Client not found")
     _check_client_access(client, advisor_id, x_advisor_role)
 
-    pdf_bytes = _generate_risk_pdf(client)
+    try:
+        pdf_bytes = _generate_risk_pdf(client)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {exc}")
     return StreamingResponse(
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",

@@ -13,6 +13,7 @@ import SituationSummary from '../components/SituationSummary'
 import MeetingPrepPanel from '../components/MeetingPrepPanel'
 import InteractionsPanel from '../components/InteractionsPanel'
 import TradesPanel from '../components/TradesPanel'
+import KycPanel, { KycStatusBadge } from '../components/KycPanel'
 import { fmt } from '../api/client'
 
 const INPUT_CLS = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-300'
@@ -755,6 +756,7 @@ export default function Client360() {
   // Tabs shown on desktop (inside center panel); mobile adds Info + Copilot
   const desktopTabs = [
     { key: 'portfolio', label: 'Portfolio & Holdings' },
+    { key: 'kyc', label: 'KYC & Docs' },
     { key: 'goals', label: `Goals (${client.goals.length})` },
     { key: 'trades', label: 'Trades' },
     { key: 'events', label: `Life Events (${displayEvents.length})` },
@@ -763,6 +765,7 @@ export default function Client360() {
   ]
   const mobileTabs = [
     { key: 'portfolio', label: 'Portfolio' },
+    { key: 'kyc', label: 'KYC' },
     { key: 'goals', label: `Goals` },
     { key: 'trades', label: 'Trades' },
     { key: 'events', label: 'Life Events' },
@@ -967,6 +970,10 @@ export default function Client360() {
             {/* Compliance Snapshot — desktop sidebar */}
             <div className="p-5 border-t border-navy-800">
               <div className="text-navy-400 text-xs font-semibold uppercase tracking-wider mb-3">Compliance</div>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs text-navy-400">KYC Status</span>
+                <KycStatusBadge status={client.kyc_status || 'not_started'} />
+              </div>
               <div className="space-y-2">
                 {[
                   { label: 'KYC', ok: !!client.pan_number, detail: client.pan_number ? `PAN ${client.pan_number}` : 'PAN not on file', status: client.pan_number ? 'Verified' : 'Pending' },
@@ -1293,6 +1300,12 @@ export default function Client360() {
           {everActiveRef.current.billing && (
             <div className={activeTab === 'billing' ? '' : 'hidden'}>
               <ClientBillingTab clientId={id} portfolio={client.portfolio} />
+            </div>
+          )}
+
+          {everActiveRef.current.kyc && (
+            <div className={activeTab === 'kyc' ? '' : 'hidden'}>
+              <KycPanel clientId={id} client={client} onStatusChange={refetchClient} />
             </div>
           )}
 

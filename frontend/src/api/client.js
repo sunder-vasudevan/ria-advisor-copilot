@@ -131,6 +131,43 @@ export const deleteTask = (id) => api.delete(`/tasks/${id}`)
 // Price refresh
 export const refreshClientPrices = (clientId) => api.post(`/prices/refresh/client/${clientId}`).then(r => r.data)
 
+// KYC (FEAT-KYC)
+export const getKycDocuments = (clientId) =>
+  api.get(`/clients/${clientId}/kyc/documents`).then(r => r.data)
+
+export const uploadKycDocument = (clientId, file, docType) => {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('doc_type', docType)
+  return api.post(`/clients/${clientId}/kyc/documents`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then(r => r.data)
+}
+
+export const deleteKycDocument = (clientId, docId) =>
+  api.delete(`/clients/${clientId}/kyc/documents/${docId}`)
+
+export const updateKycStatus = (clientId, kyc_status) =>
+  api.patch(`/clients/${clientId}/kyc/status`, { kyc_status }).then(r => r.data)
+
+export const updateNominee = (clientId, data) =>
+  api.patch(`/clients/${clientId}/kyc/nominee`, data).then(r => r.data)
+
+export const updateFatca = (clientId, declared) =>
+  api.patch(`/clients/${clientId}/kyc/fatca`, { declared }).then(r => r.data)
+
+export const downloadRiskPdf = async (clientId) => {
+  const response = await api.get(`/clients/${clientId}/kyc/risk-pdf`, { responseType: 'blob' })
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `risk_profile_${clientId}.pdf`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 export const fmt = {
   inr: (v) => {
     if (!v && v !== 0) return '—'

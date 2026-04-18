@@ -69,12 +69,22 @@ class Client(Base):
     pincode = Column(String, nullable=True)
     pan_number = Column(String, nullable=True)
 
+    # KYC fields (FEAT-KYC-001 through FEAT-KYC-004)
+    kyc_status = Column(String, nullable=False, default="not_started")  # not_started|in_progress|submitted|verified|expired
+    nominee_name = Column(String, nullable=True)
+    nominee_relation = Column(String, nullable=True)
+    nominee_dob = Column(Date, nullable=True)
+    nominee_phone = Column(String, nullable=True)
+    fatca_declaration = Column(Boolean, nullable=False, default=False)
+    fatca_declared_at = Column(DateTime, nullable=True)
+
     portfolio = relationship("Portfolio", back_populates="client", uselist=False, cascade="all, delete-orphan")
     goals = relationship("Goal", back_populates="client", cascade="all, delete-orphan")
     life_events = relationship("LifeEvent", back_populates="client", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="client", cascade="all, delete-orphan")
     interactions = relationship("ClientInteraction", back_populates="client", cascade="all, delete-orphan")
     trades = relationship("Trade", back_populates="client", foreign_keys="Trade.client_id", cascade="all, delete-orphan")
+    documents = relationship("ClientDocument", back_populates="client", cascade="all, delete-orphan")
 
 
 class Portfolio(Base):
@@ -428,3 +438,19 @@ class AssetAccount(Base):
     label = Column(String, nullable=True)
     connected_at = Column(DateTime, default=datetime.utcnow)
     disconnected_at = Column(DateTime, nullable=True)
+
+
+# KYC Documents (FEAT-KYC-004)
+class ClientDocument(Base):
+    __tablename__ = "client_documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False, index=True)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=False, index=True)
+    doc_type = Column(String, nullable=False)   # pan_card|aadhaar_front|aadhaar_back|photo
+    file_url = Column(Text, nullable=False)      # Supabase Storage path (not signed URL)
+    file_name = Column(String, nullable=False)   # original filename for display
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+    client = relationship("Client", back_populates="documents")
+    advisor = relationship("Advisor", foreign_keys=[advisor_id])

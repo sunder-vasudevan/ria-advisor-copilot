@@ -61,6 +61,7 @@ def list_clients(
             direct_signup=c.source == "portal",
             needs_advisor=c.advisor_id is None,
             lifecycle_stage=c.lifecycle_stage or "lead",
+            kyc_status=c.kyc_status or "not_started",
         ))
     result.sort(key=lambda x: x.urgency_score, reverse=True)
     return result

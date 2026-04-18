@@ -8,7 +8,7 @@ from sqlalchemy import text
 from .database import engine, Base, SessionLocal
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades, notifications
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
-from .routers import advisor_auth, asset_sync, billing, prospects, tasks, prices
+from .routers import advisor_auth, asset_sync, billing, prospects, tasks, prices, kyc
 from . import models          # ensure advisors table registered before personal_models
 from . import personal_models  # personal_users.advisor_id FK references advisors.id
 from .seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
@@ -416,6 +416,43 @@ def _run_migrations():
             pass
 
 
+def _run_kyc_migrations():
+    """FEAT-KYC: Add KYC fields to clients + create client_documents table (idempotent)."""
+    kyc_client_cols = [
+        ("kyc_status",        "VARCHAR DEFAULT 'not_started'"),
+        ("nominee_name",      "VARCHAR"),
+        ("nominee_relation",  "VARCHAR"),
+        ("nominee_dob",       "DATE"),
+        ("nominee_phone",     "VARCHAR"),
+        ("fatca_declaration", "BOOLEAN DEFAULT FALSE"),
+        ("fatca_declared_at", "TIMESTAMP"),
+    ]
+    with engine.connect() as conn:
+        for col, col_type in kyc_client_cols:
+            try:
+                conn.execute(text(f"ALTER TABLE clients ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass
+
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS client_documents (
+                    id          SERIAL PRIMARY KEY,
+                    client_id   INTEGER NOT NULL REFERENCES clients(id),
+                    advisor_id  INTEGER NOT NULL REFERENCES advisors(id),
+                    doc_type    VARCHAR NOT NULL,
+                    file_url    TEXT NOT NULL,
+                    file_name   VARCHAR NOT NULL,
+                    uploaded_at TIMESTAMP DEFAULT NOW()
+                )
+            """))
+            conn.commit()
+        except Exception:
+            conn.rollback()
+
+
 def _run_prospect_task_migrations():
     """Add prospects + advisor_tasks tables and columns (idempotent)."""
     with engine.connect() as conn:
@@ -513,6 +550,7 @@ async def lifespan(app: FastAPI):
     _migrate_personal_user_scaffolds()  # one-time: link existing personal users to advisors
     _seed_personal_user_assignments()   # ongoing: ensure all personal users have basic scaffold
     _backfill_default_holdings()        # backfill any portfolio missing the full 21-instrument set
+    _run_kyc_migrations()               # FEAT-KYC: add KYC fields + client_documents table
     yield
 
 
@@ -552,6 +590,7 @@ app.include_router(billing.router)
 app.include_router(prospects.router)
 app.include_router(tasks.router)
 app.include_router(prices.router)
+app.include_router(kyc.router)
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])

@@ -97,6 +97,7 @@ class ClientListItem(BaseModel):
     direct_signup: bool = False  # True = self-registered via Personal portal
     needs_advisor: bool = False  # True if advisor_id is NULL
     lifecycle_stage: str = "lead"  # FEAT-2004
+    kyc_status: str = "not_started"  # FEAT-KYC-001
 
     class Config:
         from_attributes = True
@@ -118,6 +119,14 @@ class Client360(BaseModel):
     city: Optional[str] = None
     pincode: Optional[str] = None
     pan_number: Optional[str] = None
+    # KYC fields (FEAT-KYC-001 through FEAT-KYC-003)
+    kyc_status: str = "not_started"
+    nominee_name: Optional[str] = None
+    nominee_relation: Optional[str] = None
+    nominee_dob: Optional[date] = None
+    nominee_phone: Optional[str] = None
+    fatca_declaration: bool = False
+    fatca_declared_at: Optional[datetime] = None
     portfolio: Optional[PortfolioOut]
     goals: List[GoalOut] = []
     life_events: List[LifeEventOut] = []
@@ -126,6 +135,34 @@ class Client360(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ─── KYC Schemas (FEAT-KYC) ──────────────────────────────────────────────────
+
+class ClientDocumentOut(BaseModel):
+    id: int
+    doc_type: str
+    file_name: str
+    signed_url: str
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class KycStatusUpdate(BaseModel):
+    kyc_status: str  # not_started|in_progress|submitted|verified|expired
+
+
+class NomineeUpdate(BaseModel):
+    nominee_name: Optional[str] = None
+    nominee_relation: Optional[str] = None
+    nominee_dob: Optional[date] = None
+    nominee_phone: Optional[str] = None
+
+
+class FatcaUpdate(BaseModel):
+    declared: bool
 
 
 # ─── Portfolio Create ─────────────────────────────────────────────────────────

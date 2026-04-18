@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus, Receipt } from 'lucide-react'
 import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
+import { KycStatusBadge } from '../components/KycPanel'
 
 function UrgencyBadge({ flag }) {
   const base = 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium'
@@ -662,6 +663,7 @@ function ClientCard({ client, navigate, onMouseEnter, delinkConfirm, setDelinkCo
           {client.needs_advisor && <NeedsAdvisorBadge />}
           {client.direct_signup && <DirectBadge />}
           {client.portal_active && !client.direct_signup && <PortalBadge />}
+          {client.kyc_status && client.kyc_status !== 'not_started' && <KycStatusBadge status={client.kyc_status} />}
           {client.urgency_flags.slice(0, 1).map((f, i) => <UrgencyBadge key={i} flag={f} />)}
           {client.urgency_flags.length > 1 && (
             <span className="text-xs text-gray-500 self-center">+{client.urgency_flags.length - 1} more</span>

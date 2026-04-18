@@ -283,7 +283,32 @@
 
 ---
 
+## Security Parking Lot (2026-04-18)
+- **NOW — N1:** Audit every FastAPI route: verify `current_user.id == resource.owner_id` on trade, billing, portfolio, goals endpoints (IDOR)
+- **NOW — N2:** Strip cross-user data from Copilot system prompt — never co-mingle context between users
+- **IMMEDIATE — I1:** Move JWT from localStorage → `httpOnly` cookie
+- **IMMEDIATE — I2:** Copilot output filter — refuse to echo env vars, system prompt content, or structured data not explicitly requested
+- **IMMEDIATE — I6:** Confirm Supabase service role key is never in frontend bundle (anon key only in client)
+- **LATER — L1:** Add Supabase RLS as defence-in-depth on top of app-layer ownership checks
+- **LATER — L2:** Sign ARIA-generated advice with timestamp + session hash — "Verified ARIA output" indicator
+- **LATER — L3:** Pin all dependency versions; add Snyk/npm audit to CI
+- **LATER — L7:** Write SECURITY.md (responsible disclosure, in-scope surfaces)
+
+## What Shipped This Session (2026-04-18 — Session 36)
+
+### Security Hardening — N1 (IDOR) + N2 (Prompt Injection) ✅
+- **N1 — 19 endpoints secured:** `clients.py` (15), `copilot.py`, `billing.py`, `notifications.py`, `trades.py`
+  - `_get_advisor_id()` dep + `_check_client_access()` on all client resource endpoints; superadmin bypass preserved
+  - `billing.py` personal invoices: JWT dep replaces spoofable `X-Personal-User-Id` header
+  - `notifications.py`: 401 when both auth headers absent (was allowing unauthenticated access)
+  - `trades.py` personal trades: JWT dep replaces spoofable `X-Client-Id` header
+- **N2 — Prompt injection:** `_sanitize()` strips newlines from client name, fund names, goal names, event notes in both copilot context builders
+- **Commit:** `c083c71`
+- **Next:** Push to Render to deploy
+
 ## Next Session Agenda ← START HERE NEXT SESSION
+
+### 0. Deploy security fixes to Render (git push → Render auto-deploys)
 
 ### 1. FEAT-503 — Live goal probability recalculation
 - Trigger `getGoalProjection` automatically as sliders move (debounced ~500ms)

@@ -8,9 +8,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Client, ClientDocument
-from ..schemas import ClientDocumentOut, KycStatusUpdate, NomineeUpdate, FatcaUpdate
+from ..models import Client, ClientDocument, Notification
+from ..personal_models import PersonalUser
+from ..schemas import ClientDocumentOut, KycStatusUpdate, NomineeUpdate, FatcaUpdate, DocRejectRequest
+from ..auth import get_current_personal_user
 from .clients import _get_advisor_id, _check_client_access
+from .notifications import create_notification
 
 router = APIRouter(tags=["kyc"])
 
@@ -248,6 +251,8 @@ async def upload_document(
         doc_type=doc_type,
         file_url=storage_path,
         file_name=file.filename or "upload",
+        status="pending",
+        rejection_reason=None,
     )
     db.add(doc)
     db.flush()
@@ -263,6 +268,8 @@ async def upload_document(
         file_name=doc.file_name,
         signed_url=signed_url,
         uploaded_at=doc.uploaded_at,
+        status=doc.status or "pending",
+        rejection_reason=doc.rejection_reason,
     )
 
 
@@ -291,6 +298,8 @@ def list_documents(
             file_name=doc.file_name,
             signed_url=signed_url,
             uploaded_at=doc.uploaded_at,
+            status=doc.status or "pending",
+            rejection_reason=doc.rejection_reason,
         ))
     return result
 
@@ -322,6 +331,182 @@ def delete_document(
 
     db.delete(doc)
     db.commit()
+
+
+@router.patch("/clients/{client_id}/kyc/documents/{doc_id}/verify")
+def verify_document(
+    client_id: int,
+    doc_id: int,
+    db: Session = Depends(get_db),
+    advisor_id: int = Depends(_get_advisor_id),
+    x_advisor_role: Optional[str] = None,
+):
+    client = db.query(Client).filter(Client.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    _check_client_access(client, advisor_id, x_advisor_role)
+
+    doc = db.query(ClientDocument).filter(
+        ClientDocument.id == doc_id,
+        ClientDocument.client_id == client_id,
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    doc.status = "verified"
+    doc.rejection_reason = None
+
+    all_docs = db.query(ClientDocument).filter(ClientDocument.client_id == client_id).all()
+    verified_types = {d.doc_type for d in all_docs if d.status == "verified"}
+    if REQUIRED_DOC_TYPES.issubset(verified_types):
+        client.kyc_status = "verified"
+
+    db.commit()
+    return {"id": doc_id, "status": "verified", "kyc_status": client.kyc_status}
+
+
+@router.patch("/clients/{client_id}/kyc/documents/{doc_id}/reject")
+def reject_document(
+    client_id: int,
+    doc_id: int,
+    payload: DocRejectRequest,
+    db: Session = Depends(get_db),
+    advisor_id: int = Depends(_get_advisor_id),
+    x_advisor_role: Optional[str] = None,
+):
+    client = db.query(Client).filter(Client.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    _check_client_access(client, advisor_id, x_advisor_role)
+
+    doc = db.query(ClientDocument).filter(
+        ClientDocument.id == doc_id,
+        ClientDocument.client_id == client_id,
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    doc.status = "rejected"
+    doc.rejection_reason = payload.reason
+    if client.kyc_status not in ("not_started", "in_progress"):
+        client.kyc_status = "in_progress"
+
+    doc_label = doc.doc_type.replace("_", " ").title()
+    if client.personal_user_id:
+        create_notification(
+            db=db,
+            personal_user_id=client.personal_user_id,
+            notification_type="kyc_doc_rejected",
+            message=f"Your {doc_label} was rejected: {payload.reason}",
+        )
+
+    db.commit()
+    return {"id": doc_id, "status": "rejected", "kyc_status": client.kyc_status}
+
+
+# ─── Personal-facing KYC endpoints ───────────────────────────────────────────
+
+@router.get("/personal/kyc/status")
+def personal_kyc_status(
+    db: Session = Depends(get_db),
+    current_user: PersonalUser = Depends(get_current_personal_user),
+):
+    client = db.query(Client).filter(Client.personal_user_id == current_user.id).first()
+    if not client:
+        return {"kyc_status": "not_started", "documents": []}
+
+    docs = db.query(ClientDocument).filter(ClientDocument.client_id == client.id).all()
+    doc_list = []
+    for doc in docs:
+        try:
+            signed_url = _get_signed_url(doc.file_url)
+        except Exception:
+            signed_url = ""
+        doc_list.append({
+            "id": doc.id,
+            "doc_type": doc.doc_type,
+            "file_name": doc.file_name,
+            "status": doc.status or "pending",
+            "rejection_reason": doc.rejection_reason,
+            "uploaded_at": doc.uploaded_at.isoformat() if doc.uploaded_at else None,
+            "signed_url": signed_url,
+        })
+
+    return {"kyc_status": client.kyc_status, "documents": doc_list}
+
+
+@router.post("/personal/kyc/documents")
+async def personal_upload_document(
+    file: UploadFile = File(...),
+    doc_type: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: PersonalUser = Depends(get_current_personal_user),
+):
+    if doc_type not in VALID_DOC_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid doc_type. Must be one of: {VALID_DOC_TYPES}")
+
+    client = db.query(Client).filter(Client.personal_user_id == current_user.id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="No linked client profile found")
+
+    advisor_id = client.advisor_id
+    if not advisor_id:
+        raise HTTPException(status_code=400, detail="Client is not linked to an advisor")
+
+    file_bytes = await file.read()
+    storage_path = _upload_to_storage(client.id, doc_type, file_bytes, file.filename or "upload")
+
+    existing = db.query(ClientDocument).filter(
+        ClientDocument.client_id == client.id,
+        ClientDocument.doc_type == doc_type,
+    ).first()
+    if existing:
+        try:
+            _delete_from_storage(existing.file_url)
+        except Exception:
+            pass
+        db.delete(existing)
+
+    doc = ClientDocument(
+        client_id=client.id,
+        advisor_id=advisor_id,
+        doc_type=doc_type,
+        file_url=storage_path,
+        file_name=file.filename or "upload",
+        status="pending",
+        rejection_reason=None,
+    )
+    db.add(doc)
+    db.flush()
+
+    _maybe_advance_kyc_status(client, db)
+
+    doc_label = doc_type.replace("_", " ").title()
+    create_notification(
+        db=db,
+        advisor_id=advisor_id,
+        notification_type="kyc_doc_uploaded",
+        message=f"{client.name} uploaded {doc_label} for KYC review",
+    )
+
+    db.commit()
+    db.refresh(doc)
+
+    try:
+        signed_url = _get_signed_url(storage_path)
+    except Exception:
+        signed_url = ""
+
+    return {
+        "id": doc.id,
+        "doc_type": doc.doc_type,
+        "file_name": doc.file_name,
+        "status": doc.status,
+        "rejection_reason": doc.rejection_reason,
+        "uploaded_at": doc.uploaded_at.isoformat() if doc.uploaded_at else None,
+        "signed_url": signed_url,
+        "kyc_status": client.kyc_status,
+    }
 
 
 @router.get("/clients/{client_id}/kyc/risk-pdf")

@@ -451,6 +451,8 @@ class ClientDocument(Base):
     file_url = Column(Text, nullable=False)      # Supabase Storage path (not signed URL)
     file_name = Column(String, nullable=False)   # original filename for display
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String, default="pending")   # pending|verified|rejected
+    rejection_reason = Column(Text, nullable=True)
 
     client = relationship("Client", back_populates="documents")
     advisor = relationship("Advisor", foreign_keys=[advisor_id])

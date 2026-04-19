@@ -145,9 +145,15 @@ class ClientDocumentOut(BaseModel):
     file_name: str
     signed_url: str
     uploaded_at: datetime
+    status: str = "pending"
+    rejection_reason: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+class DocRejectRequest(BaseModel):
+    reason: str
 
 
 class KycStatusUpdate(BaseModel):

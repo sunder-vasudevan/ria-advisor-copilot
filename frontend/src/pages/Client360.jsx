@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getClient, createPortfolio, archiveClient, getAdvisorNotifications, markNotificationRead } from '../api/client'
 import { getClientInvoices, createInvoice, collectInvoice, getClientFeeConfig, setClientFeeConfig, getFeeConfig } from '../api/billing'
 import { createLifeEvent, updateLifeEvent, deleteLifeEvent } from '../api/client'
-import { ArrowLeft, AlertTriangle, Clock, CheckCircle, CalendarCheck, Sparkles, Pencil, ChevronLeft, ChevronRight, Plus, X, Loader2, Trash2, Archive, Bell, BellRing } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Clock, CheckCircle, CalendarCheck, Sparkles, Pencil, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Plus, X, Loader2, Trash2, Archive, Bell, BellRing } from 'lucide-react'
 import PortfolioChart from '../components/PortfolioChart'
 import HoldingsTable from '../components/HoldingsTable'
 import GoalsPanel from '../components/GoalsPanel'
@@ -616,6 +616,7 @@ export default function Client360() {
   const [archiving, setArchiving] = useState(false)
 
   // Holdings edit state
+  const [holdingsOpen, setHoldingsOpen] = useState(false)
   const [editingHoldings, setEditingHoldings] = useState(false)
   const [holdingsSaving, setHoldingsSaving] = useState(false)
   const [holdingsError, setHoldingsError] = useState(null)
@@ -937,6 +938,32 @@ export default function Client360() {
               </div>
             </div>
 
+            {/* Compliance Snapshot — desktop sidebar */}
+            <div className="p-5 border-b border-navy-800">
+              <div className="text-navy-400 text-xs font-semibold uppercase tracking-wider mb-3">Compliance</div>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs text-navy-400">KYC Status</span>
+                <KycStatusBadge status={client.kyc_status || 'not_started'} />
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'KYC', ok: !!client.pan_number, detail: client.pan_number ? `PAN ${client.pan_number}` : 'PAN not on file', status: client.pan_number ? 'Verified' : 'Pending' },
+                  { label: 'Suitability', ok: !!client.risk_score, detail: client.risk_score ? `Score ${client.risk_score}/10` : 'Assessment pending', status: client.risk_score ? 'Confirmed' : 'Pending' },
+                ].map(({ label, ok, detail, status }) => (
+                  <div key={label} className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-medium text-navy-200">{label}</div>
+                      <div className="text-xs text-navy-500">{detail}</div>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${ok ? 'bg-emerald-900/50 text-emerald-300' : 'bg-amber-900/30 text-amber-300'}`}>
+                      {ok ? <CheckCircle size={10} /> : <Clock size={10} />}
+                      {status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Flags */}
             {client.urgency_flags.length > 0 && (
               <div className="p-5 flex-1 overflow-y-auto">
@@ -966,32 +993,6 @@ export default function Client360() {
                 </div>
               </div>
             )}
-
-            {/* Compliance Snapshot — desktop sidebar */}
-            <div className="p-5 border-t border-navy-800">
-              <div className="text-navy-400 text-xs font-semibold uppercase tracking-wider mb-3">Compliance</div>
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs text-navy-400">KYC Status</span>
-                <KycStatusBadge status={client.kyc_status || 'not_started'} />
-              </div>
-              <div className="space-y-2">
-                {[
-                  { label: 'KYC', ok: !!client.pan_number, detail: client.pan_number ? `PAN ${client.pan_number}` : 'PAN not on file', status: client.pan_number ? 'Verified' : 'Pending' },
-                  { label: 'Suitability', ok: !!client.risk_score, detail: client.risk_score ? `Score ${client.risk_score}/10` : 'Assessment pending', status: client.risk_score ? 'Confirmed' : 'Pending' },
-                ].map(({ label, ok, detail, status }) => (
-                  <div key={label} className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-medium text-navy-200">{label}</div>
-                      <div className="text-xs text-navy-500">{detail}</div>
-                    </div>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${ok ? 'bg-emerald-900/50 text-emerald-300' : 'bg-amber-900/30 text-amber-300'}`}>
-                      {ok ? <CheckCircle size={10} /> : <Clock size={10} />}
-                      {status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* Activity Timeline — desktop sidebar */}
             {(client.interactions || []).length > 0 && (
@@ -1202,34 +1203,44 @@ export default function Client360() {
               <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
                 <PortfolioChart portfolio={client.portfolio} clientName={client.name} />
               </div>
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-card">
-                <div className="flex items-center justify-between mb-4">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-card">
+                <button
+                  onClick={() => setHoldingsOpen(o => !o)}
+                  className="w-full flex items-center justify-between p-5 text-left"
+                >
                   <div className="flex items-center gap-3">
                     <div className="text-sm font-bold text-gray-800">Holdings</div>
                     <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                       {client.portfolio?.holdings?.length || 0} funds
                     </span>
                   </div>
-                  {!editingHoldings && (
-                    <button
-                      onClick={() => { setEditingHoldings(true); setHoldingsError(null) }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-navy-700 border border-navy-200 rounded-lg hover:bg-navy-50 transition-colors"
-                    >
-                      <Pencil size={11} />
-                      Edit Holdings
-                    </button>
-                  )}
-                </div>
-                {editingHoldings ? (
-                  <HoldingsEditForm
-                    portfolio={client.portfolio}
-                    onSave={handleSaveHoldings}
-                    onCancel={() => { setEditingHoldings(false); setHoldingsError(null) }}
-                    saving={holdingsSaving}
-                    error={holdingsError}
-                  />
-                ) : (
-                  <HoldingsTable holdings={client.portfolio?.holdings} />
+                  {holdingsOpen ? <ChevronUp size={15} className="text-gray-400" /> : <ChevronDown size={15} className="text-gray-400" />}
+                </button>
+                {holdingsOpen && (
+                  <div className="px-5 pb-5">
+                    {!editingHoldings && (
+                      <div className="flex justify-end mb-3">
+                        <button
+                          onClick={() => { setEditingHoldings(true); setHoldingsError(null) }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-navy-700 border border-navy-200 rounded-lg hover:bg-navy-50 transition-colors"
+                        >
+                          <Pencil size={11} />
+                          Edit Holdings
+                        </button>
+                      </div>
+                    )}
+                    {editingHoldings ? (
+                      <HoldingsEditForm
+                        portfolio={client.portfolio}
+                        onSave={handleSaveHoldings}
+                        onCancel={() => { setEditingHoldings(false); setHoldingsError(null) }}
+                        saving={holdingsSaving}
+                        error={holdingsError}
+                      />
+                    ) : (
+                      <HoldingsTable holdings={client.portfolio?.holdings} />
+                    )}
+                  </div>
                 )}
               </div>
             </div>

@@ -1,5 +1,5 @@
 # ARIA Advisor Workbench — Help Guide
-**Version 2.1** · Last updated: 2026-04-08
+**Version 2.2** · Last updated: 2026-04-19
 
 ---
 
@@ -153,6 +153,41 @@ Each client has a lifecycle stage that tracks where they are in the advisory rel
 
 ---
 
+### 12. KYC & Documentation (FEAT-KYC)
+
+The **KYC & Docs** tab (2nd tab on Client 360°) lets you manage the full KYC lifecycle for each client.
+
+#### KYC Status
+- Tracks where the client is in the KYC process
+- **Statuses:** Not Started → In Progress → Submitted → Verified / Expired
+- Status badge appears in the Client List and the Client 360° sidebar (under Compliance)
+- Advisors can manually override status via the dropdown — useful for demo and onboarding flows
+- **Auto-advance:** uploading the first document moves status to `In Progress`; uploading all 4 required documents moves it to `Submitted`
+
+#### Nominee Details
+- Capture nominee name, relationship, date of birth, and phone
+- Click **Save Nominee** to persist
+
+#### FATCA Declaration
+- Single checkbox — check to record the client's FATCA self-declaration
+- Declaration timestamp is recorded and displayed when checked
+
+#### Document Upload
+- 4 required document slots: **PAN Card**, **Aadhaar Front**, **Aadhaar Back**, **Photo**
+- Files stored securely in Supabase Storage (private bucket — never public)
+- Each slot shows upload date, filename, and a **Download** link (signed URL, valid 1 hour)
+- Uploading a new file to an existing slot replaces the old one
+- Click the trash icon to delete a document
+
+> **Note:** Document upload requires `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` to be set in Render environment variables, and the `aria-kyc-docs` bucket to be created in Supabase Storage (private).
+
+#### Risk Profile PDF
+- Click **Download Risk Profile PDF** to generate and download a PDF with client details, risk score, category, and recommended allocation
+- PDF includes a "PENDING SIGNATURE" watermark
+- Generated server-side — no client data leaves the backend
+
+---
+
 ### 10. Client Portal
 Clients can log in at `/client-portal/login` to view a read-only summary of their own portfolio and goals. No sensitive advisor data is exposed.
 
@@ -167,6 +202,9 @@ Required environment variables:
 | `DATABASE_URL` | Supabase PostgreSQL connection string (use pooler port 6543) |
 | `ANTHROPIC_API_KEY` | Claude API key from console.anthropic.com |
 | `FRONTEND_URL` | Your Vercel frontend URL (for CORS) |
+| `SUPABASE_URL` | Supabase project URL (for KYC document storage) |
+| `SUPABASE_SERVICE_KEY` | Supabase service role key (for KYC document storage) |
+| `SUPABASE_KYC_BUCKET` | Storage bucket name — defaults to `aria-kyc-docs` |
 
 ### Frontend (Vite on Vercel)
 | Variable | Description |

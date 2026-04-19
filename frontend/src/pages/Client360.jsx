@@ -599,6 +599,7 @@ export default function Client360() {
   const [activeTab, setActiveTab] = useState('portfolio')
   const [showMeetingPrep, setShowMeetingPrep] = useState(false)
   const [lifecycleStage, setLifecycleStage] = useState('lead')
+  const [lifecycleError, setLifecycleError] = useState(null)
   const [copilotMessages, setCopilotMessages] = useState(undefined)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const everActiveRef = useRef({ portfolio: true })
@@ -639,13 +640,24 @@ export default function Client360() {
   }
 
   const updateLifecycle = (stage) => {
-    setLifecycleStage(stage) // optimistic
+    const prev = lifecycleStage
+    setLifecycleStage(stage)
+    setLifecycleError(null)
     const BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
     fetch(`${BASE}/clients/${id}/lifecycle`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ stage }),
-    }).catch(() => {})
+    }).then(async res => {
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setLifecycleStage(prev)
+        setLifecycleError(body.detail || 'Failed to update lifecycle stage.')
+      }
+    }).catch(() => {
+      setLifecycleStage(prev)
+      setLifecycleError('Network error — lifecycle stage not saved.')
+    })
   }
 
   useEffect(() => {
@@ -915,6 +927,11 @@ export default function Client360() {
                   </button>
                 ))}
               </div>
+              {lifecycleError && (
+                <div className="mt-2 text-xs text-red-400 bg-red-900/30 border border-red-800 rounded-lg px-2.5 py-2 leading-snug">
+                  {lifecycleError}
+                </div>
+              )}
             </div>
 
             {/* Risk */}

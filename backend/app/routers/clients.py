@@ -630,6 +630,11 @@ def update_lifecycle(
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+    if stage == "onboarded" and client.advisor_id and client.kyc_status != "verified":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot onboard client until all KYC documents are verified. Current KYC status: {client.kyc_status}.",
+        )
     client.lifecycle_stage = stage
     db.commit()
     return {"id": client_id, "lifecycle_stage": stage}

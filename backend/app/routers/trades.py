@@ -640,6 +640,9 @@ def client_submit_trade(
     ))
 
     # Update portfolio balances
+    exec_price = trade_data.estimated_value / trade_data.quantity if trade_data.quantity else 0.0
+    trade.execution_price = exec_price
+
     if trade_data.action == "buy":
         portfolio.cash_balance = (portfolio.cash_balance or 0.0) - trade_data.estimated_value
         holding = next(
@@ -647,8 +650,14 @@ def client_submit_trade(
             None,
         )
         if holding:
-            holding.units_held = (holding.units_held or 0.0) + trade_data.quantity
-            holding.current_value = holding.units_held * (holding.nav_per_unit or (trade_data.estimated_value / trade_data.quantity))
+            old_units = holding.units_held or 0.0
+            old_avg = holding.avg_purchase_price or exec_price
+            new_units = old_units + trade_data.quantity
+            holding.avg_purchase_price = round(((old_units * old_avg) + (trade_data.quantity * exec_price)) / new_units, 4) if new_units else exec_price
+            holding.units_held = new_units
+            holding.nav_per_unit = exec_price
+            holding.price_per_unit = exec_price
+            holding.current_value = round(new_units * exec_price, 2)
         else:
             db.add(models.Holding(
                 portfolio_id=portfolio.id,
@@ -659,16 +668,18 @@ def client_submit_trade(
                 target_pct=0.0,
                 current_pct=0.0,
                 units_held=trade_data.quantity,
-                nav_per_unit=trade_data.estimated_value / trade_data.quantity if trade_data.quantity else 0,
+                nav_per_unit=exec_price,
+                price_per_unit=exec_price,
+                avg_purchase_price=exec_price,
             ))
-    else:  # sell
+    else:  # sell — avg_purchase_price unchanged (cost basis stays)
         holding = next(
             (h for h in portfolio.holdings if h.asset_code and h.asset_code.upper() == trade_data.asset_code.upper()),
             None,
         )
         if holding:
-            holding.units_held = (holding.units_held or 0.0) - trade_data.quantity
-            holding.current_value = max(0.0, (holding.current_value or 0.0) - trade_data.estimated_value)
+            holding.units_held = max(0.0, (holding.units_held or 0.0) - trade_data.quantity)
+            holding.current_value = max(0.0, holding.units_held * (holding.nav_per_unit or exec_price))
         portfolio.cash_balance = (portfolio.cash_balance or 0.0) + trade_data.estimated_value
 
     # Notify advisor

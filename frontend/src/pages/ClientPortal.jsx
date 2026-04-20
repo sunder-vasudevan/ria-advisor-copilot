@@ -1,7 +1,7 @@
 import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getClient, fmt } from '../api/client'
+import { getClient, fmt, refreshClientPrices } from '../api/client'
 import { getClientSession, clientLogout } from '../auth'
 import PortfolioChart from '../components/PortfolioChart'
 import { getPersonalInvoices } from '../api/billing'
@@ -117,10 +117,12 @@ export default function ClientPortal() {
 
   useEffect(() => {
     if (!session) return
-    getClient(session.clientId)
-      .then(setClient)
-      .catch(() => setError('Failed to load your portfolio'))
-      .finally(() => setLoading(false))
+    refreshClientPrices(session.clientId).catch(() => null).finally(() => {
+      getClient(session.clientId)
+        .then(setClient)
+        .catch(() => setError('Failed to load your portfolio'))
+        .finally(() => setLoading(false))
+    })
   }, [])
 
   const handleLogout = () => {

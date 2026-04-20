@@ -537,9 +537,27 @@ def _backfill_default_holdings():
             print(f"_backfill_default_holdings error: {e}")
 
 
+def _patch_db_enums():
+    """Idempotent: add any missing enum values to Postgres enum types."""
+    patches = [
+        ("assettypeenum", ["stock", "bond", "commodity", "forex"]),
+        ("tradestatusenum", ["settled"]),
+        ("notificationtypeenum", ["trade_client_submitted"]),
+    ]
+    with engine.connect() as conn:
+        for enum_name, values in patches:
+            for val in values:
+                try:
+                    conn.execute(text(f"ALTER TYPE {enum_name} ADD VALUE IF NOT EXISTS '{val}'"))
+                    conn.commit()
+                except Exception as e:
+                    print(f"[ENUM PATCH] {enum_name}.{val}: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)  # creates all new tables automatically
+    _patch_db_enums()
     _run_migrations()
     _run_prospect_task_migrations()
     _run_personal_migrations()

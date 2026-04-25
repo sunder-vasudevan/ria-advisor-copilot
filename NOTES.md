@@ -28,6 +28,44 @@
 - HELP.md — full feature guide and setup docs
 - PRD.md v1.1 — updated with WF benchmark, FEAT-308/309 added
 
+## What Shipped This Session (2026-04-25 — Session 42)
+
+### Security Hardening: I1 + I2 — httpOnly Cookies + Copilot Output Filter ✅
+
+**I2 — Copilot output filter**
+- `backend/app/security_utils.py` (NEW): `sanitize_ai_response()` with 4 regex patterns — env var echoes, system prompt leakage, raw JWTs, DB URLs
+- Applied to both `copilot.py` and `personal_copilot.py` before returning Claude output
+
+**I1 — httpOnly cookie auth (full migration)**
+- `auth.py`: new `get_current_advisor_user` dep reads `aria_advisor_token` httpOnly cookie; `get_current_personal_user` accepts cookie OR Bearer (backward-compat)
+- `advisor_auth.py`: login issues JWT + sets `httpOnly, samesite="none", secure` cookie; `/advisor/logout` added
+- `personal_auth.py`: login + register set `aria_personal_token` httpOnly cookie; `/personal/auth/logout` added
+- All advisor routers migrated off spoofable `X-Advisor-Id` header: `clients.py`, `notifications.py`, `trades.py`, `prospects.py`, `tasks.py`, `kyc.py`, `billing.py`, `invites.py`, `admin.py`
+- `frontend/src/api/client.js`: `withCredentials: true`; X-Advisor-Id/Role request interceptor removed
+- `frontend/src/auth.js`: `advisorLogin` stores profile only (no token) in localStorage; `advisorLogout` calls `/advisor/logout`
+- Note: `asset_sync.py` skipped (complex 3-way optional auth — follow-up)
+- **Commit:** e652bbb
+
+**Supabase bucket + Render env vars**
+- `aria-kyc-docs` bucket created via REST API (private)
+- `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` set on Render via API; redeploy triggered
+- KYC doc upload (`POST /kyc/documents`) should now return 200 — verify next session
+
+**I6 — confirmed non-issue**: no Supabase client in either frontend bundle
+
+### aria-personal cookie auth ✅ (commit 20dfb94)
+- `src/api/personal.js`: `withCredentials: true`; localStorage interceptor removed; `logoutApi` added; `refreshMyPrices(uid)` takes uid param
+- `src/auth/useAuth.jsx`: `useEffect` calls `getMe()` unconditionally; login/register don't store token; logout async + calls `logoutApi()`
+- `Dashboard.jsx`: `refreshMyPrices(user?.id)`
+
+## ← START HERE NEXT SESSION
+- **Verify** KYC doc upload returns 200 (not 503) — test `POST /kyc/documents` against prod
+- **FEAT-503**: Live goal probability on sliders (aria-advisor Client360 Goals tab) — next feature
+- **ARIA Personal Dashboard revamp**: KPI bar, section reorder, goal probability bars — plan confirmed, build not started
+- **asset_sync.py**: Complete advisor dep migration (3-way auth) — low urgency
+
+---
+
 ## What Shipped This Session (2026-04-19 — Session 38)
 
 ### FEAT-KYC Phase 1 — Post-Deploy Testing + Bug Fixes ✅
@@ -81,10 +119,7 @@
 - Holdings endpoints: `unrealised_pnl` + `unrealised_pnl_pct` computed on the fly (not stored)
 - HoldingsTable: P&L % pill on card (▲/▼ green/red) + P&L drawer with avg buy price breakdown
 
-## ← START HERE NEXT SESSION
-- ARIA Personal Dashboard revamp (KPI bar, section reorder, goal probability bars) — plan confirmed, build not started
-- Mobile test FEAT-2007 P&L display at 375px
-- HELP.md needs FEAT-2006 + FEAT-2007 sections added (flagged, not done yet)
+## ← (superseded — see Session 42 START HERE above)
 
 ## What Shipped This Session (2026-04-04 — Session 33)
 - **UI Revamp: ClientList v1.5.0** ✅

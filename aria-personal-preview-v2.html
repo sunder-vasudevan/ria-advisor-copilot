@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ARIA Personal — Before / After</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-container-highest": "#e0e0ff",
+          "surface-container": "#eeecff",
+          "secondary": "#585b87",
+          "tertiary": "#00328b",
+          "primary": "#00328a",
+          "on-primary-container": "#afc1ff",
+          "on-primary": "#ffffff",
+          "surface": "#fbf8ff",
+          "surface-container-low": "#f4f2ff",
+          "on-surface-variant": "#434653",
+          "background": "#fbf8ff",
+          "primary-fixed": "#dbe1ff",
+          "on-tertiary": "#ffffff",
+          "on-surface": "#14173f",
+          "on-secondary": "#ffffff",
+          "outline-variant": "#c3c6d6",
+          "surface-container-high": "#e7e6ff",
+          "tertiary-fixed": "#dbe1ff",
+          "tertiary-container": "#0046bc",
+          "on-tertiary-container": "#afc1ff",
+          "secondary-container": "#c9cbfe",
+          "on-secondary-container": "#515480",
+          "surface-tint": "#2156ca",
+          "primary-container": "#0047bb",
+          "error": "#ba1a1a",
+        },
+        fontFamily: { "headline": ["Manrope"], "body": ["Inter"], "label": ["Inter"] },
+        borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" },
+      },
+    },
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { font-family: 'Inter', sans-serif; }
+  h1,h2,h3,h4 { font-family: 'Manrope', sans-serif; }
+  .donut-before {
+    width:130px;height:130px;border-radius:50%;
+    background:conic-gradient(#00328a 0% 64%,#2156ca 64% 86%,#585b87 86% 100%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .donut-after {
+    width:130px;height:130px;border-radius:50%;
+    background:conic-gradient(#00328a 0% 72%,#2156ca 72% 92%,#585b87 92% 100%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .donut-inner { width:86px;height:86px;border-radius:50%;background:#fbf8ff;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+  .sparkline-wrap { position:relative;width:100%;height:72px;overflow:hidden; }
+
+  /* ── AFTER: pill badge ── */
+  .status-pill {
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;
+  }
+  .tag-label {
+    display:inline-flex;align-items:center;gap:4px;
+    padding:1px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  }
+</style>
+</head>
+<body style="background:#f0f0f8">
+
+<!-- ══════════════════════════════════════════
+     COMPARISON HEADER
+══════════════════════════════════════════ -->
+<div style="background:#14173f;color:#fff;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;">
+  <div style="font-family:Manrope;font-size:18px;font-weight:800;letter-spacing:-0.5px;">ARIA Personal — Design Review</div>
+  <div style="font-size:12px;color:#afc1ff;font-weight:600;letter-spacing:0.08em;">BEFORE → AFTER</div>
+</div>
+
+<!-- Change log strip -->
+<div style="background:#0047bb;color:#dbe1ff;font-size:12px;font-weight:600;padding:10px 32px;display:flex;gap:32px;flex-wrap:wrap;">
+  <span>① Hero: tighter, sub-headline removed, better CTAs</span>
+  <span>② Header: Help moved to icon button (top-right, beside notifications)</span>
+  <span>③ Cards: consistent radius + padding, surface colours unified</span>
+  <span>④ Goals: progress bars added</span>
+  <span>⑤ Mobile nav: Help tab removed → icon in header only</span>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SIDE-BY-SIDE PANELS
+══════════════════════════════════════════ -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:100vh;">
+
+  <!-- ─────────────── BEFORE ─────────────── -->
+  <div style="border-right:2px solid #c3c6d6;padding-bottom:120px;">
+    <div style="padding:12px 24px;background:#e0e0ff;font-size:11px;font-weight:800;letter-spacing:0.12em;color:#00328a;text-transform:uppercase;">BEFORE</div>
+
+    <!-- Header -->
+    <header style="background:rgba(248,248,255,0.85);backdrop-filter:blur(16px);display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #e0e0ff;">
+      <div style="font-family:Manrope;font-size:22px;font-weight:800;letter-spacing:-1px;color:#14173f;">
+        A<span style="color:#0047bb">-</span>Ri<span style="position:relative;">A<span style="position:absolute;top:-4px;left:7px;width:5px;height:5px;background:#0047bb;border-radius:50%;display:inline-block;"></span></span>
+        <span style="font-size:11px;font-weight:600;color:#434653;letter-spacing:0.1em;margin-left:4px;">Personal</span>
+      </div>
+      <nav style="display:flex;gap:2px;">
+        <a style="font-size:13px;font-weight:700;background:#dbe1ff;color:#00328a;padding:6px 14px;border-radius:10px;" href="#">Dashboard</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Goals</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Life Events</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Ask ARIA</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <!-- Help as text nav item (before) -->
+        <button style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;border:none;background:none;cursor:pointer;">Help</button>
+        <button style="padding:6px;border-radius:50%;border:none;background:none;cursor:pointer;color:#434653;">
+          <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+        </button>
+        <div style="width:34px;height:34px;border-radius:50%;background:#00328a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">SH</div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <div style="padding:24px 20px 16px;">
+
+      <!-- Hero section - before -->
+      <div style="display:flex;gap:20px;margin-bottom:28px;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="display:inline-flex;align-items:center;padding:3px 10px;background:#0046bc;color:#afc1ff;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border-radius:2px;margin-bottom:12px;">Money Intelligence</div>
+          <h1 style="font-size:44px;font-weight:800;color:#14173f;letter-spacing:-2px;line-height:1;margin-bottom:10px;font-family:Manrope;">
+            A<span style="color:#0047bb">-</span>Ri<span style="position:relative;">A<span style="position:absolute;top:4px;left:16px;width:7px;height:7px;background:#0047bb;border-radius:50%;display:inline-block;"></span></span>
+          </h1>
+          <p style="font-size:13px;font-weight:700;letter-spacing:0.18em;color:#434653;text-transform:uppercase;margin-bottom:20px;">YOUR MONEY INTELLIGENCE</p>
+          <p style="font-size:13px;color:#434653;line-height:1.6;margin-bottom:20px;max-width:260px;">Track your portfolio, plan your goals, and get personalised guidance — all in one place.</p>
+          <div style="display:flex;gap:10px;">
+            <button style="padding:10px 20px;background:linear-gradient(135deg,#00328a,#0047bb);color:#fff;font-weight:700;border-radius:10px;border:none;font-size:13px;cursor:pointer;">Edit Portfolio</button>
+            <button style="padding:10px 20px;background:#c9cbfe;color:#515480;font-weight:700;border-radius:10px;border:none;font-size:13px;cursor:pointer;">View Goals</button>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="background:#f4f2ff;border-radius:24px;padding:24px;position:relative;overflow:hidden;min-height:200px;display:flex;align-items:flex-end;">
+            <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(0,50,138,0.08);border-radius:50%;"></div>
+            <div style="width:100%;">
+              <div style="font-size:11px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Total Portfolio</div>
+              <div style="font-size:32px;font-weight:800;color:#14173f;letter-spacing:-1px;margin-bottom:2px;font-family:Manrope;">₹42,18,540</div>
+              <div style="font-size:11px;font-weight:700;color:#16a34a;margin-bottom:16px;">↑ +12.4% all time</div>
+              <div class="sparkline-wrap" style="background:rgba(0,50,138,0.05);border-radius:10px;">
+                <svg viewBox="0 0 300 72" preserveAspectRatio="none" style="width:100%;height:100%;position:absolute;inset:0;">
+                  <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00328a" stop-opacity="0.15"/><stop offset="100%" stop-color="#00328a" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0 65 Q 40 52 75 42 T 150 28 T 225 18 T 300 6" fill="none" stroke="#00328a" stroke-width="2.5"/>
+                  <path d="M0 65 Q 40 52 75 42 T 150 28 T 225 18 T 300 6 V 72 H 0 Z" fill="url(#sg1)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento grid - before -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+
+        <!-- Market Overview -->
+        <div style="background:#eeecff;border-radius:24px;padding:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2 style="font-size:17px;font-weight:700;color:#14173f;font-family:Manrope;">Market Overview</h2>
+            <span class="material-symbols-outlined" style="color:#434653;font-size:20px;">query_stats</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div><div style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">S&P 500</div><div style="font-size:15px;font-weight:700;color:#14173f;">5,204.34</div><div style="font-size:11px;font-weight:700;color:#00328a;">+1.24%</div></div>
+            <div><div style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">NASDAQ</div><div style="font-size:15px;font-weight:700;color:#14173f;">16,274.96</div><div style="font-size:11px;font-weight:700;color:#00328a;">+0.88%</div></div>
+            <div><div style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">BTC / USD</div><div style="font-size:15px;font-weight:700;color:#14173f;">67,402.10</div><div style="font-size:11px;font-weight:700;color:#ba1a1a;">-0.42%</div></div>
+            <div><div style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">GOLD</div><div style="font-size:15px;font-weight:700;color:#14173f;">2,342.50</div><div style="font-size:11px;font-weight:700;color:#00328a;">+2.15%</div></div>
+          </div>
+        </div>
+
+        <!-- ARIA Says -->
+        <div style="background:#e0e0ff;border-radius:24px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="width:40px;height:40px;background:#00328a;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+              <span class="material-symbols-outlined" style="color:#fff;font-size:20px;">smart_toy</span>
+            </div>
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:6px;font-family:Manrope;">ARIA Says</h3>
+            <p style="font-size:12px;color:#434653;line-height:1.6;">Your Equity allocation is 8% above target. Consider pausing SIPs in Large Cap funds until you rebalance.</p>
+          </div>
+          <button style="margin-top:14px;font-weight:700;font-size:12px;color:#00328a;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;">Ask ARIA <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></button>
+        </div>
+
+        <!-- Goals -->
+        <div style="background:#f4f2ff;border-radius:24px;padding:24px;">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:16px;font-family:Manrope;">Goals</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0e0ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:16px;color:#434653;">home</span></div>
+                <div><div style="font-size:13px;font-weight:700;">Home Down Payment</div><div style="font-size:11px;color:#434653;">Dec 2027</div></div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#16a34a;">84%</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0e0ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:16px;color:#434653;">school</span></div>
+                <div><div style="font-size:13px;font-weight:700;">Child Education</div><div style="font-size:11px;color:#434653;">Jun 2031</div></div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#16a34a;">91%</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#ffe0e0;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:16px;color:#ba1a1a;">beach_access</span></div>
+                <div><div style="font-size:13px;font-weight:700;">Retirement</div><div style="font-size:11px;color:#434653;">Jan 2045</div></div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#ba1a1a;">61%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Allocation -->
+        <div style="background:#fbf8ff;border-radius:24px;padding:24px;grid-column:1/2;display:flex;gap:20px;box-shadow:0 10px 30px rgba(20,23,63,0.05);">
+          <div style="flex:1;">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;font-family:Manrope;">Asset Allocation</h3>
+            <p style="font-size:11px;color:#434653;margin-bottom:16px;">Strategic distribution across asset classes.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Equity</span><span style="font-size:12px;font-weight:700;">72% <span style="font-size:10px;color:#434653;font-weight:400;">(target 64%)</span></span></div>
+                <div style="height:6px;background:#eeecff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:72%;background:#00328a;border-radius:999px;"></div></div>
+                <div style="font-size:10px;color:#d97706;margin-top:2px;">+8% overweight</div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Debt</span><span style="font-size:12px;font-weight:700;">20%</span></div>
+                <div style="height:6px;background:#eeecff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:20%;background:#2156ca;border-radius:999px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Cash</span><span style="font-size:12px;font-weight:700;">8%</span></div>
+                <div style="height:6px;background:#eeecff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:8%;background:#585b87;border-radius:999px;"></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div class="donut-before"><div class="donut-inner"><span style="font-size:10px;color:#434653;font-weight:700;text-transform:uppercase;">Risk</span><span style="font-size:18px;font-weight:800;font-family:Manrope;">Med</span></div></div>
+          </div>
+        </div>
+
+      </div><!-- /bento -->
+    </div><!-- /main -->
+
+    <!-- Mobile bottom nav - before -->
+    <div style="margin:20px;background:#f4f2ff;border-radius:20px;padding:12px 8px;display:flex;justify-content:space-around;">
+      <div style="display:flex;flex-direction:column;align-items:center;background:#dbe1ff;padding:6px 10px;border-radius:10px;color:#00328a;">
+        <span class="material-symbols-outlined" style="font-size:20px;">dashboard</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">DASHBOARD</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">flag</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">GOALS</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">favorite</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">LIFE</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">smart_toy</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">ASK ARIA</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 10px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">help</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">HELP</span>
+      </div>
+    </div>
+    <div style="padding:0 20px;"><p style="font-size:11px;color:#ba1a1a;font-weight:600;">⚠ Help takes up a full bottom-nav slot — feels like it doesn't belong at same level as Goals</p></div>
+
+  </div><!-- /before -->
+
+
+  <!-- ─────────────── AFTER ─────────────── -->
+  <div style="padding-bottom:120px;">
+    <div style="padding:12px 24px;background:#0047bb;font-size:11px;font-weight:800;letter-spacing:0.12em;color:#dbe1ff;text-transform:uppercase;">AFTER — V2</div>
+
+    <!-- Header V2 -->
+    <header style="background:rgba(248,248,255,0.9);backdrop-filter:blur(20px);display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #e0e0ff;">
+      <div style="font-family:Manrope;font-size:22px;font-weight:800;letter-spacing:-1px;color:#14173f;">
+        A<span style="color:#0047bb">-</span>Ri<span style="position:relative;">A<span style="position:absolute;top:-4px;left:7px;width:5px;height:5px;background:#0047bb;border-radius:50%;display:inline-block;"></span></span>
+        <span style="font-size:11px;font-weight:600;color:#434653;letter-spacing:0.1em;margin-left:4px;">Personal</span>
+      </div>
+      <nav style="display:flex;gap:2px;">
+        <a style="font-size:13px;font-weight:700;background:#dbe1ff;color:#00328a;padding:6px 14px;border-radius:10px;" href="#">Dashboard</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Goals</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Life Events</a>
+        <a style="font-size:13px;color:#434653;padding:6px 14px;border-radius:10px;" href="#">Ask ARIA</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <!-- ✅ Help as icon button only — cleaner -->
+        <button title="Help" style="padding:7px;border-radius:50%;border:none;background:none;cursor:pointer;color:#434653;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.background='#f0f0ff'" onmouseout="this.style.background='none'">
+          <span class="material-symbols-outlined" style="font-size:20px;">help_outline</span>
+        </button>
+        <button title="Notifications" style="padding:7px;border-radius:50%;border:none;background:none;cursor:pointer;color:#434653;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.background='#f0f0ff'" onmouseout="this.style.background='none'">
+          <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+        </button>
+        <div style="width:34px;height:34px;border-radius:50%;background:#00328a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-left:4px;">SH</div>
+      </div>
+    </header>
+    <div style="padding:6px 20px;background:#f4f2ff;font-size:11px;color:#00328a;font-weight:600;">✅ Help is now a quiet icon button — same row as notifications, nav stays focused on core pages</div>
+
+    <!-- Main V2 -->
+    <div style="padding:20px 20px 16px;">
+
+      <!-- Hero V2 — tighter, no redundant sub-headline -->
+      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
+        <div style="flex:1;">
+          <!-- Removed redundant "YOUR MONEY INTELLIGENCE" text line -->
+          <!-- Tighter greeting + quick stats instead -->
+          <div style="margin-bottom:6px;">
+            <span class="tag-label" style="background:#0046bc;color:#dbe1ff;">Money Intelligence</span>
+          </div>
+          <h1 style="font-size:38px;font-weight:800;color:#14173f;letter-spacing:-2px;line-height:1;margin-bottom:6px;font-family:Manrope;">
+            A<span style="color:#0047bb">-</span>Ri<span style="position:relative;">A<span style="position:absolute;top:3px;left:13px;width:6px;height:6px;background:#0047bb;border-radius:50%;display:inline-block;"></span></span>
+          </h1>
+          <!-- Quick summary line replaces the paragraph copy -->
+          <p style="font-size:13px;color:#434653;margin-bottom:6px;">Good morning, Sunny 👋</p>
+          <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+            <span class="status-pill" style="background:#dcfce7;color:#15803d;">3 goals on track</span>
+            <span class="status-pill" style="background:#fef9c3;color:#a16207;">1 rebalance needed</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button style="padding:10px 18px;background:linear-gradient(135deg,#00328a,#0047bb);color:#fff;font-weight:700;border-radius:10px;border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">tune</span> Portfolio
+            </button>
+            <button style="padding:10px 18px;background:#c9cbfe;color:#515480;font-weight:700;border-radius:10px;border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">flag</span> Goals
+            </button>
+            <button style="padding:10px 18px;background:#e0e0ff;color:#00328a;font-weight:700;border-radius:10px;border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">smart_toy</span> Ask
+            </button>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="background:linear-gradient(135deg,#f4f2ff,#e0e0ff);border-radius:24px;padding:24px;position:relative;overflow:hidden;min-height:200px;display:flex;align-items:flex-end;box-shadow:0 12px 32px rgba(20,23,63,0.08);">
+            <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:rgba(0,50,138,0.07);border-radius:50%;"></div>
+            <div style="width:100%;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.1em;">Total Portfolio</div>
+                <span class="status-pill" style="background:#dcfce7;color:#15803d;font-size:10px;">↑ +12.4%</span>
+              </div>
+              <div style="font-size:30px;font-weight:800;color:#14173f;letter-spacing:-1px;margin-bottom:2px;font-family:Manrope;">₹42,18,540</div>
+              <div style="font-size:10px;color:#434653;margin-bottom:14px;">As of today · Updated 2 min ago</div>
+              <div class="sparkline-wrap" style="background:rgba(0,50,138,0.05);border-radius:10px;">
+                <svg viewBox="0 0 300 72" preserveAspectRatio="none" style="width:100%;height:100%;position:absolute;inset:0;">
+                  <defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00328a" stop-opacity="0.18"/><stop offset="100%" stop-color="#00328a" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0 65 Q 40 52 75 42 T 150 28 T 225 18 T 300 6" fill="none" stroke="#00328a" stroke-width="2.5"/>
+                  <path d="M0 65 Q 40 52 75 42 T 150 28 T 225 18 T 300 6 V 72 H 0 Z" fill="url(#sg2)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:6px 0 14px;font-size:11px;color:#00328a;font-weight:600;">✅ Hero: removed duplicate tagline, added contextual status pills + icon-labelled CTAs</div>
+
+      <!-- Bento V2 -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+
+        <!-- Market Overview V2 — subtle change indicator dots -->
+        <div style="background:#eeecff;border-radius:20px;padding:22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h2 style="font-size:15px;font-weight:700;color:#14173f;font-family:Manrope;">Market</h2>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:10px;color:#434653;font-weight:600;">Live</span>
+              <span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;animation:none;box-shadow:0 0 0 2px #dcfce7;"></span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div style="background:#fff;border-radius:12px;padding:10px 8px;">
+              <div style="font-size:9px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">S&P 500</div>
+              <div style="font-size:14px;font-weight:700;color:#14173f;">5,204</div>
+              <div style="font-size:10px;font-weight:700;color:#16a34a;margin-top:2px;">+1.24%</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:10px 8px;">
+              <div style="font-size:9px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">NASDAQ</div>
+              <div style="font-size:14px;font-weight:700;color:#14173f;">16,274</div>
+              <div style="font-size:10px;font-weight:700;color:#16a34a;margin-top:2px;">+0.88%</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:10px 8px;">
+              <div style="font-size:9px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">BTC</div>
+              <div style="font-size:14px;font-weight:700;color:#14173f;">67,402</div>
+              <div style="font-size:10px;font-weight:700;color:#ba1a1a;margin-top:2px;">-0.42%</div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:10px 8px;">
+              <div style="font-size:9px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">GOLD</div>
+              <div style="font-size:14px;font-weight:700;color:#14173f;">2,342</div>
+              <div style="font-size:10px;font-weight:700;color:#16a34a;margin-top:2px;">+2.15%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ARIA Says V2 — more actionable -->
+        <div style="background:linear-gradient(135deg,#0047bb,#00328a);border-radius:20px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+              <span class="material-symbols-outlined" style="color:#fff;font-size:20px;">smart_toy</span>
+            </div>
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:6px;font-family:Manrope;color:#fff;">ARIA Says</h3>
+            <p style="font-size:12px;color:#afc1ff;line-height:1.6;">Equity is 8% above target. Pause Large Cap SIPs before next FOMC.</p>
+          </div>
+          <button style="margin-top:14px;font-weight:700;font-size:12px;color:#fff;background:rgba(255,255,255,0.12);border:none;cursor:pointer;display:flex;align-items:center;gap:4px;padding:7px 12px;border-radius:8px;">Ask ARIA <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></button>
+        </div>
+
+        <!-- Goals V2 — with progress bars -->
+        <div style="background:#f4f2ff;border-radius:20px;padding:22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:15px;font-weight:700;font-family:Manrope;">Goals</h3>
+            <a href="#" style="font-size:11px;font-weight:700;color:#00328a;text-decoration:none;">View all →</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#dbe1ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:15px;color:#00328a;">home</span></div>
+                  <div><div style="font-size:12px;font-weight:700;">Home Down Payment</div><div style="font-size:10px;color:#434653;">Dec 2027</div></div>
+                </div>
+                <span class="status-pill" style="background:#dcfce7;color:#15803d;font-size:10px;">84%</span>
+              </div>
+              <div style="height:4px;background:#dbe1ff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:84%;background:#16a34a;border-radius:999px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#dbe1ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:15px;color:#00328a;">school</span></div>
+                  <div><div style="font-size:12px;font-weight:700;">Child Education</div><div style="font-size:10px;color:#434653;">Jun 2031</div></div>
+                </div>
+                <span class="status-pill" style="background:#dcfce7;color:#15803d;font-size:10px;">91%</span>
+              </div>
+              <div style="height:4px;background:#dbe1ff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:91%;background:#16a34a;border-radius:999px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#ffe4e4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:15px;color:#ba1a1a;">beach_access</span></div>
+                  <div><div style="font-size:12px;font-weight:700;">Retirement</div><div style="font-size:10px;color:#434653;">Jan 2045</div></div>
+                </div>
+                <span class="status-pill" style="background:#ffe4e4;color:#ba1a1a;font-size:10px;">61%</span>
+              </div>
+              <div style="height:4px;background:#ffe4e4;border-radius:999px;overflow:hidden;"><div style="height:100%;width:61%;background:#ba1a1a;border-radius:999px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Allocation V2 -->
+        <div style="background:#fbf8ff;border-radius:20px;padding:22px;grid-column:1/2;display:flex;gap:20px;box-shadow:0 8px 24px rgba(20,23,63,0.06);">
+          <div style="flex:1;">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;font-family:Manrope;">Allocation</h3>
+            <p style="font-size:11px;color:#434653;margin-bottom:14px;">vs. target weights</p>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Equity</span><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-weight:700;">72%</span><span class="status-pill" style="background:#fef9c3;color:#a16207;font-size:9px;padding:1px 6px;">+8%</span></div></div>
+                <div style="height:5px;background:#eeecff;border-radius:999px;overflow:hidden;position:relative;">
+                  <div style="height:100%;width:72%;background:#00328a;border-radius:999px;"></div>
+                  <!-- Target marker -->
+                  <div style="position:absolute;top:-1px;left:64%;width:2px;height:7px;background:#d97706;border-radius:1px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Debt</span><span style="font-size:12px;font-weight:700;">20%</span></div>
+                <div style="height:5px;background:#eeecff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:20%;background:#2156ca;border-radius:999px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:10px;font-weight:700;color:#434653;text-transform:uppercase;letter-spacing:0.08em;">Cash</span><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-weight:700;">8%</span><span class="status-pill" style="background:#dbeafe;color:#1d4ed8;font-size:9px;padding:1px 6px;">-6%</span></div></div>
+                <div style="height:5px;background:#eeecff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:8%;background:#585b87;border-radius:999px;"></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div class="donut-after"><div class="donut-inner"><span style="font-size:10px;color:#434653;font-weight:700;text-transform:uppercase;">Risk</span><span style="font-size:18px;font-weight:800;font-family:Manrope;color:#14173f;">Med</span></div></div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#434653;"><span style="width:8px;height:8px;border-radius:2px;background:#00328a;display:inline-block;"></span>Equity 72%</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#434653;"><span style="width:8px;height:8px;border-radius:2px;background:#2156ca;display:inline-block;"></span>Debt 20%</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#434653;"><span style="width:8px;height:8px;border-radius:2px;background:#585b87;display:inline-block;"></span>Cash 8%</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /bento v2 -->
+    </div><!-- /main v2 -->
+
+    <!-- Mobile bottom nav V2 — Help removed, only 4 tabs -->
+    <div style="margin:20px;background:#f4f2ff;border-radius:20px;padding:12px 8px;display:flex;justify-content:space-around;">
+      <div style="display:flex;flex-direction:column;align-items:center;background:#dbe1ff;padding:6px 12px;border-radius:10px;color:#00328a;">
+        <span class="material-symbols-outlined" style="font-size:20px;">dashboard</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">DASHBOARD</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 12px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">flag</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">GOALS</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 12px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">favorite</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">LIFE</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:6px 12px;color:#9090a0;">
+        <span class="material-symbols-outlined" style="font-size:20px;">smart_toy</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;margin-top:2px;">ASK ARIA</span>
+      </div>
+    </div>
+    <div style="padding:0 20px;"><p style="font-size:11px;color:#16a34a;font-weight:600;">✅ Help removed from bottom nav — lives as icon in header. 4 clean core tabs.</p></div>
+
+  </div><!-- /after -->
+
+</div><!-- /grid -->
+
+<!-- ══════════════════════════════════════════
+     CHANGE SUMMARY
+══════════════════════════════════════════ -->
+<div style="background:#14173f;color:#dbe1ff;padding:28px 32px;margin-top:0;">
+  <h2 style="font-family:Manrope;font-size:16px;font-weight:800;margin-bottom:16px;color:#fff;">What changed — V2 summary</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#afc1ff;margin-bottom:6px;">① Hero tightened</div>
+      <p style="font-size:12px;color:#c3c6d6;line-height:1.6;">Removed duplicate "YOUR MONEY INTELLIGENCE" text. Added greeting + status pills (3 goals on track / 1 rebalance needed). CTAs now have icons.</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#afc1ff;margin-bottom:6px;">② Help → header icon</div>
+      <p style="font-size:12px;color:#c3c6d6;line-height:1.6;">Help removed from bottom nav (was wasting a primary slot). Lives as help_outline icon button next to notifications in the header — consistent with the mockup reference.</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#afc1ff;margin-bottom:6px;">③ Goals + Allocation</div>
+      <p style="font-size:12px;color:#c3c6d6;line-height:1.6;">Goals now show progress bars (not just %). Allocation bars show target markers + deviation pills. ARIA Says card uses a dark gradient — stands out as the AI intelligence layer.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

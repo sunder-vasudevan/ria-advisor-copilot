@@ -318,3 +318,38 @@ backend/
 6. Test with curl after every Render deploy
 
 **When in doubt:** Check the RCA document at `~/Daytona/aria-advisor/docs/RCA-2026-03-21-deep-dive.md`.
+
+---
+
+## Anthropic Prompt Caching (cache_control)
+
+Add `cache_control: {"type": "ephemeral"}` to the **last block** you want cached in any `messages.create()` call when:
+
+- System prompt exceeds ~2048 tokens, OR
+- A static document (rulebook, product catalogue) is injected into the prompt, OR
+- Conversation history exceeds ~20 turns
+
+**Do not cache:** dynamic per-request context (client portfolio, today's date, live data).
+
+Example:
+```python
+response = ai_client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1500,
+    system=[
+        {
+            "type": "text",
+            "text": SYSTEM_PROMPT,
+            "cache_control": {"type": "ephemeral"}  # cache static instructions
+        },
+        {
+            "type": "text",
+            "text": f"CURRENT CLIENT CONTEXT:\n{context}"
+            # no cache_control — dynamic, changes every request
+        }
+    ],
+    messages=messages,
+)
+```
+
+**Current status (2026-04-03):** Not yet applied — system prompts are under 2048 tokens and context is fully dynamic. Revisit when adding large static content.

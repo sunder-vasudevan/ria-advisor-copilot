@@ -19,6 +19,8 @@ const BillingPage = lazy(() => import('./pages/BillingPage'))
 const Opportunities = lazy(() => import('./pages/Opportunities'))
 const TasksPage = lazy(() => import('./pages/TasksPage'))
 const AdminPage = lazy(() => import('./pages/AdminPage'))
+const HouseholdsListPage = lazy(() => import('./pages/HouseholdsListPage'))
+const HouseholdPage = lazy(() => import('./pages/HouseholdPage'))
 
 function PageLoader() {
   return (
@@ -79,6 +81,12 @@ export default function App() {
           } />
           <Route path="/admin" element={
             <RequireAdvisorAuth><AdminPage /></RequireAdvisorAuth>
+          } />
+          <Route path="/households" element={
+            <RequireAdvisorAuth><HouseholdsListPage /></RequireAdvisorAuth>
+          } />
+          <Route path="/households/:id" element={
+            <RequireAdvisorAuth><HouseholdPage /></RequireAdvisorAuth>
           } />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

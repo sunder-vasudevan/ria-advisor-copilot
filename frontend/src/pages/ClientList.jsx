@@ -1,8 +1,8 @@
 import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus, Receipt, Mail, ShieldCheck } from 'lucide-react'
-import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt, sendInvite } from '../api/client'
+import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus, Receipt, Mail, ShieldCheck, Users } from 'lucide-react'
+import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt, sendInvite, getHouseholds } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 import { KycStatusBadge } from '../components/KycPanel'
 
@@ -244,6 +244,7 @@ export default function ClientList() {
   const [briefingCollapsed, setBriefingCollapsed] = useState(false)
   const [showBriefing, setShowBriefing] = useState(false)
   const [segmentFilter, setSegmentFilter] = useState('All')
+  const [households, setHouseholds] = useState([])
   const [delinkConfirm, setDelinkConfirm] = useState(null)
   const [inviteModal, setInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -279,6 +280,7 @@ export default function ClientList() {
       })
       .catch(() => setError('Failed to load clients'))
       .finally(() => setLoading(false))
+    getHouseholds().then(setHouseholds).catch(() => {})
   }, [])
 
   const loadBriefing = () => {
@@ -353,6 +355,12 @@ export default function ClientList() {
         <nav className="hidden md:flex items-center gap-1">
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-[#1D6FDB] text-sm font-medium">
             <TrendingUp size={14} /> Clients
+          </button>
+          <button
+            onClick={() => navigate('/households')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-gray-500 hover:bg-gray-100 text-sm font-medium transition-colors"
+          >
+            <Users size={14} /> Households
           </button>
           <button
             onClick={() => navigate('/billing')}
@@ -683,6 +691,11 @@ function ClientCard({ client, navigate, onMouseEnter, delinkConfirm, setDelinkCo
           {client.direct_signup && <DirectBadge />}
           {client.portal_active && !client.direct_signup && <PortalBadge />}
           {client.kyc_status && client.kyc_status !== 'not_started' && <KycStatusBadge status={client.kyc_status} />}
+          {client.household_name && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600">
+              <Users size={10} /> {client.household_name}
+            </span>
+          )}
           {client.urgency_flags.slice(0, 1).map((f, i) => <UrgencyBadge key={i} flag={f} />)}
           {client.urgency_flags.length > 1 && (
             <span className="text-xs text-gray-500 self-center">+{client.urgency_flags.length - 1} more</span>
@@ -748,11 +761,16 @@ function ClientTable({ clients, navigate, onPrefetch, delinkConfirm, setDelinkCo
                 <div className="font-semibold text-gray-900">{fmt.inr(client.total_value)}</div>
               </td>
               <td className="px-6 py-4">
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <ProbabilityPill urgencyScore={client.urgency_score} />
                   {client.needs_advisor && <NeedsAdvisorBadge />}
                   {client.direct_signup && <DirectBadge />}
                   {client.portal_active && !client.direct_signup && <PortalBadge />}
+                  {client.household_name && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600">
+                      <Users size={10} /> {client.household_name}
+                    </span>
+                  )}
                 </div>
               </td>
               <td className="px-6 py-4">

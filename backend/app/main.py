@@ -8,7 +8,7 @@ from sqlalchemy import text
 from .database import engine, Base, SessionLocal
 from .routers import clients, copilot, briefing, situation, meeting_prep, interactions, trades, notifications
 from .routers import personal_auth, personal_portfolio, personal_goals, personal_life_events, personal_copilot
-from .routers import advisor_auth, asset_sync, billing, prospects, tasks, prices, kyc, invites, admin
+from .routers import advisor_auth, asset_sync, billing, prospects, tasks, prices, kyc, invites, admin, households
 from . import models          # ensure advisors table registered before personal_models
 from . import personal_models  # personal_users.advisor_id FK references advisors.id
 from .seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
@@ -416,6 +416,21 @@ def _run_migrations():
             pass
 
 
+def _run_household_migrations():
+    """FEAT-HOUSEHOLD: Add household_id to clients + unique constraint on household_members (idempotent)."""
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS household_id INTEGER REFERENCES households(id) ON DELETE SET NULL"))
+            conn.commit()
+        except Exception:
+            pass
+        try:
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_household_members ON household_members(household_id, client_id)"))
+            conn.commit()
+        except Exception:
+            pass
+
+
 def _run_kyc_migrations():
     """FEAT-KYC: Add KYC fields to clients + create client_documents table (idempotent)."""
     kyc_client_cols = [
@@ -569,6 +584,7 @@ async def lifespan(app: FastAPI):
     _seed_personal_user_assignments()   # ongoing: ensure all personal users have basic scaffold
     _backfill_default_holdings()        # backfill any portfolio missing the full 21-instrument set
     _run_kyc_migrations()               # FEAT-KYC: add KYC fields + client_documents table
+    _run_household_migrations()         # FEAT-HOUSEHOLD: household_id on clients + unique index
     yield
 
 
@@ -611,6 +627,7 @@ app.include_router(prices.router)
 app.include_router(kyc.router)
 app.include_router(invites.router)
 app.include_router(admin.router)
+app.include_router(households.router)
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])

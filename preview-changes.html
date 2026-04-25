@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview — My Time with Claude + How We Work options</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f5f9; --surface: #ffffff; --surface2: #f0f2f8; --border: #e2e5f0;
+      --text: #1a1d2e; --muted: #6b7280; --accent: #e10600; --accent2: #2563eb;
+      --green: #059669; --green-light: #ecfdf5; --accent-light: #fff1f0;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem 1rem; }
+    .container { max-width: 980px; margin: 0 auto; }
+    h2 { font-size: 1.1rem; font-weight: 900; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 3px solid var(--accent); }
+    .label { display: inline-block; background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.25rem 0.75rem; border-radius: 999px; margin-bottom: 1rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    code { font-family: 'SF Mono','Menlo',monospace; font-size: 0.76rem; color: var(--accent2); background: #f0f4ff; padding: 0.1rem 0.35rem; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.5rem; }
+    th { text-align: left; padding: 0.5rem 0.85rem; font-size: 0.67rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── My Time with Claude ── */
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .chart-title { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+    .stats-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+    .stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 1rem; flex: 1; min-width: 120px; }
+    .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--accent2); }
+    .stat-label { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Option A: Phase strip ── */
+    .phase-strip { border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin: 1.25rem 0 0.75rem; }
+    .phase-strip.green { background: #ecfdf5; color: #065f46; border-left: 4px solid var(--green); }
+    .phase-strip.blue  { background: #eff6ff; color: #1e40af; border-left: 4px solid var(--accent2); }
+    .phase-strip.red   { background: var(--accent-light); color: #9b1c1c; border-left: 4px solid var(--accent); }
+    .step-row { display: flex; align-items: flex-start; gap: 0.85rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
+    .step-row:last-child { border-bottom: none; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; flex-shrink: 0; margin-top: 0.1rem; }
+    .step-num.green { background: #d1fae5; color: #065f46; }
+    .step-num.blue  { background: #dbeafe; color: #1e40af; }
+    .step-num.red   { background: #fee2e2; color: #991b1c; }
+    .step-label { font-size: 0.82rem; font-weight: 700; }
+    .step-desc  { font-size: 0.77rem; color: var(--muted); margin-top: 0.1rem; }
+
+    /* ── Option B: Stepper ── */
+    .stepper { position: relative; padding-left: 2.5rem; }
+    .stepper::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .stepper-phase { position: relative; margin: 1.25rem 0 0.5rem; }
+    .stepper-phase-dot { position: absolute; left: -2.5rem; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; }
+    .stepper-phase-dot.green { background: #d1fae5; color: #065f46; border: 2px solid var(--green); }
+    .stepper-phase-dot.blue  { background: #dbeafe; color: #1e40af; border: 2px solid var(--accent2); }
+    .stepper-phase-dot.red   { background: #fee2e2; color: #991b1c; border: 2px solid var(--accent); }
+    .stepper-phase-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+    .stepper-phase-label.green { color: var(--green); }
+    .stepper-phase-label.blue  { color: var(--accent2); }
+    .stepper-phase-label.red   { color: var(--accent); }
+    .stepper-step { position: relative; display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.45rem 0; }
+    .stepper-step-num { position: absolute; left: -2.5rem; top: 0.35rem; width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+    .stepper-step-body { flex: 1; }
+    .stepper-step-label { font-size: 0.82rem; font-weight: 700; }
+    .stepper-step-desc  { font-size: 0.77rem; color: var(--muted); margin-top: 0.05rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══ MY TIME WITH CLAUDE ═══ -->
+  <h2>My Time with Claude</h2>
+  <div class="chart-card">
+    <div class="chart-title">Session duration — all projects, all sessions</div>
+    <canvas id="timeChart" height="110"></canvas>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val">16</div><div class="stat-label">Sessions logged</div></div>
+      <div class="stat"><div class="stat-val">~720 min</div><div class="stat-label">Total time (~12 hrs)</div></div>
+      <div class="stat"><div class="stat-val">4</div><div class="stat-label">Projects</div></div>
+      <div class="stat"><div class="stat-val">~45 min</div><div class="stat-label">Avg session</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ HOW WE WORK — OPTION A ═══ -->
+  <h2>How We Work</h2>
+  <div class="label">Option A — Phase strip + numbered steps</div>
+  <div class="card">
+
+    <div class="phase-strip green">Phase 1 — Start</div>
+    <div class="step-row">
+      <div class="step-num green">1</div>
+      <div><div class="step-label">Sunny Hayes says the trigger word</div><div class="step-desc"><code>lights out</code> → Claude reads <code>NOTES.md</code>, last commit, parking lot — briefing given &nbsp;·&nbsp; <code>fury road</code> → skip briefing, lock scope in one sentence &nbsp;·&nbsp; <code>cold start</code> → audit git log, deps, env first</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num green">2</div>
+      <div><div class="step-label">Scope locked in one sentence</div><div class="step-desc">No code touched until the task is a single sentence. New ideas mid-session → <code>project_parking_lot.md</code>, actioned next session.</div></div>
+    </div>
+
+    <div class="phase-strip blue">Phase 2 — Build Loop</div>
+    <div class="step-row">
+      <div class="step-num blue">3</div>
+      <div><div class="step-label">Diagnose first, code second</div><div class="step-desc">Claude reads <code>clients.py</code>, <code>models.py</code>, <code>routes/*.py</code>, component files — root cause identified before any edit.</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num blue">4</div>
+      <div><div class="step-label">Edit gate — state files, get approval</div><div class="step-desc">"I'll edit X, Y, Z — here's why." Sunny says go ahead. Exception: wrap-time docs run autonomously.</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num blue">5</div>
+      <div><div class="step-label">Subagents run in parallel</div><div class="step-desc">ARIA Session 9: Kanban built by subagent while CRM table shipped in main context. BzHub: whitepapers generated in background during wrap.</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num blue">6</div>
+      <div><div class="step-label">Redirect loop — fast iteration</div><div class="step-desc">Sunny spots something → "same issue, try this" → Claude adapts without re-briefing. Safari date bug took 3 rounds. That's normal.</div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num blue">7</div>
+      <div><div class="step-label">New idea mid-session → park it</div><div class="step-desc">"park that" → <code>project_parking_lot.md</code>. Claude flags scope creep. Mandatory pushback, not optional.</div></div>
+    </div>
+
+    <div class="phase-strip red">Phase 3 — Wrap</div>
+    <div class="step-row">
+      <div class="step-num red">8</div>
+      <div><div class="step-label">DoD checklist</div><div class="step-desc">Works end-to-end, mobile tested, no errors &nbsp;→&nbsp; <code>definition_of_done.md</code></div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num red">9</div>
+      <div><div class="step-label">Docs updated</div><div class="step-desc"><code>NOTES.md</code> · <code>DECISION_LOG.md</code> · <code>documentation/INTERACTION_LOG.md</code> · <code>EFFICIENCY_LOG.md</code></div></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num red">10</div>
+      <div><div class="step-label">Memory + git + /compact</div><div class="step-desc">Feedback/decisions saved to memory &nbsp;→&nbsp; <code>git commit + push</code> via <code>sync.sh</code> &nbsp;→&nbsp; <code>/compact</code></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ HOW WE WORK — OPTION B ═══ -->
+  <div class="label" style="background:var(--accent2)">Option B — Vertical stepper / timeline</div>
+  <div class="card">
+    <div class="stepper">
+
+      <div class="stepper-phase">
+        <div class="stepper-phase-dot green">▶</div>
+        <div class="stepper-phase-label green">Phase 1 — Start</div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">1</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Trigger word</div>
+          <div class="stepper-step-desc"><code>lights out</code> reads <code>NOTES.md</code> + briefing &nbsp;·&nbsp; <code>fury road</code> skips to scope &nbsp;·&nbsp; <code>cold start</code> audits git + env</div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">2</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Scope locked in one sentence</div>
+          <div class="stepper-step-desc">New ideas → <code>project_parking_lot.md</code>, not this session</div>
+        </div>
+      </div>
+
+      <div class="stepper-phase">
+        <div class="stepper-phase-dot blue">▶</div>
+        <div class="stepper-phase-label blue">Phase 2 — Build Loop</div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">3</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Diagnose first</div>
+          <div class="stepper-step-desc">Read <code>clients.py</code>, <code>models.py</code>, <code>routes/*.py</code> — root cause before any edit</div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">4</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Edit gate</div>
+          <div class="stepper-step-desc">State files + intent → get "go ahead" → edit</div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">5</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Subagents in parallel</div>
+          <div class="stepper-step-desc">Research, docs, parallel builds offloaded — ARIA S9: Kanban + CRM shipped simultaneously</div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">6</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Redirect loop</div>
+          <div class="stepper-step-desc">Sunny redirects → Claude adapts fast. Safari bug: 3 rounds. Normal.</div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">7</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">New idea → park it</div>
+          <div class="stepper-step-desc">"park that" → <code>project_parking_lot.md</code> — mandatory Claude pushback on scope creep</div>
+        </div>
+      </div>
+
+      <div class="stepper-phase">
+        <div class="stepper-phase-dot red">▶</div>
+        <div class="stepper-phase-label red">Phase 3 — Wrap</div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">8</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">DoD checklist</div>
+          <div class="stepper-step-desc">End-to-end, mobile, no errors → <code>definition_of_done.md</code></div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">9</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Docs</div>
+          <div class="stepper-step-desc"><code>NOTES.md</code> · <code>DECISION_LOG.md</code> · <code>INTERACTION_LOG.md</code> · <code>EFFICIENCY_LOG.md</code></div>
+        </div>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-step-num">10</div>
+        <div class="stepper-step-body">
+          <div class="stepper-step-label">Memory → git commit → /compact</div>
+          <div class="stepper-step-desc">Feedback saved → <code>sync.sh push</code> → context compressed</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+window.addEventListener('load', function() {
+  const sessions = [
+    { date: 'Mar 12', project: 'BzHub', mins: 45 },
+    { date: 'Mar 12', project: 'BzHub', mins: 25 },
+    { date: 'Mar 12', project: 'BzHub', mins: 35 },
+    { date: 'Mar 13', project: 'ARIA Advisor', mins: 90 },
+    { date: 'Mar 13', project: 'BzHub', mins: 30 },
+    { date: 'Mar 13', project: 'BzHub', mins: 20 },
+    { date: 'Mar 14', project: 'ARIA Advisor', mins: 15 },
+    { date: 'Mar 15', project: 'ARIA Advisor', mins: 20 },
+    { date: 'Mar 16', project: 'ARIA Advisor', mins: 35 },
+    { date: 'Mar 17', project: 'ARIA Advisor', mins: 180 },
+    { date: 'Mar 17', project: 'ARIA Advisor', mins: 105 },
+    { date: 'Mar 17', project: 'As Gurudev Says', mins: 30 },
+    { date: 'Mar 17', project: 'BzHub', mins: 15 },
+    { date: 'Mar 18', project: 'ARIA Advisor', mins: 120 },
+    { date: 'Mar 18', project: 'Meta', mins: 60 },
+    { date: 'Mar 20', project: 'Meta', mins: 90 },
+  ];
+
+  const colors = {
+    'ARIA Advisor': '#2563eb',
+    'BzHub': '#059669',
+    'Meta': '#e10600',
+    'As Gurudev Says': '#7c3aed',
+    'ARIA Personal': '#d97706',
+  };
+
+  const ctx = document.getElementById('timeChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sessions.map(s => `${s.date}\n${s.project}`),
+      datasets: [{
+        label: 'Session (mins)',
+        data: sessions.map(s => s.mins),
+        backgroundColor: sessions.map(s => (colors[s.project] || '#6b7280') + 'bb'),
+        borderColor: sessions.map(s => colors[s.project] || '#6b7280'),
+        borderWidth: 2,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (i) => `${sessions[i[0].dataIndex].date} — ${sessions[i[0].dataIndex].project}`,
+            label: (i) => `${i.parsed.y} mins`
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Minutes' }, grid: { color: '#e2e5f0' } },
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 45 } }
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

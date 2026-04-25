@@ -98,6 +98,8 @@ class ClientListItem(BaseModel):
     needs_advisor: bool = False  # True if advisor_id is NULL
     lifecycle_stage: str = "lead"  # FEAT-2004
     kyc_status: str = "not_started"  # FEAT-KYC-001
+    household_id: Optional[int] = None
+    household_name: Optional[str] = None
 
     class Config:
         from_attributes = True

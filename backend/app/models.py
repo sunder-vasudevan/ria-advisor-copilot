@@ -27,6 +27,30 @@ class Advisor(Base):
     trades = relationship("Trade", back_populates="advisor", foreign_keys="Trade.advisor_id")
 
 
+class Household(Base):
+    __tablename__ = "households"
+
+    id = Column(Integer, primary_key=True, index=True)
+    advisor_id = Column(Integer, ForeignKey("advisors.id"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    advisor = relationship("Advisor")
+    members = relationship("HouseholdMember", back_populates="household", cascade="all, delete-orphan")
+
+
+class HouseholdMember(Base):
+    __tablename__ = "household_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+    household_id = Column(Integer, ForeignKey("households.id", ondelete="CASCADE"), nullable=False)
+    client_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
+    show_individual_values = Column(Boolean, nullable=False, default=False)
+
+    household = relationship("Household", back_populates="members")
+    client = relationship("Client")
+
+
 class ClientLifecycleEnum(str, enum.Enum):
     lead = "lead"
     onboarded = "onboarded"
@@ -53,6 +77,9 @@ class Client(Base):
     personal_user_id = Column(Integer, nullable=True)
     # Source: "advisor" = added by advisor, "portal" = self-registered via ARIA Personal
     source = Column(String, nullable=True, default="advisor")
+
+    # Household grouping (FEAT-HOUSEHOLD)
+    household_id = Column(Integer, ForeignKey("households.id"), nullable=True)
 
     # Archive flag — soft delete only, no hard deletes allowed
     is_archived = Column(Boolean, nullable=False, default=False)

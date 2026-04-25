@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advisor Workspace - High Fidelity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --bg-gradient: radial-gradient(circle at 12% 16%, #e8f0ff 0, rgba(232, 240, 255, 0) 36%), radial-gradient(circle at 88% 84%, #e9fff7 0, rgba(233, 255, 247, 0) 33%);
+            --surface: #ffffff;
+            --surface-soft: #f8faff;
+            --surface-2: #f2f5fc;
+            --line: #d9dfec;
+            --line-strong: #c4cde2;
+            --text: #1a2335;
+            --text-soft: #5e6a84;
+            --primary: #1e63ff;
+            --primary-soft: #eaf1ff;
+            --success: #0e8f63;
+            --warn: #b87610;
+            --danger: #b4232f;
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 18px;
+            --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.08);
+            --shadow-md: 0 10px 24px rgba(30, 52, 90, 0.1);
+            --space-1: 8px;
+            --space-2: 12px;
+            --space-3: 16px;
+            --space-4: 20px;
+            --space-5: 24px;
+            --space-6: 32px;
+            --duration: 220ms;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            background: var(--bg);
+            background-image: var(--bg-gradient);
+            color: var(--text);
+            font-family: "IBM Plex Sans", ui-sans-serif, sans-serif;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+            padding: var(--space-4);
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: var(--space-4);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .brand-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #2d72ff, #1cc9a5);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .advisor-mini {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            padding: var(--space-3);
+        }
+
+        .advisor-mini h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        .advisor-mini p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .status-row {
+            margin-top: var(--space-2);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            border-radius: 999px;
+            border: 1px solid var(--line-strong);
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--text-soft);
+            background: #fff;
+        }
+
+        .chip.success {
+            color: var(--success);
+            border-color: #b7ead9;
+            background: #eefcf6;
+        }
+
+        .chip.warn {
+            color: var(--warn);
+            border-color: #f4ddb4;
+            background: #fff8eb;
+        }
+
+        .nav {
+            display: grid;
+            gap: 6px;
+            align-content: start;
+        }
+
+        .nav-item {
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            color: var(--text-soft);
+            cursor: default;
+            transition: all var(--duration) ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+            border-color: #bfd3ff;
+            font-weight: 600;
+        }
+
+        .nav-item:hover {
+            border-color: var(--line);
+            background: var(--surface-2);
+        }
+
+        .sidebar-footer {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            background: var(--surface);
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .main {
+            padding: var(--space-4);
+            display: grid;
+            gap: var(--space-4);
+            align-content: start;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-4);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--space-3);
+            align-items: center;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 24px;
+            line-height: 1.1;
+        }
+
+        .title p {
+            margin: 6px 0 0;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 9px 12px;
+            transition: transform var(--duration) ease, border-color var(--duration) ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            border-color: #b8c8ee;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #1e63ff, #2f86ff);
+            color: #fff;
+            border-color: #1e63ff;
+            box-shadow: 0 8px 18px rgba(30, 99, 255, 0.25);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(120px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+            padding: var(--space-3);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric .label {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .metric .value {
+            margin: 8px 0 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 330px;
+            gap: var(--space-4);
+        }
+
+        .stack {
+            display: grid;
+            gap: var(--space-4);
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-4);
+        }
+
+        .card h3 {
+            margin: 0 0 var(--space-3);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-soft);
+            font-weight: 600;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+            gap: var(--space-2);
+        }
+
+        .field {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: var(--surface-soft);
+        }
+
+        .field label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .field .value {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .timeline-item,
+        .todo-item,
+        .utility-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: var(--surface-soft);
+            margin-bottom: 10px;
+        }
+
+        .timeline-item strong,
+        .todo-item strong,
+        .utility-item strong {
+            font-size: 13px;
+        }
+
+        .meta {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+            gap: var(--space-2);
+        }
+
+        .stage {
+            border: 1px dashed var(--line-strong);
+            border-radius: 12px;
+            padding: 10px;
+            background: #fbfcff;
+            min-height: 145px;
+        }
+
+        .stage h4 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .deal {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 12px;
+            padding: 7px 8px;
+            margin-bottom: 7px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .right .card {
+            padding: var(--space-3);
+        }
+
+        .process {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            padding: var(--space-4);
+            overflow-x: auto;
+        }
+
+        .process h3 {
+            margin: 0 0 12px;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            letter-spacing: 0.5px;
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(9, minmax(170px, 1fr));
+            gap: var(--space-2);
+            min-width: 1600px;
+        }
+
+        .step {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface-soft);
+            padding: 10px;
+            position: relative;
+        }
+
+        .step .num {
+            font-size: 10px;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .step .name {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .step .desc {
+            font-size: 12px;
+            color: var(--text-soft);
+            line-height: 1.35;
+        }
+
+        @media (max-width: 1320px) {
+            .app {
+                grid-template-columns: 88px 1fr;
+            }
+
+            .sidebar {
+                padding: var(--space-3);
+            }
+
+            .brand span,
+            .advisor-mini,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-item {
+                text-align: center;
+                padding: 10px;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(3, minmax(120px, 1fr));
+            }
+
+            .field-grid {
+                grid-template-columns: repeat(2, minmax(160px, 1fr));
+            }
+        }
+
+        @media (max-width: 880px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                grid-template-rows: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .brand span,
+            .advisor-mini,
+            .sidebar-footer {
+                display: block;
+            }
+
+            .nav {
+                grid-template-columns: repeat(3, minmax(110px, 1fr));
+            }
+
+            .topbar {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                justify-content: flex-start;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+
+            .grid-2,
+            .field-grid,
+            .pipeline {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-badge"></div>
+                <span>Aegis Advisor OS</span>
+            </div>
+
+            <div class="advisor-mini">
+                <h2>Jordan Patel</h2>
+                <p>Lead Advisor • NYC Branch</p>
+                <div class="status-row">
+                    <span class="chip success">License Active</span>
+                    <span class="chip warn">2 Compliance Flags</span>
+                    <span class="chip">Tier A Book</span>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <div class="nav-item active"><span>Overview</span></div>
+                <div class="nav-item"><span>Households</span></div>
+                <div class="nav-item"><span>Opportunities</span></div>
+                <div class="nav-item"><span>Workflows</span></div>
+                <div class="nav-item"><span>Calendar</span></div>
+                <div class="nav-item"><span>Meetings</span></div>
+                <div class="nav-item"><span>Timeline</span></div>
+                <div class="nav-item"><span>Compliance</span></div>
+                <div class="nav-item"><span>Reports</span></div>
+            </nav>
+
+            <div class="sidebar-footer">
+                Sync Health: 8/9 systems online<br>
+                Last nightly data refresh: 04:10 AM
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="topbar">
+                <div class="title">
+                    <h1>Advisor Workspace</h1>
+                    <p>High-fidelity advisor page for operations, growth, and compliance orchestration.</p>
+                </div>
+                <div class="actions">
+                    <button class="btn">New Note</button>
+                    <button class="btn">Schedule Review</button>
+                    <button class="btn">Add Opportunity</button>
+                    <button class="btn primary">Start Onboarding</button>
+                </div>
+            </section>
+
+            <section class="metrics">
+                <article class="metric">
+                    <p class="label">AUM</p>
+                    <p class="value">$428.4M</p>
+                </article>
+                <article class="metric">
+                    <p class="label">Households</p>
+                    <p class="value">184</p>
+                </article>
+                <article class="metric">
+                    <p class="label">Open Opps</p>
+                    <p class="value">27</p>
+                </article>
+                <article class="metric">
+                    <p class="label">Tasks Due (7d)</p>
+                    <p class="value">19</p>
+                </article>
+                <article class="metric">
+                    <p class="label">Net Flows (MTD)</p>
+                    <p class="value">$3.1M</p>
+                </article>
+                <article class="metric">
+                    <p class="label">Review Completion</p>
+                    <p class="value">78%</p>
+                </article>
+            </section>
+
+            <section class="workspace">
+                <div class="stack left">
+                    <article class="card">
+                        <h3>Advisor Profile Inputs</h3>
+                        <div class="field-grid">
+                            <div class="field"><label>Advisor Name</label>
+                                <div class="value">Jordan Patel</div>
+                            </div>
+                            <div class="field"><label>Role</label>
+                                <div class="value">Lead Financial Advisor</div>
+                            </div>
+                            <div class="field"><label>CRD</label>
+                                <div class="value">######</div>
+                            </div>
+                            <div class="field"><label>Team Composition</label>
+                                <div class="value">Advisor, CSA, Planner, Ops</div>
+                            </div>
+                            <div class="field"><label>Primary Segment</label>
+                                <div class="value">UHNW Retirees</div>
+                            </div>
+                            <div class="field"><label>Service Tier</label>
+                                <div class="value">Tier A</div>
+                            </div>
+                            <div class="field"><label>Next Review Date</label>
+                                <div class="value">15 May 2026</div>
+                            </div>
+                            <div class="field"><label>Communication Profile</label>
+                                <div class="value">Email + Phone + Secure Msg</div>
+                            </div>
+                            <div class="field"><label>Coverage Region</label>
+                                <div class="value">Tri-State</div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <div class="grid-2">
+                        <article class="card">
+                            <h3>Activity Timeline</h3>
+                            <div class="timeline-item">
+                                <strong>Client Review Completed</strong>
+                                <div class="meta">Feldman Household • 2 hours ago • 3 follow-ups generated</div>
+                            </div>
+                            <div class="timeline-item">
+                                <strong>Money Movement Request</strong>
+                                <div class="meta">Chen Family Trust • Yesterday • Pending approval</div>
+                            </div>
+                            <div class="timeline-item">
+                                <strong>Prospect Discovery Call</strong>
+                                <div class="meta">Westbrook Trust • Yesterday • Opportunity updated</div>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <h3>Workflow Monitor</h3>
+                            <div class="todo-item"><strong>Onboarding Workflow</strong>
+                                <div class="meta">4/9 steps done • due in 3 days</div>
+                            </div>
+                            <div class="todo-item"><strong>Annual Review Pack</strong>
+                                <div class="meta">11 households this month</div>
+                            </div>
+                            <div class="todo-item"><strong>Opportunity Nurture Track</strong>
+                                <div class="meta">7 tasks overdue</div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <article class="card">
+                        <h3>Opportunity Pipeline</h3>
+                        <div class="pipeline">
+                            <div class="stage">
+                                <h4>Prospect</h4>
+                                <div class="deal">Smith Family • $1.2M</div>
+                                <div class="deal">Green Partners • $800K</div>
+                            </div>
+                            <div class="stage">
+                                <h4>Discovery</h4>
+                                <div class="deal">Westbrook Trust • $3.5M</div>
+                            </div>
+                            <div class="stage">
+                                <h4>Proposal</h4>
+                                <div class="deal">Taylor Household • $2.1M</div>
+                                <div class="deal">Lopez LLC • $950K</div>
+                            </div>
+                            <div class="stage">
+                                <h4>Won</h4>
+                                <div class="deal">Rivera Family • $4.6M</div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="stack right">
+                    <article class="card">
+                        <h3>Quick Actions</h3>
+                        <div class="utility-item"><strong>Create Client Task</strong>
+                            <div class="meta">Assign with due date and workflow link</div>
+                        </div>
+                        <div class="utility-item"><strong>Send Review Packet</strong>
+                            <div class="meta">Secure portal delivery + audit trail</div>
+                        </div>
+                        <div class="utility-item"><strong>Open Compliance Ticket</strong>
+                            <div class="meta">Attach timeline notes and docs</div>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h3>Compliance Snapshot</h3>
+                        <div class="utility-item"><strong>Pending Attestations: 2</strong>
+                            <div class="meta">Code of conduct + communication policy</div>
+                        </div>
+                        <div class="utility-item"><strong>Exceptions: 1</strong>
+                            <div class="meta">Unarchived email thread (2 days old)</div>
+                        </div>
+                        <div class="utility-item"><strong>Supervisory Review</strong>
+                            <div class="meta">Scheduled Friday 11:00 AM</div>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h3>Integration Health</h3>
+                        <div class="utility-item"><strong>Custodian Feed</strong>
+                            <div class="meta">Healthy • last sync 8 min ago</div>
+                        </div>
+                        <div class="utility-item"><strong>Calendar + Mail</strong>
+                            <div class="meta">Healthy • bi-directional sync</div>
+                        </div>
+                        <div class="utility-item"><strong>Document Archive</strong>
+                            <div class="meta">Warning • queue delay 14 min</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="process">
+                <h3>Advisor Process Flow</h3>
+                <div class="flow">
+                    <article class="step">
+                        <div class="num">Step 01</div>
+                        <div class="name">Lead Intake</div>
+                        <div class="desc">Create prospect, source tags, owner assignment.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 02</div>
+                        <div class="name">Qualification</div>
+                        <div class="desc">Suitability checks, service tiering, compliance pre-screen.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 03</div>
+                        <div class="name">Discovery</div>
+                        <div class="desc">Meeting prep, fact-find, timeline notes and household map.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 04</div>
+                        <div class="name">Proposal</div>
+                        <div class="desc">Plan artifacts, internal approvals, recommended next-best action.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 05</div>
+                        <div class="name">Onboarding</div>
+                        <div class="desc">Account opening, document checklist, money movement orchestration.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 06</div>
+                        <div class="name">Implementation</div>
+                        <div class="desc">Portfolio setup, custodian confirms, client communication.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 07</div>
+                        <div class="name">Ongoing Service</div>
+                        <div class="desc">Scheduled reviews, alerts, proactive planning cadence.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 08</div>
+                        <div class="name">Expansion</div>
+                        <div class="desc">COI/referrals, cross-sell opportunities, retention intelligence.</div>
+                    </article>
+                    <article class="step">
+                        <div class="num">Step 09</div>
+                        <div class="name">Compliance Close</div>
+                        <div class="desc">Archive communications, finalize audit trail, supervisory signoff.</div>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

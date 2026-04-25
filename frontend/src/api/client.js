@@ -167,6 +167,17 @@ export const downloadRiskPdf = async (clientId) => {
 export const sendInvite = (clientEmail, clientName) =>
   api.post('/invites', { client_email: clientEmail, client_name: clientName }).then(r => r.data)
 
+// Households (FEAT-HOUSEHOLD)
+export const getHouseholds = () => api.get('/households').then(r => r.data)
+export const createHousehold = (data) => api.post('/households', data).then(r => r.data)
+export const getHousehold = (id) => api.get(`/households/${id}`).then(r => r.data)
+export const updateHousehold = (id, data) => api.put(`/households/${id}`, data).then(r => r.data)
+export const deleteHousehold = (id) => api.delete(`/households/${id}`)
+export const addHouseholdMember = (id, clientId) => api.post(`/households/${id}/members`, { client_id: clientId }).then(r => r.data)
+export const removeHouseholdMember = (id, clientId) => api.delete(`/households/${id}/members/${clientId}`)
+export const toggleMemberPrivacy = (id, clientId, showIndividualValues) =>
+  api.patch(`/households/${id}/members/${clientId}/privacy`, { show_individual_values: showIndividualValues }).then(r => r.data)
+
 export const fmt = {
   inr: (v) => {
     if (!v && v !== 0) return '—'

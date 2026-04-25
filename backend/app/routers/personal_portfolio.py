@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import date
 
 from ..database import get_db
-from ..models import Portfolio, Holding, Trade
+from ..models import Portfolio, Holding, Trade, Client, Household, HouseholdMember
 from ..personal_models import PersonalUser
 from ..auth import get_current_personal_user
 
@@ -174,3 +174,73 @@ def get_personal_portfolio_history(
     for point in points:
         seen[point["date"]] = point["value"]
     return [{"date": d, "value": v} for d, v in sorted(seen.items())]
+
+
+@router.get("/household")
+def get_personal_household(
+    current_user: PersonalUser = Depends(get_current_personal_user),
+    db: Session = Depends(get_db),
+):
+    """Return household summary for the personal user's linked client (if any)."""
+    client = db.query(Client).filter(
+        Client.personal_user_id == current_user.id,
+        Client.is_archived.is_(False),
+    ).first()
+
+    if not client or not client.household_id:
+        return {"household": None}
+
+    household = db.query(Household).filter(Household.id == client.household_id).first()
+    if not household:
+        return {"household": None}
+
+    members_out = []
+    total_aum = 0.0
+    for m in household.members:
+        v = (m.client.portfolio.total_value or 0.0) if m.client.portfolio else 0.0
+        total_aum += v
+        members_out.append({
+            "client_id": m.client.id,
+            "name": m.client.name,
+            "is_me": m.client.id == client.id,
+            "portfolio_value": v if m.show_individual_values else None,
+            "show_individual_values": m.show_individual_values,
+        })
+
+    return {
+        "household": {
+            "id": household.id,
+            "name": household.name,
+            "total_aum": total_aum,
+            "members": members_out,
+        }
+    }
+
+
+@router.patch("/household/privacy")
+def toggle_own_privacy(
+    body: dict,
+    current_user: PersonalUser = Depends(get_current_personal_user),
+    db: Session = Depends(get_db),
+):
+    """Let a personal user toggle their own value visibility within the household."""
+    client = db.query(Client).filter(
+        Client.personal_user_id == current_user.id,
+        Client.is_archived.is_(False),
+    ).first()
+    if not client or not client.household_id:
+        raise HTTPException(status_code=404, detail="Not in a household")
+
+    member = db.query(HouseholdMember).filter(
+        HouseholdMember.client_id == client.id,
+    ).first()
+    if not member:
+        raise HTTPException(status_code=404, detail="Household member record not found")
+
+    show = body.get("show_individual_values")
+    if show is None:
+        raise HTTPException(status_code=400, detail="show_individual_values required")
+
+    member.show_individual_values = bool(show)
+    db.commit()
+    return {"ok": True, "show_individual_values": member.show_individual_values}

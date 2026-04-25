@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import date, timedelta, datetime
 
 from ..database import get_db
-from ..models import Client, Portfolio, Holding, Goal, LifeEvent, AuditLog, ClientInteraction, Trade
+from ..models import Client, Portfolio, Holding, Goal, LifeEvent, AuditLog, ClientInteraction, Trade, Household
 from ..schemas import ClientListItem, Client360, HoldingOut, GoalOut, UrgencyFlag, GoalProjection, ClientCreate, ClientUpdate, PortfolioCreate, GoalCreate, GoalUpdate, LifeEventOut, LifeEventCreate, LifeEventUpdate, derive_risk_category
 from ..urgency import compute_urgency, urgency_score
 from ..simulation import monte_carlo_goal_probability, find_required_sip
@@ -45,6 +45,13 @@ def list_clients(
         clients = db.query(Client).filter(Client.advisor_id == current_advisor.id, Client.is_archived.is_(False)).all()
     else:
         clients = db.query(Client).filter(Client.is_archived.is_(False)).all()
+    household_map = {}
+    if clients:
+        hh_ids = list({c.household_id for c in clients if c.household_id})
+        if hh_ids:
+            hhs = db.query(Household).filter(Household.id.in_(hh_ids)).all()
+            household_map = {h.id: h.name for h in hhs}
+
     result = []
     for c in clients:
         portfolio = c.portfolio
@@ -66,6 +73,8 @@ def list_clients(
             needs_advisor=c.advisor_id is None,
             lifecycle_stage=c.lifecycle_stage or "lead",
             kyc_status=c.kyc_status or "not_started",
+            household_id=c.household_id,
+            household_name=household_map.get(c.household_id) if c.household_id else None,
         ))
     result.sort(key=lambda x: x.urgency_score, reverse=True)
     return result

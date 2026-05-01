@@ -173,6 +173,9 @@ export const downloadRiskPdf = async (clientId) => {
 export const sendInvite = (clientEmail, clientName) =>
   api.post('/invites', { client_email: clientEmail, client_name: clientName }).then(r => r.data)
 
+// Workflow pipeline
+export const getAdvisorPipeline = () => api.get('/trades/advisor/pipeline').then(r => r.data)
+
 // Households (FEAT-HOUSEHOLD)
 export const getHouseholds = () => api.get('/households').then(r => r.data)
 export const createHousehold = (data) => api.post('/households', data).then(r => r.data)

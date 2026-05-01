@@ -360,6 +360,36 @@ def reject_trade(
     return trade
 
 
+@router.get("/advisor/pipeline")
+def advisor_pipeline(
+    db: Session = Depends(get_db),
+    current_advisor=Depends(get_current_advisor_user),
+):
+    """Aggregate trade counts by workflow stage for the advisor's entire book."""
+    stage_map = {
+        "Intake": "draft",
+        "Review": "under_review",
+        "Proposed": "proposed",
+        "Awaiting": "pending_approval",
+        "Compliance": "compliance_check",
+        "Done": "approved",
+    }
+    client_ids = db.execute(
+        text("SELECT id FROM clients WHERE advisor_id = :aid"),
+        {"aid": current_advisor.id},
+    ).fetchall()
+    cids = [r[0] for r in client_ids]
+    if not cids:
+        return {stage: 0 for stage in stage_map}
+
+    rows = db.execute(
+        text("SELECT status, COUNT(*) FROM trades WHERE client_id = ANY(:cids) GROUP BY status"),
+        {"cids": cids},
+    ).fetchall()
+    status_counts = {r[0]: r[1] for r in rows}
+    return {stage: status_counts.get(db_status, 0) for stage, db_status in stage_map.items()}
+
+
 @router.get("/clients/{client_id}/trades", response_model=List[schemas.TradeOut])
 def list_advisor_trades(
     client_id: int,

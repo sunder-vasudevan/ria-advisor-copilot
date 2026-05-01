@@ -2,7 +2,7 @@ import ARiALogo from '../components/ARiALogo'
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, TrendingUp, ChevronRight, ChevronDown, RefreshCw, Bell, BellRing, X, CheckCircle, UserPlus, LayoutList, Layers, HelpCircle, LogOut, Wifi, Zap, UserMinus, Receipt, Mail, ShieldCheck, Users } from 'lucide-react'
-import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt, sendInvite, getHouseholds } from '../api/client'
+import { getClients, getBriefing, getClient, getAdvisorNotifications, markNotificationRead, delinkClient, fmt, sendInvite, getHouseholds, getAdvisorPipeline } from '../api/client'
 import { getAdvisorSession, advisorLogout } from '../auth'
 import { KycStatusBadge } from '../components/KycPanel'
 
@@ -245,6 +245,7 @@ export default function ClientList() {
   const [showBriefing, setShowBriefing] = useState(false)
   const [segmentFilter, setSegmentFilter] = useState('All')
   const [households, setHouseholds] = useState([])
+  const [pipeline, setPipeline] = useState({})
   const [delinkConfirm, setDelinkConfirm] = useState(null)
   const [inviteModal, setInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -281,6 +282,7 @@ export default function ClientList() {
       .catch(() => setError('Failed to load clients'))
       .finally(() => setLoading(false))
     getHouseholds().then(setHouseholds).catch(() => {})
+    getAdvisorPipeline().then(setPipeline).catch(() => {})
   }, [])
 
   const loadBriefing = () => {
@@ -304,11 +306,7 @@ export default function ClientList() {
   const pendingTradesCount = clients.reduce((sum, c) => sum + (c.pending_trades_count || 0), 0)
 
   const workflowStages = ['Intake', 'Review', 'Proposed', 'Awaiting', 'Compliance', 'Done']
-  const workflowCounts = workflowStages.map((stage, i) => {
-    // derive from trade statuses across all clients
-    const stageMap = { 'Intake': 'draft', 'Review': 'under_review', 'Proposed': 'proposed', 'Awaiting': 'pending_approval', 'Compliance': 'compliance_check', 'Done': 'approved' }
-    return clients.reduce((sum, c) => sum + ((c.trades || []).filter(t => t.status === stageMap[stage]).length), 0)
-  })
+  const workflowCounts = workflowStages.map(stage => pipeline[stage] || 0)
 
   const handleDelink = async (id) => {
     try {

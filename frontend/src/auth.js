@@ -1,6 +1,7 @@
 import { getApiClient } from './api/client'
 
 const ADVISOR_KEY = 'aria_advisor_session'
+const ADVISOR_TOKEN_KEY = 'aria_advisor_token'
 const CLIENT_KEY  = 'aria_client_session'
 
 // ─── Advisor ─────────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ export const advisorLogin = async (username, password) => {
       advisor_id: a.id,
     }
     localStorage.setItem(ADVISOR_KEY, JSON.stringify(session))
+    localStorage.setItem(ADVISOR_TOKEN_KEY, data.access_token)
     return { success: true }
   } catch (err) {
     if (err?.response?.status === 401) return { success: false, error: 'Invalid username or password.' }
@@ -35,7 +37,10 @@ export const advisorLogout = async () => {
     await api.post('/advisor/logout')
   } catch {}
   localStorage.removeItem(ADVISOR_KEY)
+  localStorage.removeItem(ADVISOR_TOKEN_KEY)
 }
+
+export const getAdvisorToken = () => localStorage.getItem(ADVISOR_TOKEN_KEY)
 
 export const getAdvisorSession = () => {
   try { return JSON.parse(localStorage.getItem(ADVISOR_KEY)) } catch { return null }

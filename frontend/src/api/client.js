@@ -4,6 +4,12 @@ const BASE = import.meta.env.VITE_API_URL || '/api'
 
 const api = axios.create({ baseURL: BASE, withCredentials: true })
 
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('aria_advisor_token')
+  if (token) config.headers['Authorization'] = `Bearer ${token}`
+  return config
+})
+
 export const getApiClient = () => api
 
 export const getClients = () => api.get('/clients').then(r => r.data)

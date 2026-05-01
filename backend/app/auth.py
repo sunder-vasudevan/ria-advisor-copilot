@@ -70,13 +70,15 @@ def get_current_personal_user(
 
 
 def get_current_advisor_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     aria_advisor_token: Optional[str] = Cookie(default=None),
     db: Session = Depends(get_db),
 ):
     from .models import Advisor
-    if not aria_advisor_token:
+    token = aria_advisor_token or (credentials.credentials if credentials else None)
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    payload = decode_token(aria_advisor_token)
+    payload = decode_token(token)
     if payload is None or payload.get("sub") != "advisor":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired advisor token")
     advisor_id: int = payload.get("advisor_id")

@@ -16,6 +16,33 @@ from .seed_holdings import build_default_holdings, DEFAULT_CASH_BALANCE
 load_dotenv()
 
 
+def _assert_env():
+    url = os.getenv("DATABASE_URL", "sqlite:///./ria_advisor.db")
+    if "sqlite" in url or not url:
+        print("[STARTUP WARNING] DATABASE_URL not set — using SQLite fallback. No production data visible.", flush=True)
+    else:
+        print(f"[STARTUP] DATABASE_URL: {url[:40]}...", flush=True)
+
+
+REQUIRED_COLUMNS = {
+    "clients": ["personal_user_id", "source", "is_archived", "lifecycle_stage", "kyc_status"],
+    "portfolios": ["personal_user_id", "cash_balance"],
+    "advisors": ["is_active", "referral_code"],
+}
+
+
+def _validate_schema():
+    """Assert required columns exist before seeding. Raises on mismatch — fail fast."""
+    with engine.connect() as conn:
+        for table, cols in REQUIRED_COLUMNS.items():
+            for col in cols:
+                row = conn.execute(text(
+                    "SELECT 1 FROM information_schema.columns WHERE table_name=:t AND column_name=:c"
+                ), {"t": table, "c": col}).fetchone()
+                if not row:
+                    raise RuntimeError(f"[SCHEMA FAIL] {table}.{col} missing — run migrations before seeding.")
+    print("[SCHEMA] All required columns present.", flush=True)
+
 
 def _run_personal_migrations():
     """Add personal_user_id FK columns to existing tables (nullable, idempotent)."""
@@ -30,15 +57,15 @@ def _run_personal_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass  # Column already exists
+            except Exception as e:
+                print(f"[MIGRATION] {table}.{col} already exists or failed: {e}", flush=True)
         # Make client_id nullable on all tables (was NOT NULL in original schema)
         for table in ("portfolios", "goals", "life_events"):
             try:
                 conn.execute(text(f"ALTER TABLE {table} ALTER COLUMN client_id DROP NOT NULL"))
                 conn.commit()
-            except Exception:
-                pass  # Already nullable or column doesn't exist
+            except Exception as e:
+                print(f"[MIGRATION] {table}.client_id nullable: {e}", flush=True)
 
 
 def _run_advisor_migrations():
@@ -48,8 +75,8 @@ def _run_advisor_migrations():
         try:
             conn.execute(text("ALTER TABLE clients ADD COLUMN advisor_id INTEGER REFERENCES advisors(id)"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] clients.advisor_id already exists or failed: {e}", flush=True)
 
 
 def _seed_advisors():
@@ -175,7 +202,7 @@ def _seed_personal_users_to_advisor():
 
             conn.commit()
         except Exception as e:
-            pass  # Silently fail if migration syntax not supported
+            print(f"[SEED WARNING] _seed_personal_users_to_advisor: {e}", flush=True)
 
 
 def _seed_client_advisor_assignments():
@@ -188,8 +215,8 @@ def _seed_client_advisor_assignments():
                 WHERE advisor_id IS NULL
             """))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[SEED WARNING] _seed_client_advisor_assignments: {e}", flush=True)
 
 
 def _migrate_personal_user_scaffolds():
@@ -248,8 +275,8 @@ def _migrate_personal_user_scaffolds():
                             {"cid": client_id, "puid": user_id}
                         )
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[SEED WARNING] _migrate_personal_user_scaffolds: {e}", flush=True)
 
 
 def _seed_personal_user_assignments():
@@ -307,8 +334,8 @@ def _seed_personal_user_assignments():
                             {"cid": client_id, "puid": user_id}
                         )
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[SEED WARNING] _seed_personal_user_assignments: {e}", flush=True)
 
 
 def _run_migrations():
@@ -327,16 +354,16 @@ def _run_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE clients ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass  # Column already exists
+            except Exception as e:
+                print(f"[MIGRATION] clients.{col} already exists or failed: {e}", flush=True)
 
     # FEAT-SOURCE: client source tracking
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE clients ADD COLUMN source VARCHAR DEFAULT 'advisor'"))
             conn.commit()
-        except Exception:
-            pass  # Column already exists
+        except Exception as e:
+            print(f"[MIGRATION] clients.source already exists or failed: {e}", flush=True)
 
     # FEAT-E: NAV fields on holdings
     holding_columns = [
@@ -348,16 +375,16 @@ def _run_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE holdings ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass  # Column already exists
+            except Exception as e:
+                print(f"[MIGRATION] holdings.{col} already exists or failed: {e}", flush=True)
 
     # FEAT-TRADES: tx_hash field for crypto trades
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE trades ADD COLUMN tx_hash VARCHAR"))
             conn.commit()
-        except Exception:
-            pass  # Column already exists or table being created
+        except Exception as e:
+            print(f"[MIGRATION] trades.tx_hash already exists or failed: {e}", flush=True)
 
     # FEAT-ASSET-SDK: extend holdings + new asset_accounts table
     asset_holding_columns = [
@@ -370,8 +397,8 @@ def _run_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE holdings ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass  # Already exists
+            except Exception as e:
+                print(f"[MIGRATION] holdings.{col} already exists or failed: {e}", flush=True)
 
     # make fund_name / fund_category / fund_house nullable (Postgres only — safe to ignore on SQLite)
     with engine.connect() as conn:
@@ -379,32 +406,32 @@ def _run_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE holdings ALTER COLUMN {col} DROP NOT NULL"))
                 conn.commit()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[MIGRATION] holdings.{col} nullable: {e}", flush=True)
 
     # FEAT-ARCHIVE: is_archived on clients
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE clients ADD COLUMN is_archived BOOLEAN DEFAULT FALSE"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] clients.is_archived already exists or failed: {e}", flush=True)
 
     # FEAT-CLIENT-TRADE: cash_balance on portfolios
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE portfolios ADD COLUMN cash_balance FLOAT DEFAULT 0.0"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] portfolios.cash_balance already exists or failed: {e}", flush=True)
 
     # FEAT-2004: lifecycle_stage on clients
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE clients ADD COLUMN lifecycle_stage VARCHAR DEFAULT 'lead'"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] clients.lifecycle_stage already exists or failed: {e}", flush=True)
 
     # FEAT-2007: cost basis + execution price
     with engine.connect() as conn:
@@ -412,8 +439,8 @@ def _run_migrations():
             conn.execute(text("ALTER TABLE holdings ADD COLUMN IF NOT EXISTS avg_purchase_price FLOAT"))
             conn.execute(text("ALTER TABLE trades ADD COLUMN IF NOT EXISTS execution_price FLOAT"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] avg_purchase_price/execution_price failed: {e}", flush=True)
 
 
 def _run_household_migrations():
@@ -422,13 +449,13 @@ def _run_household_migrations():
         try:
             conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS household_id INTEGER REFERENCES households(id) ON DELETE SET NULL"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] clients.household_id already exists or failed: {e}", flush=True)
         try:
             conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_household_members ON household_members(household_id, client_id)"))
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MIGRATION] uq_household_members index already exists or failed: {e}", flush=True)
 
 
 def _run_kyc_migrations():
@@ -447,8 +474,8 @@ def _run_kyc_migrations():
             try:
                 conn.execute(text(f"ALTER TABLE clients ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[MIGRATION] clients.{col} already exists or failed: {e}", flush=True)
 
     with engine.connect() as conn:
         try:
@@ -572,19 +599,21 @@ def _patch_db_enums():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)  # creates all new tables automatically
+    _assert_env()
     _patch_db_enums()
     _run_migrations()
     _run_prospect_task_migrations()
     _run_personal_migrations()
     _run_advisor_migrations()
+    _run_kyc_migrations()               # FEAT-KYC: add KYC fields + client_documents table
+    _run_household_migrations()         # FEAT-HOUSEHOLD: household_id on clients + unique index
+    _validate_schema()
     _seed_advisors()
     _seed_personal_users_to_advisor()      # link test personal users (Ruben, Kate) to Rahul
     _seed_client_advisor_assignments()
     _migrate_personal_user_scaffolds()  # one-time: link existing personal users to advisors
     _seed_personal_user_assignments()   # ongoing: ensure all personal users have basic scaffold
     _backfill_default_holdings()        # backfill any portfolio missing the full 21-instrument set
-    _run_kyc_migrations()               # FEAT-KYC: add KYC fields + client_documents table
-    _run_household_migrations()         # FEAT-HOUSEHOLD: household_id on clients + unique index
     yield
 
 

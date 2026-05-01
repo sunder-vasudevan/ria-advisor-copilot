@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from ..database import get_db
 from ..auth import get_current_advisor_user
@@ -117,7 +117,9 @@ def list_households(
     current_advisor=Depends(get_current_advisor_user),
     db: Session = Depends(get_db),
 ):
-    households = db.query(Household).filter(Household.advisor_id == current_advisor.id).all()
+    households = db.query(Household).options(
+        selectinload(Household.members).joinedload(HouseholdMember.client).joinedload(Client.portfolio)
+    ).filter(Household.advisor_id == current_advisor.id).all()
     result = []
     for h in households:
         total_aum = sum(
@@ -173,7 +175,20 @@ def get_household(
     current_advisor=Depends(get_current_advisor_user),
     db: Session = Depends(get_db),
 ):
-    h = _get_household_or_404(household_id, current_advisor.id, db)
+    h = db.query(Household).options(
+        selectinload(Household.members)
+            .joinedload(HouseholdMember.client)
+            .joinedload(Client.portfolio)
+            .joinedload(Portfolio.holdings),
+        selectinload(Household.members)
+            .joinedload(HouseholdMember.client)
+            .selectinload(Client.goals),
+    ).filter(
+        Household.id == household_id,
+        Household.advisor_id == current_advisor.id,
+    ).first()
+    if not h:
+        raise HTTPException(status_code=404, detail="Household not found")
     members_out = [_member_out(m) for m in h.members]
     aggregated = _aggregate(h.members)
 

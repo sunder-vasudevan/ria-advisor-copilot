@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Header, Response
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload, joinedload
 from typing import List, Optional
 from datetime import date, timedelta, datetime
 
@@ -41,10 +41,16 @@ def list_clients(
 ):
     # Superadmin sees all clients; advisor sees only their own
     # Archived clients are always excluded from the list view
+    eager = [
+        joinedload(Client.portfolio).joinedload(Portfolio.holdings),
+        selectinload(Client.goals),
+        selectinload(Client.life_events),
+        selectinload(Client.interactions),
+    ]
     if current_advisor.role != "superadmin":
-        clients = db.query(Client).filter(Client.advisor_id == current_advisor.id, Client.is_archived.is_(False)).all()
+        clients = db.query(Client).options(*eager).filter(Client.advisor_id == current_advisor.id, Client.is_archived.is_(False)).all()
     else:
-        clients = db.query(Client).filter(Client.is_archived.is_(False)).all()
+        clients = db.query(Client).options(*eager).filter(Client.is_archived.is_(False)).all()
     household_map = {}
     if clients:
         hh_ids = list({c.household_id for c in clients if c.household_id})
@@ -86,7 +92,13 @@ def get_client(
     db: Session = Depends(get_db),
     current_advisor=Depends(get_current_advisor_user),
 ):
-    client = db.query(Client).filter(Client.id == client_id).first()
+    client = db.query(Client).options(
+        joinedload(Client.portfolio).joinedload(Portfolio.holdings),
+        selectinload(Client.goals),
+        selectinload(Client.life_events),
+        selectinload(Client.interactions),
+        selectinload(Client.documents),
+    ).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     _check_client_access(client, current_advisor.id, current_advisor.role)
@@ -607,6 +619,7 @@ def update_lifecycle(
     client_id: int,
     payload: dict,
     db: Session = Depends(get_db),
+    current_advisor=Depends(get_current_advisor_user),
 ):
     """Update a client's lifecycle stage (FEAT-2004)."""
     stage = payload.get("stage")
@@ -615,6 +628,7 @@ def update_lifecycle(
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+    _check_client_access(client, current_advisor.id, current_advisor.role)
     if stage == "onboarded" and client.advisor_id and client.kyc_status != "verified":
         raise HTTPException(
             status_code=400,

@@ -44,7 +44,7 @@ def _resolve_advisor_id(referral_code: str, db: Session) -> Optional[int]:
     if not referral_code:
         return None
     row = db.execute(
-        text("SELECT id FROM advisors WHERE referral_code = :code AND is_active = TRUE LIMIT 1"),
+        text("SELECT id FROM advisors WHERE referral_code = :code AND is_active IS TRUE LIMIT 1"),
         {"code": referral_code.upper()},
     ).fetchone()
     return row[0] if row else None

@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm ci && npm audit --audit-level=high",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
